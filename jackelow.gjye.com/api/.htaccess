@@ -1,0 +1,7 @@
+# Enable Rewriting
+RewriteEngine on
+
+# Rewrite user URLs
+#   Input:  event/QUERY/
+#   Output: event.php?q=QUERY
+RewriteRule ^event/(.*)$ event.php?q=$1
