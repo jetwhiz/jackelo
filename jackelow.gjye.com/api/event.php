@@ -21,6 +21,10 @@
 	header('Content-Type: application/javascript');
 	
 	
+	// Pull in toolkit for all instances 
+	require $_SERVER['DOCUMENT_ROOT'] . "/toolkit.php";
+	
+	
 	// Break up URI into tokens on "/" symbol 
 	$queryArray = array_slice(array_filter(explode( "/", strtolower($_SERVER['REQUEST_URI']) )), 0);
 	

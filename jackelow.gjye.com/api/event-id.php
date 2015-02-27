@@ -36,51 +36,41 @@
 					WHERE `id` = ?
 			";
 			$binds = ["i", $this->REST_vars["eventID"]];
-			$res[1] = $this->DBs->select($select, $binds);
+			$res = $this->DBs->select($select, $binds);
 			
 			
 			$JSON = [];
-			while ($row[1] = $res[1]->fetch_assoc()) {
-				$obj[1] = [];
-				$obj[1]["name"] = $row[1]['name'];
-				$obj[1]["datetimeStart"] = $row[1]['datetimeStart'];
-				$obj[1]["datetimeEnd"] = $row[1]['datetimeEnd'];
-				$obj[1]["description"] = $row[1]['description'];
-				$obj[1]["ownerID"] = $row[1]['ownerID'];
-				$obj[1]["eventTypeID"] = $row[1]['eventTypeID'];
+			while ($row = $res->fetch_assoc()) {
+				$obj = [];
+				$obj["name"] = $row['name'];
+				$obj["datetimeStart"] = $row['datetimeStart'];
+				$obj["datetimeEnd"] = $row['datetimeEnd'];
+				$obj["description"] = $row['description'];
+				$obj["ownerID"] = $row['ownerID'];
+				$obj["eventTypeID"] = $row['eventTypeID'];
 				
 				
 				// Get event destinations //
-				$select = "
-						SELECT `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`
-						FROM `EventDestinations` 
-						WHERE `eventID` = ?
-				";
-				$binds = ["i", $this->REST_vars["eventID"]];
-				$res[2] = $this->DBs->select($select, $binds);
-				
-				$obj[2] = [];
-				while ($row[2] = $res[2]->fetch_assoc()) {
-					
-					if ( $this->REST_vars["simple"] == 1 ) {
-						if ( in_array($row[2]['countryID'], $obj[2]) ) {
-							continue;
-						}
-						
-						$obj[2][] = $row[2]['countryID'];
-					}
-					else {
-						$obj[3] = [];
-						$obj[3]["address"] = $row[2]['address'];
-						$obj[3]["datetimeStart"] = $row[2]['datetimeStart'];
-						$obj[3]["datetimeEnd"] = $row[2]['datetimeEnd'];
-						$obj[3]["cityID"] = $row[2]['cityID'];
-						$obj[3]["countryID"] = $row[2]['countryID'];
-						
-						$obj[2][] = $obj[3];
-					}
+				if ( $this->REST_vars["simple"] == 1 ) {
+					$select = "
+							SELECT `countryID`
+							FROM `EventDestinations` 
+							WHERE `eventID` = ?
+					";
 				}
-				$obj[1]["destinations"] = $obj[2];
+				else {
+					$select = "
+							SELECT `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`
+							FROM `EventDestinations` 
+							WHERE `eventID` = ?
+					";
+				}
+				
+				$binds = ["i", $this->REST_vars["eventID"]];
+				
+				$obj["destinations"] = Toolkit::build_json(
+											$this->DBs->select($select, $binds)
+										);
 				// * // 
 				
 				
@@ -91,16 +81,13 @@
 						WHERE `eventID` = ?
 				";
 				$binds = ["i", $this->REST_vars["eventID"]];
-				$res[3] = $this->DBs->select($select, $binds);
 				
-				$obj[4] = [];
-				while ($row[3] = $res[3]->fetch_assoc()) {
-					$obj[4][] = $row[3]['categoryID'];
-				}
-				$obj[1]["categories"] = $obj[4];
+				$obj["categories"] = Toolkit::build_json(
+											$this->DBs->select($select, $binds)
+										);
 				// * // 
 				
-				$JSON[] = $obj[1];
+				$JSON[] = $obj;
 			}
 			// * // 
 			
