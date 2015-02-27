@@ -12,6 +12,38 @@
 		// * //
 		
 		
+		// Start Transaction (RW) //
+		public function startTransaction() {
+			$hnd = $this->connect("rw");
+			if ( !$hnd ) { return false; }
+			
+			$hnd->autocommit(false);
+		}
+		// * //
+		
+		
+		// End Transaction (RW) //
+		public function endTransaction() {
+			$hnd = $this->connect("rw");
+			if ( !$hnd ) { return false; }
+			
+			$hnd->commit();
+			$hnd->autocommit(true);
+		}
+		// * //
+		
+		
+		// Abort Transaction (RW) //
+		public function abortTransaction() {
+			$hnd = $this->connect("rw");
+			if ( !$hnd ) { return false; }
+			
+			$hnd->rollback();
+			$hnd->autocommit(true);
+		}
+		// * //
+		
+		
 		// Are we connected (with given permission level) //
 		private function isConnected($access) {
 			return ( !is_null($this->handle[$access]) );
@@ -84,6 +116,64 @@
 			}
 			
 			return $a_params;
+		}
+		// * //
+		
+		
+		// Wrapper for insert_id //
+		public function insertID() {
+			// RW permissions needed for insert_id 
+			$hnd = $this->connect("rw");
+			if ( !$hnd ) { return 0; }
+			
+			return $hnd->insert_id;
+		}
+		// * // 
+		
+		
+		// Wrapper for INSERT statements (prepared-bound) //
+		public function insert($INSERT_STR, $BINDS) {
+			
+			// RW permissions needed for INSERT statement 
+			$hnd = $this->connect("rw");
+			if ( !$hnd ) { return 0; }
+			
+			// Prepare statement 
+			if (!($stmt = $hnd->prepare($INSERT_STR))) {
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Prepare failed: (" . $hnd->errno . ") " . $hnd->error);
+				}
+				
+				return 0;
+			}
+			
+			// Bind parameters to prepared statement (if available) 
+			if ( count($BINDS) ) {
+				if (!call_user_func_array(array($stmt, 'bind_param'), $this->convertToRefs($BINDS))) {
+					if ($GLOBALS["DEBUG"]) {
+						print_r("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+					}
+					
+					return 0;
+				}
+			}
+			
+			// Execute prepared statement 
+			if (!$stmt->execute()) {
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Execute failed: (" . $stmt->errno . ") " . $stmt->error);
+				}
+				
+				return 0;
+			}
+			
+			// Returns number of inserted rows 
+			$affected = $stmt->affected_rows;
+			
+			// Clean up after ourselves 
+			$stmt->close();
+			
+			return $affected;
 		}
 		// * //
 		

@@ -74,6 +74,19 @@
 	////
 	
 	
+	// Prepare current user 
+	require $_SERVER['DOCUMENT_ROOT'] . "/user.php";
+	$User = new User($DBs, 1); // fixed to userID=1 for now (later, pass sessionID) 
+	if ( is_null($User) ) {
+		if ($GLOBALS["DEBUG"]) {
+			print_r("USR ERR");
+		}
+		
+		throw new Exception('User Error: Could not create User object.');
+	}
+	////
+	
+	
 	// Display options for our API 
 	$REST_strs_opts = [ "sort", "category", "group", "country", "show" ];
 	
@@ -98,7 +111,7 @@
 	if ( count($queryArray) && is_numeric($queryArray[0]) ) {
 		
 		// Retrieve eventID (it will always be the first token) 
-		$REST_vars{eventID} = intval(array_shift($queryArray));
+		$REST_vars["eventID"] = intval(array_shift($queryArray), 10);
 		if ($GLOBALS["DEBUG"]) {
 			print_r("EVENT ID: " . $REST_vars["eventID"] . "\n");
 		}
@@ -111,7 +124,7 @@
 			
 			$REST_vars["simple"] = 0;
 			require "event-id.php";
-			$handler = new EventID($REST_vars, $DBs);
+			$handler = new EventID($REST_vars, $DBs, $User);
 		}
 		
 		// Simple:  Only give basic info about given eventID 
@@ -123,7 +136,7 @@
 			array_shift($queryArray);
 			$REST_vars["simple"] = 1;
 			require "event-id.php";
-			$handler = new EventID($REST_vars, $DBs);
+			$handler = new EventID($REST_vars, $DBs, $User);
 		}
 		
 		// Attendants: Provide array of attendants (as userID) to given eventID 
@@ -134,7 +147,7 @@
 			
 			array_shift($queryArray);
 			require "event-attendants.php";
-			$handler = new EventAttendants($REST_vars, $DBs);
+			$handler = new EventAttendants($REST_vars, $DBs, $User);
 		}
 		
 		// Comments: Provide comment(s) to given eventID or commentID (if supplied) 
@@ -143,7 +156,7 @@
 			// Associated comment ID given 
 			if ( is_numeric($queryArray[1]) ) {
 				array_shift($queryArray);
-				$REST_vars["commentID"] = intval(array_shift($queryArray));
+				$REST_vars["commentID"] = intval(array_shift($queryArray), 10);
 				
 				if ($GLOBALS["DEBUG"]) {
 					print_r("COMMENT ID: " . $REST_vars["commentID"] . " (GET-DELETE)\n");
@@ -158,7 +171,7 @@
 			}
 			
 			require "event-comments.php";
-			$handler = new EventComments($REST_vars, $DBs);
+			$handler = new EventComments($REST_vars, $DBs, $User);
 		}
 		
 		// Invalid token -- skip it 
@@ -209,7 +222,7 @@
 		}
 		
 		require "event-all.php";
-		$handler = new EventAll($REST_vars, $DBs);
+		$handler = new EventAll($REST_vars, $DBs, $User);
 	}
 	
 	if ($GLOBALS["DEBUG"]) {

@@ -2,10 +2,11 @@
 	class EventAll {
 		private $REST_vars;
 		private $DBs;
+		private $User;
 		
 		
 		// CONSTRUCTOR //
-		function __construct( $REST_vars, $dbs ) {
+		function __construct( $REST_vars, &$dbs, &$user ) {
 			if ( is_null($dbs) ) {
 				if ($GLOBALS["DEBUG"]) {
 					print_r("ERR");
@@ -15,7 +16,8 @@
 			}
 			
 			$this->REST_vars = $REST_vars;
-			$this->DBs = $dbs;
+			$this->DBs = &$dbs;
+			$this->User = &$user;
 			
 			switch ( $REST_vars["method"] ) {
 				case "get": 
@@ -34,7 +36,7 @@
 		// * // 
 		
 		
-		// GET //
+		// GET EVENTS //
 		private function get() {
 			
 			// Get main event data 
