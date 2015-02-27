@@ -3,21 +3,23 @@
 		private $handle;
 		
 		
-		// Set up data structure 
+		// Set up data structure //
 		function __construct() {
 			$this->handle = [ "ro" => null, "rw" => null ];
 			
 			return $this;
 		}
+		// * //
 		
 		
-		// Are we connected (with given permission level) 
+		// Are we connected (with given permission level) //
 		private function isConnected($access) {
 			return ( !is_null($this->handle[$access]) );
 		}
+		// * //
 		
 		
-		// Connect with given permission level (or return handle if already connected) 
+		// Connect with given permission level (or return handle if already connected) //
 		private function connect($access) {
 			
 			// Check if connection already set up 
@@ -58,12 +60,22 @@
 				throw new Exception('Database: Could not establish connection!');
 			}
 			
+			// Set charset to uft8
+			if (!$this->handle{$access}->set_charset("utf8")) {
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Failed to change MySQL charset: (" . $this->handle[$access]->error . ") ");
+				}
+				
+				throw new Exception('Database: Could not change charset!');
+			}
+			
 			// Return handle 
 			return $this->handle[$access];
 		}
+		// * //
 		
 		
-		// PHP's MySQLi sucks and requires us to pass binded params by reference 
+		// PHP's MySQLi sucks and requires us to pass binded params by reference //
 		private function convertToRefs( $array ) {
 			$a_params = [];
 			
@@ -73,9 +85,10 @@
 			
 			return $a_params;
 		}
+		// * //
 		
 		
-		// Wrapper for SELECT statements (prepared-bound) 
+		// Wrapper for SELECT statements (prepared-bound) //
 		public function select($SELECT_STR, $BINDS) {
 			
 			// Only read permissions necessary for SELECT statement 
@@ -123,6 +136,7 @@
 			// return results 
 			return $res;
 		}
+		// * //
 		
 	}
 ?>
