@@ -2,6 +2,18 @@
 	class Toolkit {
 		
 		
+		// Strip empty/null elements from array //
+		public static function array_clean(&$array) {
+			$temp = array_filter($array, function($v) {
+				return !is_null($v) && isset($v) && $v != "";
+			});
+			$temp = array_slice($temp, 0);
+			
+			return $temp;
+		}
+		// * //
+		
+		
 		// Get last element of array by reference // 
 		public static function &array_last(&$array) {
 			if (!is_array($array)) {return $array;}
