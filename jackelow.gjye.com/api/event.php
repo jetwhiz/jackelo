@@ -29,7 +29,12 @@
 	
 	
 	// Break up URI into tokens on "/" symbol 
-	$queryArray = array_slice(array_filter(explode( "/", strtolower($_SERVER['REQUEST_URI']) )), 0);
+	$queryArray = explode( "/", strtolower($_SERVER['REQUEST_URI']) );
+	$queryArray = array_filter($queryArray, function($v) {
+		return !is_null($v) && isset($v) && $v != "";
+	});
+	$queryArray = array_slice($queryArray, 0);
+	////
 	
 	
 	// First two elements should be /api/event(.php?)/
