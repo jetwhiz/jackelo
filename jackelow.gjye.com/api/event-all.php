@@ -44,6 +44,7 @@
 			$where = "";
 			$groupBy = "";
 			$orderBy = "";
+			$binds = null;
 			
 			
 			
@@ -64,7 +65,6 @@
 					SELECT `Events`.`id`
 					FROM `Events` 
 				";
-				$binds = null;
 			}
 			
 			
@@ -138,7 +138,10 @@
 			}
 			
 			$prepared = "$select$join$where$groupBy$orderBy";
-			print_r($prepared);
+			
+			if ($GLOBALS["DEBUG"]) {
+				print_r($prepared . "\n");
+			}
 			
 			$JSON = Toolkit::build_json(
 											$this->DBs->select($prepared, $binds)

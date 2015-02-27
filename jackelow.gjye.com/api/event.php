@@ -101,12 +101,13 @@
 	// Associated event ID given 
 	if ( count($queryArray) && is_numeric($queryArray[0]) ) {
 		
+		// Retrieve eventID (it will always be the first token) 
 		$REST_vars{eventID} = intval(array_shift($queryArray));
 		if ($GLOBALS["DEBUG"]) {
 			print_r("EVENT ID: " . $REST_vars["eventID"] . "\n");
 		}
 		
-		
+		// No other options specified (give all info about given eventID) 
 		if ( count($queryArray) == 0 ) {
 			if ($GLOBALS["DEBUG"]) {
 				print_r("FULL EVENT INFO (GET-PUT-DELETE)\n");
@@ -116,6 +117,8 @@
 			require "event-id.php";
 			$handler = new EventID($REST_vars, $DBs);
 		}
+		
+		// Simple:  Only give basic info about given eventID 
 		elseif ( $queryArray[0] == "simple" ) {
 			if ($GLOBALS["DEBUG"]) {
 				print_r("SIMPLE EVENT INFO\n");
@@ -126,13 +129,19 @@
 			require "event-id.php";
 			$handler = new EventID($REST_vars, $DBs);
 		}
+		
+		// Attendants: Provide array of attendants (as userID) to given eventID 
 		elseif ( $queryArray[0] == "attendants" ) {
 			if ($GLOBALS["DEBUG"]) {
 				print_r("ATTENDANTS EVENT INFO (GET-POST-DELETE)\n");
 			}
 			
 			array_shift($queryArray);
+			require "event-attendants.php";
+			$handler = new EventAttendants($REST_vars, $DBs);
 		}
+		
+		// Comments: Provide comment(s) to given eventID or commentID (if supplied) 
 		elseif ( $queryArray[0] == "comments" ) {
 			
 			// Associated comment ID given 
@@ -152,7 +161,11 @@
 				array_shift($queryArray);
 			}
 			
+			require "event-comments.php";
+			$handler = new EventComments($REST_vars, $DBs);
 		}
+		
+		// Invalid token -- skip it 
 		else {
 			if ($GLOBALS["DEBUG"]) {
 				print_r("PARSE ERROR (primary-eventID)!\n");
@@ -168,20 +181,30 @@
 			print_r("DISPLAY ALL EVENTS (OPTIONS)\n");
 		}
 		
+		// parse all options given in URI (only keep valid ones) 
 		for($i = 0; $i < count($queryArray); $i = $i+2) {
+			
+			// Supplied token is valid (must next validate proceeding token) 
 			if ( in_array( $queryArray[$i], $REST_strs_opts ) && ($i + 1) < count($queryArray) ) {
+				
+				// Proceeding token is a number (correct!) -- save pair 
 				if ( is_numeric($queryArray[$i+1]) ) {
 					if ($GLOBALS["DEBUG"]) {
 						print_r("OPTION GIVEN: " . $queryArray[$i] . ", VALUE: " . $queryArray[$i+1] . "\n");
 					}
+					
 					$REST_vars[$queryArray[$i]] = $queryArray[$i+1];
 				}
+				
+				// Proceeding token was not a number -- reject pair 
 				else {
 					if ($GLOBALS["DEBUG"]) {
 						print_r("PARSE ERROR (secondary)!  Not numeric '" . $queryArray[$i+1] . "'\n");
 					}
 				}
 			}
+			
+			// Invalid token (pair?) supplied (note: this gobbles up next token!) 
 			else {
 				if ($GLOBALS["DEBUG"]) {
 					print_r("PARSE ERROR (primary)!\n");
