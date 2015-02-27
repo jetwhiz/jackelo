@@ -65,10 +65,6 @@
 	$REST_vars = [ "method" => strtolower($_SERVER['REQUEST_METHOD']) ];
 	
 	
-	// Display options for our API 
-	$REST_strs_opts = [ "sort", "category", "group", "country", "show" ];
-	
-	
 	// Prepare databases
 	require $_SERVER['DOCUMENT_ROOT'] . "/db.php";
 	$DBs = new Database();
@@ -82,15 +78,28 @@
 	////
 	
 	
-	// No arguments are given 
-	if ( count($queryArray) == 0 ) {
-		if ($GLOBALS["DEBUG"]) {
-			print_r("DISPLAY ALL EVENTS (GET-POST)\n");
+	// Display options for our API 
+	$REST_strs_opts = [ "sort", "category", "group", "country", "show" ];
+	
+	
+	// Get sort types from database 
+	$GLOBALS["SortTypes"] = [];
+	{
+		$select = "
+				SELECT `name`, `id`
+				FROM `SortTypes` 
+		";
+		$binds = null;
+		$res = $DBs->select($select, $binds);
+		while ($row = $res->fetch_assoc()) {
+			$GLOBALS["SortTypes"][ $row["name"] ] = $row["id"];
 		}
 	}
 	
+	
+	
 	// Associated event ID given 
-	elseif ( is_numeric($queryArray[0]) ) {
+	if ( count($queryArray) && is_numeric($queryArray[0]) ) {
 		
 		$REST_vars{eventID} = intval(array_shift($queryArray));
 		if ($GLOBALS["DEBUG"]) {
@@ -169,7 +178,7 @@
 				}
 				else {
 					if ($GLOBALS["DEBUG"]) {
-						print_r("PARSE ERROR (secondary)!\n");
+						print_r("PARSE ERROR (secondary)!  Not numeric '" . $queryArray[$i+1] . "'\n");
 					}
 				}
 			}
@@ -180,6 +189,8 @@
 			}
 		}
 		
+		require "event-all.php";
+		$handler = new EventAll($REST_vars, $DBs);
 	}
 	
 	if ($GLOBALS["DEBUG"]) {
