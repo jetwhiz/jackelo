@@ -47,10 +47,15 @@
 			
 			// Connect with these permissions 
 			$this->handle{$access} = new mysqli($server, $usr, $pass, $database);
-			if (!$this->handle{$access}) {return null;}
+			if (!$this->handle{$access}) {
+				throw new Exception('Database: Could not establish connection!');
+			}
 			if ($this->handle{$access}->connect_errno) {
-				echo "Failed to connect to MySQL: (" . $this->handle[$access]->connect_errno . ") " . $this->handle[$access]->connect_error;
-				return null;
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Failed to connect to MySQL: (" . $this->handle[$access]->connect_errno . ") " . $this->handle[$access]->connect_error);
+				}
+				
+				throw new Exception('Database: Could not establish connection!');
 			}
 			
 			// Return handle 
@@ -79,25 +84,37 @@
 			
 			// Prepare statement 
 			if (!($stmt = $hnd->prepare($SELECT_STR))) {
-				echo "Prepare failed: (" . $hnd->errno . ") " . $hnd->error;
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Prepare failed: (" . $hnd->errno . ") " . $hnd->error);
+				}
+				
 				return null;
 			}
 			
 			// Bind parameters to prepared statement 
 			if (!call_user_func_array(array($stmt, 'bind_param'), $this->convertToRefs($BINDS))) {
-				echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+				}
+				
 				return null;
 			}
 			
 			// Execute prepared statement 
 			if (!$stmt->execute()) {
-				echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Execute failed: (" . $stmt->errno . ") " . $stmt->error);
+				}
+				
 				return null;
 			}
 			
 			// Get results 
 			if (!($res = $stmt->get_result())) {
-				echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Getting result set failed: (" . $stmt->errno . ") " . $stmt->error);
+				}
+				
 				return null;
 			}
 			

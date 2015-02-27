@@ -16,6 +16,9 @@
 	*/
 	
 	
+	// Show debugging output 
+	$GLOBALS["DEBUG"] = 1;
+	
 	
 	// We're returning JSON data 
 	header('Content-Type: application/javascript');
@@ -34,14 +37,23 @@
 		array_shift($queryArray);
 	}
 	else {
-		print_r("PATH ERROR!\n");
+		if ($GLOBALS["DEBUG"]) {
+			print_r("PATH ERROR!\n");
+		}
+		
+		throw new Exception('RESTful Error: Request path incorrect.');
 	}
 	if ( $queryArray[0] == "event.php" || $queryArray[0] == "event" ) {
 		array_shift($queryArray);
 	}
 	else {
-		print_r("PATH ERROR!\n");
+		if ($GLOBALS["DEBUG"]) {
+			print_r("PATH ERROR!\n");
+		}
+		
+		throw new Exception('RESTful Error: Request path incorrect.');
 	}
+	////
 	
 	
 	// Save the request method being used (GET, POST, PUT, DELETE) 
@@ -56,38 +68,55 @@
 	require $_SERVER['DOCUMENT_ROOT'] . "/db.php";
 	$DBs = new Database();
 	if ( is_null($DBs) ) {
-		print_r("DB ERR");
-		exit;
+		if ($GLOBALS["DEBUG"]) {
+			print_r("DB ERR");
+		}
+		
+		throw new Exception('Database Error: Could not establish connection.');
 	}
+	////
 	
 	
 	// No arguments are given 
 	if ( count($queryArray) == 0 ) {
-		print_r("DISPLAY ALL EVENTS (GET-POST)\n");
+		if ($GLOBALS["DEBUG"]) {
+			print_r("DISPLAY ALL EVENTS (GET-POST)\n");
+		}
 	}
 	
 	// Associated event ID given 
 	elseif ( is_numeric($queryArray[0]) ) {
 		
 		$REST_vars{eventID} = intval(array_shift($queryArray));
-		print_r("EVENT ID: " . $REST_vars["eventID"] . "\n");
+		if ($GLOBALS["DEBUG"]) {
+			print_r("EVENT ID: " . $REST_vars["eventID"] . "\n");
+		}
 		
 		
 		if ( count($queryArray) == 0 ) {
-			print_r("FULL EVENT INFO (GET-PUT-DELETE)\n");
+			if ($GLOBALS["DEBUG"]) {
+				print_r("FULL EVENT INFO (GET-PUT-DELETE)\n");
+			}
+			
 			$REST_vars["simple"] = 0;
 			require "event-id.php";
 			$handler = new EventID($REST_vars, $DBs);
 		}
 		elseif ( $queryArray[0] == "simple" ) {
-			print_r("SIMPLE EVENT INFO\n");
+			if ($GLOBALS["DEBUG"]) {
+				print_r("SIMPLE EVENT INFO\n");
+			}
+			
 			array_shift($queryArray);
 			$REST_vars["simple"] = 1;
 			require "event-id.php";
 			$handler = new EventID($REST_vars, $DBs);
 		}
 		elseif ( $queryArray[0] == "attendants" ) {
-			print_r("ATTENDANTS EVENT INFO (GET-POST-DELETE)\n");
+			if ($GLOBALS["DEBUG"]) {
+				print_r("ATTENDANTS EVENT INFO (GET-POST-DELETE)\n");
+			}
+			
 			array_shift($queryArray);
 		}
 		elseif ( $queryArray[0] == "comments" ) {
@@ -95,17 +124,25 @@
 			// Associated comment ID given 
 			if ( is_numeric($queryArray[1]) ) {
 				array_shift($queryArray);
-				$REST_vars{commentID} = intval(array_shift($queryArray));
-				print_r("COMMENT ID: " . $REST_vars["commentID"] . " (GET-DELETE)\n");
+				$REST_vars["commentID"] = intval(array_shift($queryArray));
+				
+				if ($GLOBALS["DEBUG"]) {
+					print_r("COMMENT ID: " . $REST_vars["commentID"] . " (GET-DELETE)\n");
+				}
 			}
 			else {
-				print_r("COMMENTS EVENT INFO (GET-POST)\n");
+				if ($GLOBALS["DEBUG"]) {
+					print_r("COMMENTS EVENT INFO (GET-POST)\n");
+				}
+				
 				array_shift($queryArray);
 			}
 			
 		}
 		else {
-			print_r("PARSE ERROR (primary-eventID)!\n");
+			if ($GLOBALS["DEBUG"]) {
+				print_r("PARSE ERROR (primary-eventID)!\n");
+			}
 		}
 		
 	}
@@ -113,25 +150,35 @@
 	// No eventID, but options given 
 	else {
 		
-		print_r("DISPLAY ALL EVENTS (OPTIONS)\n");
+		if ($GLOBALS["DEBUG"]) {
+			print_r("DISPLAY ALL EVENTS (OPTIONS)\n");
+		}
 		
 		for($i = 0; $i < count($queryArray); $i = $i+2) {
 			if ( in_array( $queryArray[$i], $REST_strs_opts ) && ($i + 1) < count($queryArray) ) {
 				if ( is_numeric($queryArray[$i+1]) ) {
-					print_r("OPTION GIVEN: " . $queryArray[$i] . ", VALUE: " . $queryArray[$i+1] . "\n");
+					if ($GLOBALS["DEBUG"]) {
+						print_r("OPTION GIVEN: " . $queryArray[$i] . ", VALUE: " . $queryArray[$i+1] . "\n");
+					}
 					$REST_vars[$queryArray[$i]] = $queryArray[$i+1];
 				}
 				else {
-					print_r("PARSE ERROR (secondary)!\n");
+					if ($GLOBALS["DEBUG"]) {
+						print_r("PARSE ERROR (secondary)!\n");
+					}
 				}
 			}
 			else {
-				print_r("PARSE ERROR (primary)!\n");
+				if ($GLOBALS["DEBUG"]) {
+					print_r("PARSE ERROR (primary)!\n");
+				}
 			}
 		}
 		
 	}
 	
-	print_r($REST_vars);
+	if ($GLOBALS["DEBUG"]) {
+		print_r($REST_vars);
+	}
 	
 ?>

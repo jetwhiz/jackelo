@@ -3,9 +3,15 @@
 		private $REST_vars;
 		private $DBs;
 		
+		
+		// CONSTRUCTOR //
 		function __construct( $REST_vars, $dbs ) {
 			if ( is_null($dbs) ) {
-				echo "ERR";
+				if ($GLOBALS["DEBUG"]) {
+					print_r("ERR");
+				}
+				
+				throw new Exception('EventID Error: Database not supplied.');
 			}
 			
 			$this->REST_vars = $REST_vars;
@@ -25,11 +31,13 @@
 					break;
 			}
 		}
+		// * // 
 		
 		
+		// GET //
 		private function get() {
 			
-			// Get main event data // 
+			// Get main event data 
 			$select = "
 					SELECT `name`, `datetimeStart`, `datetimeEnd`, `description`, `ownerID`, `eventTypeID` 
 					FROM `Events` 
@@ -50,7 +58,7 @@
 				$obj["eventTypeID"] = $row['eventTypeID'];
 				
 				
-				// Get event destinations //
+				// Get event destinations 
 				if ( $this->REST_vars["simple"] == 1 ) {
 					$select = "
 							SELECT `countryID`
@@ -71,10 +79,10 @@
 				$obj["destinations"] = Toolkit::build_json(
 											$this->DBs->select($select, $binds)
 										);
-				// * // 
+				//// 
 				
 				
-				// Get event categories //
+				// Get event categories 
 				$select = "
 						SELECT `categoryID`
 						FROM `EventCategories` 
@@ -85,15 +93,16 @@
 				$obj["categories"] = Toolkit::build_json(
 											$this->DBs->select($select, $binds)
 										);
-				// * // 
+				//// 
 				
 				$JSON[] = $obj;
 			}
-			// * // 
+			//// 
 			
 			
 			echo json_encode($JSON, JSON_PRETTY_PRINT) . "\n\n";
 		}
+		// * // 
 		
 	}
 ?>
