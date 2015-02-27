@@ -21,7 +21,7 @@
 	
 	
 	// We're returning JSON data 
-	header('Content-Type: application/javascript');
+	header('Content-Type: application/javascript; charset=utf-8');
 	
 	
 	// Pull in toolkit for all instances 

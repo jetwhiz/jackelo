@@ -101,7 +101,7 @@
 			//// 
 			
 			
-			echo json_encode($JSON, JSON_PRETTY_PRINT) . "\n\n";
+			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
 		}
 		// * // 
 		
