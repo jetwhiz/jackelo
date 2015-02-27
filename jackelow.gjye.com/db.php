@@ -13,7 +13,7 @@
 		
 		// Are we connected (with given permission level) 
 		private function isConnected($access) {
-			return ( $this->handle[$access] );
+			return ( !is_null($this->handle[$access]) );
 		}
 		
 		
@@ -60,10 +60,9 @@
 		
 		// PHP's MySQLi sucks and requires us to pass binded params by reference 
 		private function convertToRefs( $array ) {
-			$a_params = array();
+			$a_params = [];
 			
 			for($i = 0; $i < count($array); $i++) {
-				/* with call_user_func_array, array params must be passed by reference */
 				$a_params[] = & $array[$i];
 			}
 			
