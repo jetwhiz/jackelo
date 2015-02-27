@@ -57,9 +57,11 @@
 			&destination%5B2%5D%5BcityID%5D=2&destination%5B2%5D%5BcountryID%5D=64&
 			*/
 			
-			print_r("\nPOST-EventAll\n");
-			print_r($_POST);
 			
+			if ($GLOBALS["DEBUG"]) {
+				print_r("\nPOST-EventAll\n");
+				print_r($_POST);
+			}
 			
 			
 			// start transaction 
@@ -83,10 +85,11 @@
 			$binds[] = $this->User->getID();
 			$binds[] = intval($_POST["eventTypeID"], 10);
 			
-			
-			print_r("\nBINDS\n");
-			print_r($insert."\n");
-			print_r($binds);
+			if ($GLOBALS["DEBUG"]) {
+				print_r("\nBINDS\n");
+				print_r($insert."\n");
+				print_r($binds);
+			}
 			
 			if ( ! ($results = $this->DBs->insert($insert, $binds)) ) {
 				// Roll back transaction 
@@ -95,8 +98,9 @@
 			}
 			
 			$eventID = $this->DBs->insertID();
-			echo "INSERTID: " . $eventID . "\n";
-			
+			if ($GLOBALS["DEBUG"]) {
+				print_r("INSERTID: " . $eventID . "\n");
+			}
 			
 			// Perform INSERT for EventCategories table
 			$categories = Toolkit::array_clean(explode(",", $_POST["categoryID"]));
@@ -111,9 +115,11 @@
 				$binds[] = $eventID;
 				$binds[] = intval($categoryID, 10);
 				
-				print_r("\nBINDS\n");
-				print_r($insert."\n");
-				print_r($binds);
+				if ($GLOBALS["DEBUG"]) {
+					print_r("\nBINDS\n");
+					print_r($insert."\n");
+					print_r($binds);
+				}
 				
 				if ( ! ($results = $this->DBs->insert($insert, $binds)) ) {
 					// Roll back transaction 
@@ -139,9 +145,11 @@
 				$binds[] = intval($destination["cityID"], 10);
 				$binds[] = intval($destination["countryID"], 10);
 				
-				print_r("\nBINDS\n");
-				print_r($insert."\n");
-				print_r($binds);
+				if ($GLOBALS["DEBUG"]) {
+					print_r("\nBINDS\n");
+					print_r($insert."\n");
+					print_r($binds);
+				}
 				
 				if ( ! ($results = $this->DBs->insert($insert, $binds)) ) {
 					// Roll back transaction 
@@ -154,6 +162,7 @@
 			// Commit transaction
 			$this->DBs->endTransaction();
 			
+			// return what? 
 		}
 		// * //
 		
