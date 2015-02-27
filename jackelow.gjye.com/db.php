@@ -91,13 +91,15 @@
 				return null;
 			}
 			
-			// Bind parameters to prepared statement 
-			if (!call_user_func_array(array($stmt, 'bind_param'), $this->convertToRefs($BINDS))) {
-				if ($GLOBALS["DEBUG"]) {
-					print_r("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+			// Bind parameters to prepared statement (if available) 
+			if ( count($BINDS) ) {
+				if (!call_user_func_array(array($stmt, 'bind_param'), $this->convertToRefs($BINDS))) {
+					if ($GLOBALS["DEBUG"]) {
+						print_r("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+					}
+					
+					return null;
 				}
-				
-				return null;
 			}
 			
 			// Execute prepared statement 
