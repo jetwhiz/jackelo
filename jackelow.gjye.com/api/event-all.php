@@ -203,26 +203,37 @@
 			
 			
 			
-			// group by (country) 
+			// group by (country) -- cannot be combined with others 
 			if ( $this->REST_vars["group"] ) {
-				$select .= "
-					SELECT DISTINCT COUNT(*) AS `Count`, `EventDestinations`.`countryID`
-					FROM `Events` 
-
+				$select = "
+					SELECT COUNT(*) AS `count`, `countryID`
+					FROM `EventDestinations` 
+					GROUP BY `countryID`
 				";
-				$join .= "
-					INNER JOIN `EventDestinations` AS `EventDestinations`
-						ON `Events`.`id` = `EventDestinations`.`eventID`
-				";
-			}
-			else {
-				$select .= "
-					SELECT `Events`.`id`
-					FROM `Events` 
-				";
+				
+				if ($GLOBALS["DEBUG"]) {
+					print_r($select . "\n");
+				}
+				
+				$result = $this->DBs->select($select, $binds);
+				if ( is_null($result) ) {
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Failed to retrieve request.");
+				}
+				$JSON = Toolkit::build_json($result);
+				//// 
+				
+				
+				echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+				
+				return;
 			}
 			
 			
+			
+			$select .= "
+				SELECT `Events`.`id`
+				FROM `Events` 
+			";
 			
 			
 			// filter by category 
