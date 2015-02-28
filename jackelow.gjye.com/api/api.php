@@ -32,7 +32,7 @@
 	
 	
 	// Break up URI into tokens on "/" symbol 
-	$queryArray = Toolkit::array_clean(explode( "/", strtolower($_SERVER['REQUEST_URI']) ));
+	$queryArray = Toolkit::array_clean(explode( "/", strtolower(urldecode($_SERVER['REQUEST_URI'])) ));
 	////
 	
 	
