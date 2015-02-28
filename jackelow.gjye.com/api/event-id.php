@@ -2,7 +2,7 @@
 	class EventID {
 		private $REST_vars;
 		private $DBs;
-		private $user;
+		private $User;
 		
 		// CONSTRUCTOR //
 		function __construct( $REST_vars, &$dbs, &$user ) {
@@ -16,20 +16,61 @@
 			
 			$this->REST_vars = $REST_vars;
 			$this->DBs = &$dbs;
-			$this->user = &$user;
+			$this->User = &$user;
 			
 			switch ( $REST_vars["method"] ) {
 				case "get": 
 					$this->get();
 					break;
+				case "delete":
+					$this->delete();
+					break;
 				case "put":
 				case "post":
-				case "delete":
 				default: 
 					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventID Error: Request method not supported.");
 			}
 		}
 		// * // 
+		
+		
+		// DELETE //
+		private function delete() {
+			if ($GLOBALS["DEBUG"]) {
+				print_r("DELETE-EventID\n");
+			}
+			
+			// Perform DELETE for Events table 
+			$delete = "
+				DELETE FROM `Events` WHERE `id` = ? AND `ownerID` = ?
+				LIMIT 1
+			";
+			
+			$binds = [];
+			$binds[0] = "ii";
+			$binds[] = $this->REST_vars["eventID"];
+			$binds[] = $this->User->getID();
+			
+			if ($GLOBALS["DEBUG"]) {
+				print_r("\nBINDS\n");
+				print_r($delete."\n");
+				print_r($binds);
+			}
+			
+			// Perform removal (and ensure row was removed) 
+			$affected = $this->DBs->delete($delete, $binds);
+			if ( !$affected ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "EventID: Event removal failed!");
+			}
+			
+			
+			// Removal should cascade to all relevant tables 
+			// Namely, EventDestinations, EventCategories, Comments, Attendants
+			
+			
+			// Return? 
+		}
+		// * //
 		
 		
 		// GET //

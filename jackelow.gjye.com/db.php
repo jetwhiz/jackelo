@@ -133,6 +133,13 @@
 		// * //
 		
 		
+		// Wrapper for DELETE statements (prepared-bound) //
+		public function delete($INSERT_STR, $BINDS) {
+			return $this->insert($INSERT_STR, $BINDS);
+		}
+		// * //
+		
+		
 		// Wrapper for insert_id //
 		public function insertID() {
 			// RW permissions needed for insert_id 

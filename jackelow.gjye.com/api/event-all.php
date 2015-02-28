@@ -37,24 +37,6 @@
 		
 		// POST NEW EVENT //
 		private function post() {
-			/* EXAMPLE: 
-			URL encoded: 
-			name=cool+stuff+is+coming!&description=jfklsdjfkj+jsdfksdjf
-			&datetimeStart=2015-04-23+11%3A00%3A11&datetimeEnd=2015-04-28+17%3A00%3A00
-			&eventTypeID=3&categoryID=1%2C2&destination%5B0%5D%5Baddress%5D=ALOES
-			&destination%5B0%5D%5BdatetimeStart%5D=2015-04-23+11%3A00%3A11
-			&destination%5B0%5D%5BdatetimeEnd%5D=2015-04-24+11%3A00%3A11
-			&destination%5B0%5D%5BcityID%5D=1&destination%5B0%5D%5BcountryID%5D=60
-			&destination%5B1%5D%5Baddress%5D=Layafette
-			&destination%5B1%5D%5BdatetimeStart%5D=2015-04-24+11%3A00%3A11
-			&destination%5B1%5D%5BdatetimeEnd%5D=2015-04-25+11%3A00%3A11
-			&destination%5B1%5D%5BcityID%5D=1&destination%5B1%5D%5BcountryID%5D=60
-			&destination%5B2%5D%5Baddress%5D=Hostel
-			&destination%5B2%5D%5BdatetimeStart%5D=2015-04-25+11%3A00%3A11
-			&destination%5B2%5D%5BdatetimeEnd%5D=2015-04-28+11%3A00%3A11
-			&destination%5B2%5D%5BcityID%5D=2&destination%5B2%5D%5BcountryID%5D=64&
-			*/
-			
 			
 			if ($GLOBALS["DEBUG"]) {
 				print_r("\nPOST-EventAll\n");
