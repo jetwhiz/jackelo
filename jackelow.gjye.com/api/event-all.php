@@ -178,6 +178,13 @@
 			
 			// "Created" HTTP Status code 
 			http_response_code($GLOBALS["HTTP_STATUS"]["Created"]);
+			
+			
+			// Return inserted eventID 
+			$JSON = [
+				$eventID
+			];
+			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
 		}
 		// * //
 		
