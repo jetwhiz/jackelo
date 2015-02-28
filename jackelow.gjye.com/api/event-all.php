@@ -9,10 +9,10 @@
 		function __construct( $REST_vars, &$dbs, &$user ) {
 			if ( is_null($dbs) ) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("ERR");
+					print_r("EventAll Error: Database not supplied\n");
 				}
 				
-				throw new Exception('EventAll Error: Database not supplied.');
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Database not supplied.");
 			}
 			
 			$this->REST_vars = $REST_vars;
@@ -23,15 +23,13 @@
 				case "get": 
 					$this->get();
 					break;
-				case "put":
-					break;
 				case "post":
 					$this->post();
 					break;
+				case "put":
 				case "delete":
-					break;
 				default: 
-					break;
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventAll Error: Request method not supported.");
 			}
 		}
 		// * // 
@@ -65,7 +63,9 @@
 			
 			
 			// start transaction 
-			$this->DBs->startTransaction();
+			if ( !$this->DBs->startTransaction() ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Failed to begin transaction.");
+			}
 			
 			
 			// Perform INSERT for Events table 
@@ -91,16 +91,25 @@
 				print_r($binds);
 			}
 			
-			if ( ! ($results = $this->DBs->insert($insert, $binds)) ) {
+			// Perform insertion (and ensure row was inserted) 
+			$affected = $this->DBs->insert($insert, $binds);
+			if ( !$affected ) {
 				// Roll back transaction 
 				$this->DBs->abortTransaction();
-				throw new Exception("EventAll: Insert failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll: Insert Event failed!");
 			}
 			
+			// Retrieve eventID for future reference 
 			$eventID = $this->DBs->insertID();
 			if ($GLOBALS["DEBUG"]) {
 				print_r("INSERTID: " . $eventID . "\n");
 			}
+			if ( !$eventID ) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll: Insert Event failed!");
+			}
+			
 			
 			// Perform INSERT for EventCategories table
 			$categories = Toolkit::array_clean(explode(",", $_POST["categoryID"]));
@@ -121,10 +130,11 @@
 					print_r($binds);
 				}
 				
-				if ( ! ($results = $this->DBs->insert($insert, $binds)) ) {
+				$affected = $this->DBs->insert($insert, $binds);
+				if ( !$affected ) {
 					// Roll back transaction 
 					$this->DBs->abortTransaction();
-					throw new Exception("EventAll: Insert category failed!");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll: Insert category failed!");
 				}
 			}
 			
@@ -151,18 +161,23 @@
 					print_r($binds);
 				}
 				
-				if ( ! ($results = $this->DBs->insert($insert, $binds)) ) {
+				$affected = $this->DBs->insert($insert, $binds);
+				if ( !$affected ) {
 					// Roll back transaction 
 					$this->DBs->abortTransaction();
-					throw new Exception("EventAll: Insert destination failed!");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll: Insert destination failed!");
 				}
 			}
 			
 			
 			// Commit transaction
-			$this->DBs->endTransaction();
+			if ( !$this->DBs->endTransaction() ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Failed to commit transaction.");
+			}
 			
-			// return what? 
+			
+			// "Created" HTTP Status code 
+			http_response_code($GLOBALS["HTTP_STATUS"]["Created"]);
 		}
 		// * //
 		
@@ -276,9 +291,11 @@
 				print_r($prepared . "\n");
 			}
 			
-			$JSON = Toolkit::build_json(
-											$this->DBs->select($prepared, $binds)
-										);
+			$result = $this->DBs->select($prepared, $binds);
+			if ( is_null($result) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Failed to retrieve request.");
+			}
+			$JSON = Toolkit::build_json($result);
 			//// 
 			
 			

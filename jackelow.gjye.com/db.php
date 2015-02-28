@@ -6,8 +6,6 @@
 		// Set up data structure //
 		function __construct() {
 			$this->handle = [ "ro" => null, "rw" => null ];
-			
-			return $this;
 		}
 		// * //
 		
@@ -17,7 +15,7 @@
 			$hnd = $this->connect("rw");
 			if ( !$hnd ) { return false; }
 			
-			$hnd->autocommit(false);
+			return $hnd->autocommit(false);
 		}
 		// * //
 		
@@ -28,7 +26,7 @@
 			if ( !$hnd ) { return false; }
 			
 			$hnd->commit();
-			$hnd->autocommit(true);
+			return $hnd->autocommit(true);
 		}
 		// * //
 		
@@ -39,7 +37,7 @@
 			if ( !$hnd ) { return false; }
 			
 			$hnd->rollback();
-			$hnd->autocommit(true);
+			return $hnd->autocommit(true);
 		}
 		// * //
 		
@@ -61,6 +59,13 @@
 			
 			// Parse database configuration file 
 			$ini_array = parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../dbconf.ini", true);
+			if (!$ini_array) {
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Database: Cannot access dbconf.ini\n");
+				}
+				
+				return null;
+			}
 			
 			// Pull appropriate username/password 
 			if ($access == "ro") {
@@ -76,29 +81,37 @@
 				$database = $ini_array["rw"]["database"];
 			}
 			else {
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Database: Invalid permission set requested\n");
+				}
+				
 				return null;
 			}
 			
 			// Connect with these permissions 
 			$this->handle{$access} = new mysqli($server, $usr, $pass, $database);
 			if (!$this->handle{$access}) {
-				throw new Exception('Database: Could not establish connection!');
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Failed to connect to MySQL\n");
+				}
+				
+				return null;
 			}
 			if ($this->handle{$access}->connect_errno) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("Failed to connect to MySQL: (" . $this->handle[$access]->connect_errno . ") " . $this->handle[$access]->connect_error);
+					print_r("Failed to connect to MySQL: (" . $this->handle[$access]->connect_errno . ") " . $this->handle[$access]->connect_error . "\n");
 				}
 				
-				throw new Exception('Database: Could not establish connection!');
+				return null;
 			}
 			
 			// Set charset to uft8
 			if (!$this->handle{$access}->set_charset("utf8")) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("Failed to change MySQL charset: (" . $this->handle[$access]->error . ") ");
+					print_r("Failed to change MySQL charset: (" . $this->handle[$access]->error . ")\n");
 				}
 				
-				throw new Exception('Database: Could not change charset!');
+				return null;
 			}
 			
 			// Return handle 
@@ -141,7 +154,7 @@
 			// Prepare statement 
 			if (!($stmt = $hnd->prepare($INSERT_STR))) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("Prepare failed: (" . $hnd->errno . ") " . $hnd->error);
+					print_r("Prepare failed: (" . $hnd->errno . ") " . $hnd->error . "\n");
 				}
 				
 				return 0;
@@ -151,7 +164,7 @@
 			if ( count($BINDS) ) {
 				if (!call_user_func_array(array($stmt, 'bind_param'), $this->convertToRefs($BINDS))) {
 					if ($GLOBALS["DEBUG"]) {
-						print_r("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+						print_r("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error . "\n");
 					}
 					
 					return 0;
@@ -161,7 +174,7 @@
 			// Execute prepared statement 
 			if (!$stmt->execute()) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("Execute failed: (" . $stmt->errno . ") " . $stmt->error);
+					print_r("Execute failed: (" . $stmt->errno . ") " . $stmt->error . "\n");
 				}
 				
 				return 0;
@@ -188,7 +201,7 @@
 			// Prepare statement 
 			if (!($stmt = $hnd->prepare($SELECT_STR))) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("Prepare failed: (" . $hnd->errno . ") " . $hnd->error);
+					print_r("Prepare failed: (" . $hnd->errno . ") " . $hnd->error . "\n");
 				}
 				
 				return null;
@@ -198,7 +211,7 @@
 			if ( count($BINDS) ) {
 				if (!call_user_func_array(array($stmt, 'bind_param'), $this->convertToRefs($BINDS))) {
 					if ($GLOBALS["DEBUG"]) {
-						print_r("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+						print_r("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error . "\n");
 					}
 					
 					return null;
@@ -208,7 +221,7 @@
 			// Execute prepared statement 
 			if (!$stmt->execute()) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("Execute failed: (" . $stmt->errno . ") " . $stmt->error);
+					print_r("Execute failed: (" . $stmt->errno . ") " . $stmt->error . "\n");
 				}
 				
 				return null;
@@ -217,7 +230,7 @@
 			// Get results 
 			if (!($res = $stmt->get_result())) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("Getting result set failed: (" . $stmt->errno . ") " . $stmt->error);
+					print_r("Getting result set failed: (" . $stmt->errno . ") " . $stmt->error . "\n");
 				}
 				
 				return null;

@@ -9,10 +9,10 @@
 		function __construct( $REST_vars, &$dbs, &$user ) {
 			if ( is_null($dbs) ) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("ERR");
+					print_r("EventComments Error: Database not supplied\n");
 				}
 				
-				throw new Exception('EventComments Error: Database not supplied.');
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventComments Error: Database not supplied.");
 			}
 			
 			$this->REST_vars = $REST_vars;
@@ -24,13 +24,10 @@
 					$this->get();
 					break;
 				case "put":
-					break;
 				case "post":
-					break;
 				case "delete":
-					break;
 				default: 
-					break;
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventComments Error: Request method not supported.");
 			}
 		}
 		// * // 
@@ -62,9 +59,11 @@
 			}
 			
 			$res = $this->DBs->select($select, $binds);
-			$JSON = Toolkit::build_json(
-											$this->DBs->select($select, $binds)
-										);
+			if ( is_null($res) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventComments Error: Failed to retrieve request.");
+			}
+			
+			$JSON = Toolkit::build_json($res);
 			
 			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
 		}

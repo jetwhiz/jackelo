@@ -3,5 +3,5 @@
 RewriteEngine on
 
 # RESTful API 
-RewriteRule ^event/(.*)$ event.php?$1
+RewriteRule ^(.*)$ api.php?$1
 

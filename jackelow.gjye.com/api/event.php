@@ -16,76 +16,6 @@
 	*/
 	
 	
-	// Show debugging output 
-	$GLOBALS["DEBUG"] = 1;
-	
-	
-	// We're returning JSON data 
-	header('Content-Type: application/javascript; charset=utf-8');
-	
-	
-	// Pull in toolkit for all instances 
-	require $_SERVER['DOCUMENT_ROOT'] . "/toolkit.php";
-	
-	
-	// Break up URI into tokens on "/" symbol 
-	$queryArray = Toolkit::array_clean(explode( "/", strtolower($_SERVER['REQUEST_URI']) ));
-	////
-	
-	
-	// First two elements should be /api/event(.php?)/
-	if ( $queryArray[0] == "api" ) {
-		array_shift($queryArray);
-	}
-	else {
-		if ($GLOBALS["DEBUG"]) {
-			print_r("PATH ERROR!\n");
-		}
-		
-		throw new Exception('RESTful Error: Request path incorrect.');
-	}
-	if ( $queryArray[0] == "event.php" || $queryArray[0] == "event" ) {
-		array_shift($queryArray);
-	}
-	else {
-		if ($GLOBALS["DEBUG"]) {
-			print_r("PATH ERROR!\n");
-		}
-		
-		throw new Exception('RESTful Error: Request path incorrect.');
-	}
-	////
-	
-	
-	// Save the request method being used (GET, POST, PUT, DELETE) 
-	$REST_vars = [ "method" => strtolower($_SERVER['REQUEST_METHOD']) ];
-	
-	
-	// Prepare databases
-	require $_SERVER['DOCUMENT_ROOT'] . "/db.php";
-	$DBs = new Database();
-	if ( is_null($DBs) ) {
-		if ($GLOBALS["DEBUG"]) {
-			print_r("DB ERR");
-		}
-		
-		throw new Exception('Database Error: Could not establish connection.');
-	}
-	////
-	
-	
-	// Prepare current user 
-	require $_SERVER['DOCUMENT_ROOT'] . "/user.php";
-	$User = new User($DBs, 1); // fixed to userID=1 for now (later, pass sessionID) 
-	if ( is_null($User) ) {
-		if ($GLOBALS["DEBUG"]) {
-			print_r("USR ERR");
-		}
-		
-		throw new Exception('User Error: Could not create User object.');
-	}
-	////
-	
 	
 	// Display options for our API 
 	$REST_strs_opts = [ "sort", "category", "group", "country", "show" ];
@@ -99,7 +29,13 @@
 				FROM `SortTypes` 
 		";
 		$binds = null;
+		
 		$res = $DBs->select($select, $binds);
+		if ( is_null($res) ) {
+			$e = new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "Event Error: Failed to retrieve internal request.");
+			$e->kill();
+		}
+		
 		while ($row = $res->fetch_assoc()) {
 			$GLOBALS["SortTypes"][ $row["name"] ] = $row["id"];
 		}
@@ -124,7 +60,11 @@
 			
 			$REST_vars["simple"] = 0;
 			require "event-id.php";
-			$handler = new EventID($REST_vars, $DBs, $User);
+			try {
+				$handler = new EventID($REST_vars, $DBs, $User);
+			} catch (Error $e) {
+				$e->kill();
+			}
 		}
 		
 		// Simple:  Only give basic info about given eventID 
@@ -136,7 +76,11 @@
 			array_shift($queryArray);
 			$REST_vars["simple"] = 1;
 			require "event-id.php";
-			$handler = new EventID($REST_vars, $DBs, $User);
+			try {
+				$handler = new EventID($REST_vars, $DBs, $User);
+			} catch (Error $e) {
+				$e->kill();
+			}
 		}
 		
 		// Attendants: Provide array of attendants (as userID) to given eventID 
@@ -147,7 +91,11 @@
 			
 			array_shift($queryArray);
 			require "event-attendants.php";
-			$handler = new EventAttendants($REST_vars, $DBs, $User);
+			try {
+				$handler = new EventAttendants($REST_vars, $DBs, $User);
+			} catch (Error $e) {
+				$e->kill();
+			}
 		}
 		
 		// Comments: Provide comment(s) to given eventID or commentID (if supplied) 
@@ -171,7 +119,11 @@
 			}
 			
 			require "event-comments.php";
-			$handler = new EventComments($REST_vars, $DBs, $User);
+			try {
+				$handler = new EventComments($REST_vars, $DBs, $User);
+			} catch (Error $e) {
+				$e->kill();
+			}
 		}
 		
 		// Invalid token -- skip it 
@@ -222,7 +174,11 @@
 		}
 		
 		require "event-all.php";
-		$handler = new EventAll($REST_vars, $DBs, $User);
+		try {
+			$handler = new EventAll($REST_vars, $DBs, $User);
+		} catch (Error $e) {
+			$e->kill();
+		}
 	}
 	
 	if ($GLOBALS["DEBUG"]) {

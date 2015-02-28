@@ -45,6 +45,8 @@
 				
 				// if there is only one column, return a simple array  
 				else {
+					
+					// Skip duplicates 
 					if ( in_array($row[$keys[0]], $obj) ) {
 						continue;
 					}

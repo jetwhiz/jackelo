@@ -8,10 +8,10 @@
 		function __construct( $REST_vars, &$dbs, &$user ) {
 			if ( is_null($dbs) ) {
 				if ($GLOBALS["DEBUG"]) {
-					print_r("ERR");
+					print_r("EventID Error: Database not supplied\n");
 				}
 				
-				throw new Exception('EventID Error: Database not supplied.');
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventID Error: Database not supplied.");
 			}
 			
 			$this->REST_vars = $REST_vars;
@@ -23,13 +23,10 @@
 					$this->get();
 					break;
 				case "put":
-					break;
 				case "post":
-					break;
 				case "delete":
-					break;
 				default: 
-					break;
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventID Error: Request method not supported.");
 			}
 		}
 		// * // 
@@ -45,8 +42,11 @@
 					WHERE `id` = ?
 			";
 			$binds = ["i", $this->REST_vars["eventID"]];
-			$res = $this->DBs->select($select, $binds);
 			
+			$res = $this->DBs->select($select, $binds);
+			if ( is_null($res) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventID Error: Failed to retrieve request.");
+			}
 			
 			$JSON = [];
 			while ($row = $res->fetch_assoc()) {
@@ -77,9 +77,12 @@
 				
 				$binds = ["i", $this->REST_vars["eventID"]];
 				
-				$obj["destinations"] = Toolkit::build_json(
-											$this->DBs->select($select, $binds)
-										);
+				$result = $this->DBs->select($select, $binds);
+				if ( is_null($result) ) {
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventID Error: Failed to retrieve request.");
+				}
+				
+				$obj["destinations"] = Toolkit::build_json($result);
 				//// 
 				
 				
@@ -91,9 +94,12 @@
 				";
 				$binds = ["i", $this->REST_vars["eventID"]];
 				
-				$obj["categories"] = Toolkit::build_json(
-											$this->DBs->select($select, $binds)
-										);
+				$result = $this->DBs->select($select, $binds);
+				if ( is_null($result) ) {
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventID Error: Failed to retrieve request.");
+				}
+				
+				$obj["categories"] = Toolkit::build_json($result);
 				//// 
 				
 				$JSON[] = $obj;
