@@ -18,7 +18,7 @@
 	
 	
 	// Display options for our API 
-	$REST_strs_opts = [ "sort", "category", "group", "country", "show" ];
+	$REST_strs_opts = [ "sort", "category", "country", "show" ];
 	
 	
 	// Get sort types from database 
@@ -134,6 +134,23 @@
 		}
 		
 	}
+	
+	// Group 
+	elseif ( count($queryArray) && $queryArray[0] == "group" ) {
+		$REST_vars["group"] = 1;
+		
+		if ($GLOBALS["DEBUG"]) {
+			print_r("GROUPED EVENT INFO (GET)\n");
+		}
+		
+		array_shift($queryArray);
+		require "event-all.php";
+		try {
+			$handler = new EventAll($REST_vars, $DBs, $User);
+		} catch (Error $e) {
+			$e->kill();
+		}
+	}	
 	
 	// No eventID, but options given 
 	else {
