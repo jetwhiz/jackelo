@@ -65,6 +65,7 @@
 							SELECT `countryID`
 							FROM `EventDestinations` 
 							WHERE `eventID` = ?
+							ORDER BY `datetimeStart`
 					";
 				}
 				else {
@@ -72,6 +73,7 @@
 							SELECT `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`
 							FROM `EventDestinations` 
 							WHERE `eventID` = ?
+							ORDER BY `datetimeStart`
 					";
 				}
 				
