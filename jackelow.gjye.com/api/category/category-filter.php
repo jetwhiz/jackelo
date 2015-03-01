@@ -1,24 +1,13 @@
 <?
-	class CategoryFilter {
-		private $REST_vars;
-		private $DBs;
-		private $User;
+	class CategoryFilter extends Handler {
+		protected $REST_vars;
+		protected $DBs;
+		protected $User;
 		
-		// CONSTRUCTOR //
-		function __construct( $REST_vars, &$dbs, &$user ) {
-			if ( is_null($dbs) ) {
-				if ($GLOBALS["DEBUG"]) {
-					print_r("CategoryFilter Error: Database not supplied\n");
-				}
-				
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "CategoryFilter Error: Database not supplied.");
-			}
-			
-			$this->REST_vars = $REST_vars;
-			$this->DBs = &$dbs;
-			$this->User = &$user;
-			
-			switch ( $REST_vars["method"] ) {
+		
+		// RUN //
+		public function run() {
+			switch ( $this->REST_vars["method"] ) {
 				case "get": 
 					$this->get();
 					break;
@@ -26,7 +15,7 @@
 				case "put":
 				case "post":
 				default: 
-					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "CategoryFilter Error: Request method not supported.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Request method not supported.");
 			}
 		}
 		// * // 
@@ -34,7 +23,7 @@
 		
 		
 		// GET //
-		private function get() {
+		protected function get() {
 			
 			// Get category matching given string 
 			$select = "
@@ -53,7 +42,7 @@
 			
 			$res = $this->DBs->select($select, $binds);
 			if ( is_null($res) ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "CategoryFilter Error: Failed to retrieve request.");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 			}
 			
 			$JSON = [];

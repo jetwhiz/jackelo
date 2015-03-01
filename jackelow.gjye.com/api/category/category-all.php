@@ -1,24 +1,13 @@
 <?
-	class CategoryAll {
-		private $REST_vars;
-		private $DBs;
-		private $User;
+	class CategoryAll extends Handler {
+		protected $REST_vars;
+		protected $DBs;
+		protected $User;
 		
-		// CONSTRUCTOR //
-		function __construct( $REST_vars, &$dbs, &$user ) {
-			if ( is_null($dbs) ) {
-				if ($GLOBALS["DEBUG"]) {
-					print_r("CategoryAll Error: Database not supplied\n");
-				}
-				
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "CategoryAll Error: Database not supplied.");
-			}
-			
-			$this->REST_vars = $REST_vars;
-			$this->DBs = &$dbs;
-			$this->User = &$user;
-			
-			switch ( $REST_vars["method"] ) {
+		
+		// RUN //
+		public function run() {
+			switch ( $this->REST_vars["method"] ) {
 				case "get": 
 					$this->get();
 					break;
@@ -28,14 +17,15 @@
 				case "delete":
 				case "put":
 				default: 
-					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "CategoryAll Error: Request method not supported.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Request method not supported.");
 			}
 		}
 		// * // 
 		
 		
+		
 		// POST NEW CATEGORY //
-		private function post() {
+		protected function post() {
 			
 			if ($GLOBALS["DEBUG"]) {
 				print_r("\nPOST-CategoryAll\n");
@@ -67,7 +57,7 @@
 			// Perform insertion (and ensure row was inserted) 
 			$affected = $this->DBs->insert($insert, $binds);
 			if ( !$affected ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "CategoryAll: Insert Category failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert Category failed!");
 			}
 			
 			// Retrieve categoryID for future reference 
@@ -76,7 +66,7 @@
 				print_r("INSERTID: " . $categoryID . "\n");
 			}
 			if ( !$categoryID ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "CategoryAll: Insert Category failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert Category failed!");
 			}
 			
 			
@@ -93,8 +83,9 @@
 		// * //
 		
 		
+		
 		// GET //
-		private function get() {
+		protected function get() {
 			
 			// Get all categories 
 			$select = "
@@ -105,7 +96,7 @@
 			
 			$res = $this->DBs->select($select, $binds);
 			if ( is_null($res) ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "CategoryAll Error: Failed to retrieve request.");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 			}
 			
 			$JSON = [];

@@ -1,25 +1,13 @@
 <?
-	class EventAttendants {
-		private $REST_vars;
-		private $DBs;
-		private $User;
+	class EventAttendants extends Handler {
+		protected $REST_vars;
+		protected $DBs;
+		protected $User;
 		
 		
-		// CONSTRUCTOR //
-		function __construct( $REST_vars, &$dbs, &$user ) {
-			if ( is_null($dbs) ) {
-				if ($GLOBALS["DEBUG"]) {
-					print_r("EventAttendants Error: Database not supplied\n");
-				}
-				
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAttendants Error: Database not supplied.");
-			}
-			
-			$this->REST_vars = $REST_vars;
-			$this->DBs = &$dbs;
-			$this->User = &$user;
-			
-			switch ( $REST_vars["method"] ) {
+		// RUN //
+		public function run() {
+			switch ( $this->REST_vars["method"] ) {
 				case "get": 
 					$this->get();
 					break;
@@ -31,14 +19,15 @@
 					break;
 				case "put":
 				default: 
-					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventAttendants Error: Request method not supported.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Request method not supported.");
 			}
 		}
 		// * // 
 		
 		
+		
 		// DELETE //
-		private function delete() {
+		protected function delete() {
 			if ($GLOBALS["DEBUG"]) {
 				print_r("DELETE-EventAttendants\n");
 			}
@@ -63,7 +52,7 @@
 			// Perform removal (and ensure row was removed) 
 			$affected = $this->DBs->delete($delete, $binds);
 			if ( !$affected ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAttendants: Attendance removal failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Attendance removal failed!");
 			}
 			
 			
@@ -72,8 +61,9 @@
 		// * //
 		
 		
+		
 		// POST //
-		private function post() {
+		protected function post() {
 			if ($GLOBALS["DEBUG"]) {
 				print_r("\nPOST-EventAttendants\n");
 				print_r($_POST);
@@ -108,13 +98,13 @@
 				
 				$res = $this->DBs->select($select, $binds);
 				if ( is_null($res) ) {
-					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAttendants Error: Failed to retrieve request.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 				}
 				
 				$row = $res->fetch_assoc();
 				if ($row["count"] == 1) {
 					// Already attending event -- no changes needed
-					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventAttendants Error: Already attending event.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Already attending event.");
 				}
 			}
 			
@@ -122,7 +112,7 @@
 			// Perform insertion (and ensure row was inserted) 
 			$affected = $this->DBs->insert($insert, $binds);
 			if ( !$affected ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAttendants: Attendance failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Attendance failed!");
 			}
 			
 			
@@ -135,8 +125,9 @@
 		// * //
 		
 		
+		
 		// GET //
-		private function get() {
+		protected function get() {
 			
 			// Get all attendants to event # eventID
 			$select = "
@@ -148,7 +139,7 @@
 			
 			$res = $this->DBs->select($select, $binds);
 			if ( is_null($res) ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAttendants Error: Failed to retrieve request.");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 			}
 			
 			$JSON = Toolkit::build_json($res);

@@ -2,11 +2,7 @@
 	/* RESTful queries can take the forms:
 		/event/ 				-- handle events
 		/category/				-- handle categories
-		/city/					-- handle cities 
 		/country/				-- handle countries
-		/eventType/				-- handle event types (unnecessary?)
-		/sortType/				-- handle sort types 
-		/session/				-- handle sessions
 		/user/					-- handle users 
 	*/
 	
@@ -29,6 +25,7 @@
 	// Pull in toolkits for all instances 
 	require $_SERVER['DOCUMENT_ROOT'] . "/toolkit.php";
 	require $_SERVER['DOCUMENT_ROOT'] . "/error.php";
+	require "handler.php";
 	
 	
 	// Break up URI into tokens on "/" symbol 

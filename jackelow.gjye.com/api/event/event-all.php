@@ -1,25 +1,13 @@
 <?
-	class EventAll {
-		private $REST_vars;
-		private $DBs;
-		private $User;
+	class EventAll extends Handler {
+		protected $REST_vars;
+		protected $DBs;
+		protected $User;
 		
 		
-		// CONSTRUCTOR //
-		function __construct( $REST_vars, &$dbs, &$user ) {
-			if ( is_null($dbs) ) {
-				if ($GLOBALS["DEBUG"]) {
-					print_r("EventAll Error: Database not supplied\n");
-				}
-				
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Database not supplied.");
-			}
-			
-			$this->REST_vars = $REST_vars;
-			$this->DBs = &$dbs;
-			$this->User = &$user;
-			
-			switch ( $REST_vars["method"] ) {
+		// RUN //
+		public function run() {
+			switch ( $this->REST_vars["method"] ) {
 				case "get": 
 					$this->get();
 					break;
@@ -29,14 +17,15 @@
 				case "put":
 				case "delete":
 				default: 
-					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventAll Error: Request method not supported.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Request method not supported.");
 			}
 		}
 		// * // 
 		
 		
+		
 		// POST NEW EVENT //
-		private function post() {
+		protected function post() {
 			
 			if ($GLOBALS["DEBUG"]) {
 				print_r("\nPOST-EventAll\n");
@@ -46,7 +35,7 @@
 			
 			// start transaction 
 			if ( !$this->DBs->startTransaction() ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Failed to begin transaction.");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to begin transaction.");
 			}
 			
 			
@@ -78,7 +67,7 @@
 			if ( !$affected ) {
 				// Roll back transaction 
 				$this->DBs->abortTransaction();
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll: Insert Event failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert Event failed!");
 			}
 			
 			// Retrieve eventID for future reference 
@@ -89,7 +78,7 @@
 			if ( !$eventID ) {
 				// Roll back transaction 
 				$this->DBs->abortTransaction();
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll: Insert Event failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert Event failed!");
 			}
 			
 			
@@ -116,7 +105,7 @@
 				if ( !$affected ) {
 					// Roll back transaction 
 					$this->DBs->abortTransaction();
-					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll: Insert category failed!");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert category failed!");
 				}
 			}
 			
@@ -147,14 +136,14 @@
 				if ( !$affected ) {
 					// Roll back transaction 
 					$this->DBs->abortTransaction();
-					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll: Insert destination failed!");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert destination failed!");
 				}
 			}
 			
 			
 			// Commit transaction
 			if ( !$this->DBs->endTransaction() ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Failed to commit transaction.");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to commit transaction.");
 			}
 			
 			
@@ -171,8 +160,9 @@
 		// * //
 		
 		
+		
 		// GET EVENTS //
-		private function get() {
+		protected function get() {
 			
 			// Get main event data 
 			
@@ -199,7 +189,7 @@
 				
 				$result = $this->DBs->select($select, $binds);
 				if ( is_null($result) ) {
-					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Failed to retrieve request.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 				}
 				$JSON = Toolkit::build_json($result);
 				//// 
@@ -293,7 +283,7 @@
 			
 			$result = $this->DBs->select($prepared, $binds);
 			if ( is_null($result) ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventAll Error: Failed to retrieve request.");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 			}
 			$JSON = Toolkit::build_json($result);
 			//// 

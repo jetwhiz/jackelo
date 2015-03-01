@@ -1,25 +1,13 @@
 <?
-	class EventComments {
-		private $REST_vars;
-		private $DBs;
-		private $User;
+	class EventComments extends Handler {
+		protected $REST_vars;
+		protected $DBs;
+		protected $User;
 		
 		
-		// CONSTRUCTOR //
-		function __construct( $REST_vars, &$dbs, &$user ) {
-			if ( is_null($dbs) ) {
-				if ($GLOBALS["DEBUG"]) {
-					print_r("EventComments Error: Database not supplied\n");
-				}
-				
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventComments Error: Database not supplied.");
-			}
-			
-			$this->REST_vars = $REST_vars;
-			$this->DBs = &$dbs;
-			$this->User = &$user;
-			
-			switch ( $REST_vars["method"] ) {
+		// RUN //
+		public function run() {
+			switch ( $this->REST_vars["method"] ) {
 				case "get": 
 					$this->get();
 					break;
@@ -31,21 +19,22 @@
 					break;
 				case "put":
 				default: 
-					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventComments Error: Request method not supported.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Request method not supported.");
 			}
 		}
 		// * // 
 		
 		
+		
 		// DELETE //
-		private function delete() {
+		protected function delete() {
 			if ($GLOBALS["DEBUG"]) {
 				print_r("DELETE-EventComments\n");
 			}
 			
 			// Make sure commentID given 
 			if ( ! $this->REST_vars["commentID"] ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventComments: Comment ID not supplied!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . ": Comment ID not supplied!");
 			}
 			
 			// Perform DELETE for Comments table 
@@ -75,7 +64,7 @@
 			// Perform removal (and ensure row was removed) 
 			$affected = $this->DBs->delete($delete, $binds);
 			if ( !$affected ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "EventComments: Comment removal failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], get_class($this) . ": Comment removal failed!");
 			}
 			
 			
@@ -84,8 +73,9 @@
 		// * //
 		
 		
+		
 		// POST NEW EVENT //
-		private function post() {
+		protected function post() {
 			
 			if ($GLOBALS["DEBUG"]) {
 				print_r("\nPOST-EventComments\n");
@@ -117,7 +107,7 @@
 			// Perform insertion (and ensure row was inserted) 
 			$affected = $this->DBs->insert($insert, $binds);
 			if ( !$affected ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventComments: Insert Comment failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert Comment failed!");
 			}
 			
 			// Retrieve commentID for future reference 
@@ -126,7 +116,7 @@
 				print_r("INSERTID: " . $commentID . "\n");
 			}
 			if ( !$commentID ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventComments: Insert Comment failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert Comment failed!");
 			}
 			
 			
@@ -143,8 +133,9 @@
 		// * //
 		
 		
+		
 		// GET //
-		private function get() {
+		protected function get() {
 			
 			// Get comments
 			
@@ -164,13 +155,14 @@
 						SELECT `id`
 						FROM `Comments` 
 						WHERE `eventID` = ?
+						ORDER BY `datetime`
 				";
 				$binds = ["i", $this->REST_vars["eventID"]];
 			}
 			
 			$res = $this->DBs->select($select, $binds);
 			if ( is_null($res) ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventComments Error: Failed to retrieve request.");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 			}
 			
 			$JSON = Toolkit::build_json($res);

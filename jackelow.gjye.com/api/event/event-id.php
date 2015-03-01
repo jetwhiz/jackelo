@@ -1,24 +1,13 @@
 <?
-	class EventID {
-		private $REST_vars;
-		private $DBs;
-		private $User;
+	class EventID extends Handler {
+		protected $REST_vars;
+		protected $DBs;
+		protected $User;
 		
-		// CONSTRUCTOR //
-		function __construct( $REST_vars, &$dbs, &$user ) {
-			if ( is_null($dbs) ) {
-				if ($GLOBALS["DEBUG"]) {
-					print_r("EventID Error: Database not supplied\n");
-				}
-				
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventID Error: Database not supplied.");
-			}
-			
-			$this->REST_vars = $REST_vars;
-			$this->DBs = &$dbs;
-			$this->User = &$user;
-			
-			switch ( $REST_vars["method"] ) {
+		
+		// RUN //
+		public function run() {
+			switch ( $this->REST_vars["method"] ) {
 				case "get": 
 					$this->get();
 					break;
@@ -28,14 +17,15 @@
 				case "put":
 				case "post":
 				default: 
-					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "EventID Error: Request method not supported.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Request method not supported.");
 			}
 		}
 		// * // 
 		
 		
+		
 		// DELETE //
-		private function delete() {
+		protected function delete() {
 			if ($GLOBALS["DEBUG"]) {
 				print_r("DELETE-EventID\n");
 			}
@@ -60,7 +50,7 @@
 			// Perform removal (and ensure row was removed) 
 			$affected = $this->DBs->delete($delete, $binds);
 			if ( !$affected ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "EventID: Event removal failed!");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], get_class($this) . ": Event removal failed!");
 			}
 			
 			
@@ -73,8 +63,9 @@
 		// * //
 		
 		
+		
 		// GET //
-		private function get() {
+		protected function get() {
 			
 			// Get main event data 
 			$select = "
@@ -86,7 +77,7 @@
 			
 			$res = $this->DBs->select($select, $binds);
 			if ( is_null($res) ) {
-				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventID Error: Failed to retrieve request.");
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 			}
 			
 			$JSON = [];
@@ -122,7 +113,7 @@
 				
 				$result = $this->DBs->select($select, $binds);
 				if ( is_null($result) ) {
-					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventID Error: Failed to retrieve request.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 				}
 				
 				$obj["destinations"] = Toolkit::build_json($result);
@@ -139,7 +130,7 @@
 				
 				$result = $this->DBs->select($select, $binds);
 				if ( is_null($result) ) {
-					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "EventID Error: Failed to retrieve request.");
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 				}
 				
 				$obj["categories"] = Toolkit::build_json($result);
