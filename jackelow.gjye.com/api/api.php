@@ -15,6 +15,10 @@
 	$GLOBALS["IMG_DIR"] = 'http://'. $_SERVER['HTTP_HOST'] . "/imgs/";
 	
 	
+	// Geolocation API URI
+	$GLOBALS["GEOLOC"] = "http://maps.google.com/maps/api/geocode/json?address=";
+	
+	
 	// Generate HTTP Status codes index 
 	$GLOBALS["HTTP_STATUS"] = [
 		"OK" => 200, "Not Found" => 404, "Created" => 201, 

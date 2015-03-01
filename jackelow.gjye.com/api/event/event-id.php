@@ -55,7 +55,7 @@
 			
 			
 			// Removal should cascade to all relevant tables 
-			// Namely, EventDestinations, EventCategories, Comments, Attendants
+			// Namely: EventDestinations, EventCategories, Comments, Attendants
 			
 			
 			// Return? 
