@@ -26,6 +26,11 @@
 	];
 	
 	
+	// Do not print errors/warnings unless debugging is set 
+	if (!$GLOBALS["DEBUG"]) {
+		error_reporting(0);
+	}
+	
 	// We're returning JSON data 
 	header('Content-Type: application/javascript; charset=utf-8');
 	
