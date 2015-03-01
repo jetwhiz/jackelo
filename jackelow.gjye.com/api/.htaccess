@@ -1,0 +1,7 @@
+
+# Enable Rewriting
+RewriteEngine on
+
+# RESTful API 
+RewriteRule ^(.*)$ api.php?$1
+
