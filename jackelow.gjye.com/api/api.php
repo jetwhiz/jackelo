@@ -99,7 +99,14 @@
 			$e->kill();
 		}
 		
-		require $REST_types[$key];
+		try {
+			require $REST_types[$key];
+		} catch (Error $e) {
+			$e->kill();
+		} catch (Exception $e) {
+			$e = new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "RESTful Error: Unknown error.");
+			$e->kill();
+		}
 	}
 	else {
 		if ($GLOBALS["DEBUG"]) {
