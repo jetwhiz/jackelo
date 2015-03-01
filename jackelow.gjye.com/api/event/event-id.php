@@ -86,30 +86,40 @@
 				$obj["name"] = $row['name'];
 				$obj["datetimeStart"] = $row['datetimeStart'];
 				$obj["datetimeEnd"] = $row['datetimeEnd'];
-				$obj["description"] = $row['description'];
 				$obj["ownerID"] = $row['ownerID'];
-				$obj["eventTypeID"] = $row['eventTypeID'];
 				
+				// Hide non-simple elements 
+				if ( $this->REST_vars["simple"] != 1 ) {
+					$obj["description"] = $row['description'];
+					$obj["eventTypeID"] = $row['eventTypeID'];
+				}
 				
 				// Get event destinations 
 				if ( $this->REST_vars["simple"] == 1 ) {
 					$select = "
-							SELECT `countryID`
+							SELECT `EventDestinations`.`cityID`, 
+								`EventDestinations`.`countryID`, 
+								CONCAT(?, `Cities`.`thumb`) AS `thumb`
 							FROM `EventDestinations` 
-							WHERE `eventID` = ?
-							ORDER BY `datetimeStart`
+							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
+							WHERE `EventDestinations`.`eventID` = ?
+							ORDER BY `EventDestinations`.`datetimeStart`
 					";
 				}
 				else {
 					$select = "
-							SELECT `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`
+							SELECT `EventDestinations`.`address`, `EventDestinations`.`datetimeStart`, 
+								`EventDestinations`.`datetimeEnd`, `EventDestinations`.`cityID`, 
+								`EventDestinations`.`countryID`, 
+								CONCAT(?, `Cities`.`thumb`) AS `thumb`
 							FROM `EventDestinations` 
-							WHERE `eventID` = ?
-							ORDER BY `datetimeStart`
+							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
+							WHERE `EventDestinations`.`eventID` = ?
+							ORDER BY `EventDestinations`.`datetimeStart`
 					";
 				}
 				
-				$binds = ["i", $this->REST_vars["eventID"]];
+				$binds = ["si", $GLOBALS["IMG_DIR"], $this->REST_vars["eventID"]];
 				
 				$result = $this->DBs->select($select, $binds);
 				if ( is_null($result) ) {
@@ -120,20 +130,22 @@
 				//// 
 				
 				
-				// Get event categories 
-				$select = "
-						SELECT `categoryID`
-						FROM `EventCategories` 
-						WHERE `eventID` = ?
-				";
-				$binds = ["i", $this->REST_vars["eventID"]];
-				
-				$result = $this->DBs->select($select, $binds);
-				if ( is_null($result) ) {
-					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
+				// Get event categories (non-simple) 
+				if ( $this->REST_vars["simple"] != 1 ) {
+					$select = "
+							SELECT `categoryID`
+							FROM `EventCategories` 
+							WHERE `eventID` = ?
+					";
+					$binds = ["i", $this->REST_vars["eventID"]];
+					
+					$result = $this->DBs->select($select, $binds);
+					if ( is_null($result) ) {
+						throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
+					}
+					
+					$obj["categories"] = Toolkit::build_json($result);
 				}
-				
-				$obj["categories"] = Toolkit::build_json($result);
 				//// 
 				
 				$JSON[] = $obj;
@@ -141,7 +153,7 @@
 			//// 
 			
 			
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n\n";
 		}
 		// * // 
 		

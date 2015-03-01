@@ -28,7 +28,7 @@
 			// Get city with given cityID
 			if ( $this->REST_vars["cityID"] && is_numeric($this->REST_vars["cityID"]) ) {
 				$select = "
-					SELECT `id`, `countryID`, `name`, `latitude`, `longitude`
+					SELECT `id`, `countryID`, `name`, `latitude`, `longitude`, `thumb`
 					FROM `Cities` 
 					WHERE `id` = ?
 				";
@@ -38,7 +38,7 @@
 			// Get cities with given countryID
 			else {
 				$select = "
-					SELECT `id`, `countryID`, `name`, `latitude`, `longitude`
+					SELECT `id`, `countryID`, `name`, `latitude`, `longitude`, `thumb`
 					FROM `Cities` 
 					WHERE `countryID` = ?
 				";
@@ -60,13 +60,14 @@
 				$obj["name"] = $row['name'];
 				$obj["latitude"] = $row['latitude'];
 				$obj["longitude"] = $row['longitude'];
+				$obj["thumb"] = $GLOBALS["IMG_DIR"] . $row['thumb'];
 				
 				$JSON[] = $obj;
 			}
 			//// 
 			
 			
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n\n";
 		}
 		// * // 
 		

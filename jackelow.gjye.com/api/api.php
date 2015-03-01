@@ -11,6 +11,10 @@
 	$GLOBALS["DEBUG"] = 0;
 	
 	
+	// Image folder
+	$GLOBALS["IMG_DIR"] = 'http://'. $_SERVER['HTTP_HOST'] . "/imgs/";
+	
+	
 	// Generate HTTP Status codes index 
 	$GLOBALS["HTTP_STATUS"] = [
 		"OK" => 200, "Not Found" => 404, "Created" => 201, 
