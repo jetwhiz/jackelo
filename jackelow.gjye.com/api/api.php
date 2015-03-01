@@ -12,7 +12,7 @@
 	
 	
 	// Image folder
-	$GLOBALS["IMG_DIR"] = 'http://'. $_SERVER['HTTP_HOST'] . "/imgs/";
+	$GLOBALS["IMG_DIR"] = 'https://'. $_SERVER['HTTP_HOST'] . "/imgs/";
 	
 	
 	// Geolocation API URI
