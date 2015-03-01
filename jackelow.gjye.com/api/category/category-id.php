@@ -50,7 +50,7 @@
 			//// 
 			
 			
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 		}
 		// * // 
 		

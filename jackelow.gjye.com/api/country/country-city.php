@@ -48,7 +48,7 @@
 			
 			
 			// Clean up city name 
-			$cityName = preg_replace("/[^\x{00C0}-\x{1FFF}\x{2C00}-\x{D7FF}\w -]/u", "", $_POST["name"]);
+			$cityName = preg_replace("/[^\x{00C0}-\x{1FFF}\x{2C00}-\x{D7FF}\w -,]/u", "", $_POST["name"]);
 			if ( $cityName == "" ) {
 				throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Invalid city name.");
 			}
@@ -110,16 +110,11 @@
 			////
 			
 			
-			
-			// "Created" HTTP Status code 
-			http_response_code($GLOBALS["HTTP_STATUS"]["Created"]);
-			
-			
 			// Return inserted cityID 
 			$JSON = [
-				$cityID
+				"cityID" => $cityID
 			];
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["Created"] );
 		}
 		// * //
 		
@@ -170,7 +165,7 @@
 			//// 
 			
 			
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n\n";
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 		}
 		// * // 
 		

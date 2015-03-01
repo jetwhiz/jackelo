@@ -58,7 +58,8 @@
 			// Namely: EventDestinations, EventCategories, Comments, Attendants
 			
 			
-			// Return? 
+			$JSON = [];
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 		}
 		// * //
 		
@@ -153,7 +154,7 @@
 			//// 
 			
 			
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n\n";
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 		}
 		// * // 
 		

@@ -68,7 +68,8 @@
 			}
 			
 			
-			// Return? 
+			$JSON = [];
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 		}
 		// * //
 		
@@ -120,15 +121,11 @@
 			}
 			
 			
-			// "Created" HTTP Status code 
-			http_response_code($GLOBALS["HTTP_STATUS"]["Created"]);
-			
-			
 			// Return inserted commentID 
 			$JSON = [
-				$commentID
+				"commentID" => $commentID
 			];
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["Created"] );
 		}
 		// * //
 		
@@ -167,7 +164,7 @@
 			
 			$JSON = Toolkit::build_json($res);
 			
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 		}
 		// * // 
 		

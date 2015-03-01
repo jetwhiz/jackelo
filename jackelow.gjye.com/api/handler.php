@@ -41,6 +41,29 @@
 		
 		
 		
+		// SEND //
+		protected function send( $JSON, $code ) {
+			
+			// Print out header status 
+			http_response_code($code);
+			
+			// Get status text from code # 
+			$status = array_search($code, $GLOBALS["HTTP_STATUS"]);
+			
+			// Wrap in API wrapper 
+			$JSON = [
+				"results" => $JSON, 
+				"status" => $status,
+				"code" => $code
+			];
+			
+			// Send to user 
+			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n\n";
+		}
+		// * //
+		
+		
+		
 		// DELETE //
 		protected function delete() {}
 		// * // 

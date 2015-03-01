@@ -147,15 +147,11 @@
 			}
 			
 			
-			// "Created" HTTP Status code 
-			http_response_code($GLOBALS["HTTP_STATUS"]["Created"]);
-			
-			
 			// Return inserted eventID 
 			$JSON = [
-				$eventID
+				"eventID" => $eventID
 			];
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["Created"] );
 		}
 		// * //
 		
@@ -195,7 +191,7 @@
 				//// 
 				
 				
-				echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+				$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 				
 				return;
 			}
@@ -289,7 +285,7 @@
 			//// 
 			
 			
-			echo json_encode($JSON, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n\n";
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 		}
 		// * // 
 		

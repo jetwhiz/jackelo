@@ -36,11 +36,15 @@
 			// Send HTTP Status code in headers also 
 			http_response_code($httpStatus);
 			
+			// Get status from status code 
+			$status = array_search($this->httpStatus, $GLOBALS["HTTP_STATUS"]);
+			
 			// Prepare JSON error packet 
 			$JSON = [
-				"status" => $this->httpStatus,
+				"results" => [],
+				"status" => $status,
 				"message" => $this->message,
-				"code" => $this->code
+				"code" => $this->httpStatus
 			];
 			
 			// Send error to user 
