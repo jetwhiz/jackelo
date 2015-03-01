@@ -1,0 +1,13 @@
+<Files *.ini> 
+    Order deny,allow
+    Deny from all
+</Files>
+
+# Enable Rewriting
+RewriteEngine on
+
+# Force HTTPS 
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+
