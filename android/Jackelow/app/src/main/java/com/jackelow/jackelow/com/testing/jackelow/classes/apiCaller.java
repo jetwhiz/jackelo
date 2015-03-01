@@ -31,16 +31,22 @@ public class apiCaller {
     //@Override
     public String getURL(JSONObject params) {
 
-        String api;
+        String api = "error";
         try {
 
-            params.getString("api");
+            api = params.getString("api");
         }
         catch (Exception e){
-
         }
 
-        if api.
+
+        // Look up the function to generate the correct url based on the api
+        if (api.compareTo("event") == 0){
+
+        }
+        else if (api.compareTo("event") == 0){
+
+        }
         
         return true;
     }
