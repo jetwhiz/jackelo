@@ -240,7 +240,14 @@
 				$binds[0] .= "i";
 				$binds[] = $this->REST_vars["show"];
 			}
-			
+			else {
+				$where .= "
+					WHERE `Events`.`eventTypeID` != ?
+				";
+				
+				$binds[0] .= "i";
+				$binds[] = $GLOBALS["EventTypes"]["Info"];
+			}
 			
 			
 			// TODO: sort by location  

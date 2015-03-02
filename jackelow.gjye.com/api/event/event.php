@@ -42,6 +42,26 @@
 	}
 	
 	
+	// Get event types from database 
+	$GLOBALS["EventTypes"] = [];
+	{
+		$select = "
+				SELECT `name`, `id`
+				FROM `EventTypes` 
+		";
+		$binds = null;
+		
+		$res = $DBs->select($select, $binds);
+		if ( is_null($res) ) {
+			$e = new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "Event Error: Failed to retrieve internal request.");
+			$e->kill();
+		}
+		
+		while ($row = $res->fetch_assoc()) {
+			$GLOBALS["EventTypes"][ $row["name"] ] = $row["id"];
+		}
+	}
+	
 	
 	// Associated event ID given 
 	if ( count($queryArray) && is_numeric($queryArray[0]) ) {
