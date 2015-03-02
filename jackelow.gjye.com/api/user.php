@@ -3,6 +3,8 @@
 		private $db;
 		private $id;
 		private $sessionID;
+		private $GPS;
+		
 		
 		// Set up data structure //
 		function __construct(&$db, $sessionID) {
@@ -39,12 +41,21 @@
 				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Invalid user ID.");
 			}
 			
-			
+			$this->GPS = [];
 			$this->id = $usrid;
 			$this->sessionID = $sessionID;
 			$this->handle = &$db;
 		}
 		// * //
+		
+		
+		
+		// Get location //
+		public function getLocation() {
+			return $this->GPS;
+		}
+		// * //
+		
 		
 		
 		// Validate user //
@@ -57,6 +68,7 @@
 			return 1;
 		}
 		// * //
+		
 		
 		
 		// Return current user ID //

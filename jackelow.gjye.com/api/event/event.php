@@ -18,28 +18,8 @@
 	
 	
 	// Display options for our API 
-	$REST_strs_opts = [ "sort", "category", "country", "show" ];
+	$REST_strs_opts = [ "category", "country", "show" ];
 	
-	
-	// Get sort types from database 
-	$GLOBALS["SortTypes"] = [];
-	{
-		$select = "
-				SELECT `name`, `id`
-				FROM `SortTypes` 
-		";
-		$binds = null;
-		
-		$res = $DBs->select($select, $binds);
-		if ( is_null($res) ) {
-			$e = new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "Event Error: Failed to retrieve internal request.");
-			$e->kill();
-		}
-		
-		while ($row = $res->fetch_assoc()) {
-			$GLOBALS["SortTypes"][ $row["name"] ] = $row["id"];
-		}
-	}
 	
 	
 	// Get event types from database 

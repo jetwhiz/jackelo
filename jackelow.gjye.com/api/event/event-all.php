@@ -250,33 +250,19 @@
 			}
 			
 			
-			// TODO: sort by location  
-			if ( $this->REST_vars["sort"] == $GLOBALS["SortTypes"]["Location"] ) {
-				$orderBy .= "
-					ORDER BY `Events`.`datetimeStart`
-				";
-			}
+			// Sorting 
+			$join .= "
+				INNER JOIN (
+					SELECT COUNT(*) AS `ATT-CNT`
+					FROM `Attendants` 
+					WHERE `Attendants`.`eventID` = `id`
+				) AS `Attendants`
+			";
+			$orderBy .= "
+				ORDER BY `Events`.`datetimeStart`, `Attendants`.`ATT-CNT`
+			";
+			// NOTE: Sort by location performed AFTER results pulled from database 
 			
-			// sort by popularity 
-			elseif ( $this->REST_vars["sort"] == $GLOBALS["SortTypes"]["Popularity"] ) {
-				$join .= "
-					INNER JOIN (
-						SELECT COUNT(*) AS `ATT-CNT`
-						FROM `Attendants` 
-						WHERE `Attendants`.`eventID` = `id`
-					) AS `Attendants`
-				";
-				$orderBy .= "
-					ORDER BY `Attendants`.`ATT-CNT`
-				";
-			}
-			
-			// date sort (default) 
-			else {
-				$orderBy .= "
-					ORDER BY `Events`.`datetimeStart`
-				";
-			}
 			
 			$prepared = "$select$join$where$groupBy$orderBy";
 			
@@ -290,6 +276,9 @@
 			}
 			$JSON = Toolkit::build_json($result);
 			//// 
+			
+			
+			// TODO: Sort by location
 			
 			
 			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );

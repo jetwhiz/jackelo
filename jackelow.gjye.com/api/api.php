@@ -77,7 +77,7 @@
 	$REST_types = [ 
 		"event" => "event/event.php", "category" => "category/category.php", "city" => "city/city.php", 
 		"country" => "country/country.php", "eventtype" => "eventType/eventType.php", 
-		"sorttype" => "sortType/sortType.php", "session" => "session/session.php", "user" => "user/user.php"
+		"session" => "session/session.php", "user" => "user/user.php"
 	];
 	
 	
