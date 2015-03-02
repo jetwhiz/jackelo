@@ -131,6 +131,8 @@
 			if ($GLOBALS["DEBUG"]) {
 				print_r("PARSE ERROR (primary-eventID)!\n");
 			}
+			$e = new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "RESTful Error: Bad request.");
+			$e->kill();
 		}
 		
 	}
@@ -179,6 +181,8 @@
 					if ($GLOBALS["DEBUG"]) {
 						print_r("PARSE ERROR (secondary)!  Not numeric '" . $queryArray[$i+1] . "'\n");
 					}
+					$e = new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "RESTful Error: Bad request.");
+					$e->kill();
 				}
 			}
 			
@@ -187,6 +191,8 @@
 				if ($GLOBALS["DEBUG"]) {
 					print_r("PARSE ERROR (primary)!\n");
 				}
+				$e = new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "RESTful Error: Bad request.");
+				$e->kill();
 			}
 		}
 		

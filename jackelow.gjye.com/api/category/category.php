@@ -63,6 +63,8 @@
 			if ($GLOBALS["DEBUG"]) {
 				print_r("PARSE ERROR (primary)!\n");
 			}
+			$e = new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "RESTful Error: Bad request.");
+			$e->kill();
 		}
 	}
 	else {
