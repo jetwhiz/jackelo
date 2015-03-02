@@ -76,8 +76,8 @@
 	// Display options for our API 
 	$REST_types = [ 
 		"event" => "event/event.php", "category" => "category/category.php", "city" => "city/city.php", 
-		"country" => "country/country.php", "eventType" => "eventType.php", 
-		"sortType" => "sortType.php", "session" => "session/session.php", "user" => "user/user.php"
+		"country" => "country/country.php", "eventtype" => "eventType/eventType.php", 
+		"sorttype" => "sortType/sortType.php", "session" => "session/session.php", "user" => "user/user.php"
 	];
 	
 	
