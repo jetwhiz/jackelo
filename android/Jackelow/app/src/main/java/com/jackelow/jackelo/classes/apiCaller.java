@@ -1,4 +1,4 @@
-package com.jackelow.jackelow.com.testing.jackelow.classes;
+package com.jackelow.jackelo.classes;
 
 /**
  * Created by David on 2/24/2015.
@@ -15,6 +15,8 @@ import java.lang.Object;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.lang.String;
+import java.io.*;
+import com.jackelow.jackelo.classes.getter;
 
 public class apiCaller {
 
@@ -31,46 +33,60 @@ public class apiCaller {
     //@Override
     public String getURL(JSONObject params) {
 
-        String api = "error";
+        String api;
+        String url = "http://jackelow.gjye.com/api/";
         try {
 
             api = params.getString("api");
+            url+=api;
+
+            if(params.getString("id") != null){
+                if(params.getString("id").equals("all")) {
+                    // Do nothing
+                }
+                else{
+                    url+=params.getString("id"); // Tag the id along
+                }
+
+            }
         }
         catch (Exception e){
-        }
-
-
-        // Look up the function to generate the correct url based on the api
-        if (api.compareTo("event") == 0){
 
         }
-        else if (api.compareTo("event") == 0){
 
-        }
-        
-        return true;
+        return url;
     }
 
     //@Override
     public JSONObject apiGet(String params) {
 
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+
         HttpResponse response = null;
         try {
 
             request.setURI(new URI(params));
-            response = client.execute(request);
+            getter myGetter = new getter(client);
+            //response = client.execute(request);
+            String result = (myGetter).execute(request).get();
+            return new JSONObject(result);
+
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return new JSONObject(response);
+
+        return null;
     }
 
+    //@Override
+    public JSONObject apiGet(JSONObject params) {
+
+        return apiGet( getURL(params));
+    }
 }
 
 

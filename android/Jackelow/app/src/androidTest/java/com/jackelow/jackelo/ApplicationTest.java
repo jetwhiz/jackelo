@@ -1,4 +1,4 @@
-package com.jackelow.jackelow;
+package com.jackelow.jackelo;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
