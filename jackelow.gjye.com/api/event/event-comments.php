@@ -83,6 +83,17 @@
 				print_r($_POST);
 			}
 			
+			// Get datetime of comment (NOW) 
+			$now = new DateTime();
+			$dateTime = $now->format('Y-m-d H:i:s');
+			
+			
+			// No comment body supplied 
+			if ( $_POST["message"] == "" ) {
+				$e = new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . ": You did not supply a comment body.");
+				$e->kill();
+			}
+			
 			
 			// Perform INSERT for Comments table 
 			$insert = "
@@ -96,7 +107,7 @@
 			$binds[0] = "iiss";
 			$binds[] = $this->REST_vars["eventID"];
 			$binds[] = $this->User->getID();
-			$binds[] = $_POST["datetime"];
+			$binds[] = $dateTime;
 			$binds[] = htmlspecialchars($_POST["message"], $FLAGS, "UTF-8");
 			
 			if ($GLOBALS["DEBUG"]) {
