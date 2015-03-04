@@ -177,6 +177,7 @@
 					SELECT COUNT(*) AS `count`, `countryID`
 					FROM `EventDestinations` 
 					GROUP BY `countryID`
+					ORDER BY `count` DESC
 				";
 				
 				if ($GLOBALS["DEBUG"]) {
