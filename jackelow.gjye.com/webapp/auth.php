@@ -216,7 +216,6 @@
 			
 			// Clean up to make sure json_decode doesn't complain 
 			$plaintext_dec = substr( $plaintext_dec, 0, $pos+1);
-			$plaintext_dec = preg_replace("/\'/", '"', $plaintext_dec);
 			
 			
 			//echo $plaintext_dec . "<br><br>";

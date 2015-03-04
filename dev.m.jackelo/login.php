@@ -36,10 +36,10 @@
 		
 		// Prepare plaintext message to send to other server 
 		$plaintext = "{" . 
-			"'name': '" . $_USER['uid'] . "'"
-			. ", 'date': '" . date("Y-m-d H:i:s T") . "'"
-			. ", 'snonce': '" . bin2hex($nonce) . "'" 
-			. ", 'cnonce': '" . $cnonce . "'"
+			"\"name\": \"" . $_USER['uid'] . "\""
+			. ", \"date\": \"" . date("Y-m-d H:i:s T") . "\""
+			. ", \"snonce\": \"" . bin2hex($nonce) . "\"" 
+			. ", \"cnonce\": \"" . $cnonce . "\""
 			. "}";
 		//echo $plaintext . "<br><br>";
 		
