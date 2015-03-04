@@ -2,6 +2,7 @@
 <widget title="Jackelo" security="protected">
     <library name="jquery"/>
 	
+    <html file="login.html"/>
 	<javascript file="login.js"/>
 	
 </widget>

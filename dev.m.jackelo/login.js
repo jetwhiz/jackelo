@@ -4,7 +4,9 @@ $(function() {
 		dataType: "json",
 		async: true,
 		success: function(data, textStatus, jqXHR) {
-			window.location.replace("https://jackelow.gjye.com/webapp/?session=" + encodeURIComponent(data.session));
+			$( "#session" ).val(data.session);
+			$( "#target" ).submit();
+			//window.location.replace("https://jackelow.gjye.com/webapp/?session=" + encodeURIComponent(data.session));
 		}
 	});
 });

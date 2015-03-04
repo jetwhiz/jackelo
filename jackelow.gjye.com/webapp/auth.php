@@ -32,7 +32,7 @@
 			
 			
 			// no challenge provided .. send them to the GT Login page (dies) 
-			if (!array_key_exists('session', $_GET)) {
+			if (!array_key_exists('session', $_POST)) {
 				Authenticate::challenge( $DBs );
 				die;
 			}
@@ -68,8 +68,21 @@
 		// Send user to GT Login with a randomly-generated nonce prepared // 
 		public static function challenge( &$DBs ) {
 			
+			
 			// Set test cookie 
-			setcookie("test", "1", time()+3600, "/", $_SERVER['HTTP_HOST'], true, true);
+			$val = 1;
+			if ( $_COOKIE["test"] ) {
+				$val = $_COOKIE["test"];
+			}
+			
+			if ( $val > $GLOBALS["LOOP_DETECT"] ) {
+				setcookie("test", "0", time()-3600, "/", $_SERVER['HTTP_HOST'], true, true);
+				echo "loop detected";
+				die;
+			}
+			else {
+				setcookie("test", $val+1, time()+3600, "/", $_SERVER['HTTP_HOST'], true, true);
+			}
 			
 			
 			// Perform INSERT for Sessions table 
@@ -121,7 +134,7 @@
 			
 			
 			// Decrypt provided challenge response 
-			$json = Authenticate::decryptChallenge($_GET["session"]);
+			$json = Authenticate::decryptChallenge($_POST["session"]);
 			
 			
 			// Make sure too much time hasn't passed since cnonce was created // 

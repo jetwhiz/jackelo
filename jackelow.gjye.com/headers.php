@@ -32,6 +32,10 @@
 	$GLOBALS["COOKIE_EXPR"] = 60*60*24*7;
 	
 	
+	// Number of times login should fail before we refuse to login (loop detection) 
+	$GLOBALS["LOOP_DETECT"] = 2;
+	
+	
 	// Do not print errors/warnings unless debugging is set 
 	if (!$GLOBALS["DEBUG"]) {
 		error_reporting(0);
