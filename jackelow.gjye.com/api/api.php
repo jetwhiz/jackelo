@@ -19,7 +19,11 @@
 	
 	
 	// Break up URI into tokens on "/" symbol 
-	$queryArray = Toolkit::array_clean(explode( "/", strtolower(urldecode($_SERVER['REQUEST_URI'])) ));
+	$URI = $_SERVER['REQUEST_URI'];
+	if ( strpos($URI, "?") !== false ) {
+		$URI = strtok($URI,'?');
+	}
+	$queryArray = Toolkit::array_clean(explode( "/", strtolower(urldecode($URI)) ));
 	////
 	
 	
