@@ -25,7 +25,7 @@
 		
 		
 		// Create a new user for a given GT Login //
-		public static function create_user( $DBs, $username ) {
+		public static function create_user( &$DBs, $username ) {
 			$userID = 0;
 			
 			// See if user already exists // 
