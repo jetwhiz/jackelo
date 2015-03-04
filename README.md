@@ -1,3 +1,5 @@
 # jackelo
 Jackelo School Project
-# I like pie
+
+## Versions
+**v0.1:** Presentation 3 + GT Login 
