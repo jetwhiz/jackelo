@@ -1,11 +1,28 @@
 <?
 	class Authenticate {
+		protected $DBs;
+		
+		
+		// CONSTRUCTOR //
+		function __construct( &$dbs ) {
+			if ( is_null($dbs) ) {
+				if ($GLOBALS["DEBUG"]) {
+					print_r(get_class($this) . " Error: Database not supplied\n");
+				}
+				
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Database not supplied.");
+			}
+			
+			$this->DBs = &$dbs;
+		}
+		// * // 
+		
 		
 		
 		// Assertion version of getUser; dies if not logged in //
-		public static function assert_login() {
+		public function assert_login() {
 			
-			$user = Authenticate::getUser();
+			$user = $this->getUser();
 			if ( is_null( $user ) ) {
 				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], get_class($this) . " Error: Failed to authenticate.");
 			}
@@ -16,37 +33,46 @@
 		
 		
 		
-		// Obtain the current user; if not logged in, make them log in // 
-		public static function getUser() {
-			
-			// Pull in prereqs 
-			require_once "../error.php";
-			
-			
-			// Prepare databases
-			require_once "../db.php";
-			try {
-				$DBs = new Database();
-			} catch (Error $e) {
-				if ($GLOBALS["DEBUG"]) {
-					print_r("Authenticate: Cannot access database\n");
-				}
-				
-				return null;
-			}
-			////
-			
-			
+		// Tell is if the visitor is logged in or not //
+		public function isLoggedIn() {
 			
 			// If they have a sessionID, see if it's good 
 			if ( $_COOKIE["sessionID"] ) {
 				try {
-					$User = new User($DBs, $_COOKIE["sessionID"]);
+					$User = new User($this->DBs, $_COOKIE["sessionID"]);
 				} catch (Error $e) {
-					setcookie("sessionID", "0", time()-3600, "/", $_SERVER['HTTP_HOST'], true, true);
-					$PATH = strtok($_SERVER["REQUEST_URI"],'?');
-					header("Location: https://" . $_SERVER['HTTP_HOST'] . $PATH);
-					die; // die to be safe (redirection) 
+					return false;
+				}
+				
+				return true;
+			}
+			
+			// No sessionID -->  not logged in 
+			return false;
+		}
+		// * //
+		
+		
+		
+		// Obtain the current user // 
+		// @param: forceLogin - if not logged in, make them log in
+		public function getUser( $forceLogin = true ) {
+			
+			
+			// If they have a sessionID, see if it's good ... otherwise expire it and force login 
+			if ( $_COOKIE["sessionID"] ) {
+				try {
+					$User = new User($this->DBs, $_COOKIE["sessionID"]);
+				} catch (Error $e) {
+					
+					if ( $forceLogin ) {
+						setcookie("sessionID", "0", time()-3600, "/", $_SERVER['HTTP_HOST'], true, true);
+						$PATH = strtok($_SERVER["REQUEST_URI"],'?');
+						header("Location: https://" . $_SERVER['HTTP_HOST'] . $PATH);
+						die; // die to be safe (redirection) 
+					}
+					
+					return null;
 				}
 				
 				return $User;
@@ -56,14 +82,14 @@
 			
 			// no challenge provided .. send them to the GT Login page (dies) 
 			if (!array_key_exists('session', $_POST)) {
-				Authenticate::challenge( $DBs );
+				$this->challenge();
 				
 				// challenge redirects, so die to be safe 
 				die;
 			}
 			
 			// we have an encrypted session key 
-			$json = Authenticate::verifyChallenge( $DBs );
+			$json = $this->verifyChallenge();
 			if ( is_null($json) ) {
 				if ($GLOBALS["DEBUG"]) {
 					print_r("Authenticate: Failed to authenticate\n");
@@ -73,7 +99,7 @@
 			}
 			
 			// Get userID based on username (or create if non-existent) 
-			$userID = Toolkit::create_user( $DBs, $json["name"] );
+			$userID = Toolkit::create_user( $this->DBs, $json["name"] );
 			if ( !$userID ) {
 				if ($GLOBALS["DEBUG"]) {
 					print_r("Authenticate: Failed to get user ID\n");
@@ -83,7 +109,7 @@
 			}
 			
 			// Authenticated, now log user in -- redirects upon success (dies) 
-			if ( !Authenticate::login( $DBs, $userID, $json["cnonce"] ) ) {
+			if ( !$this->login( $userID, $json["cnonce"] ) ) {
 				if ($GLOBALS["DEBUG"]) {
 					print_r("Authenticate: Failed to log in\n");
 				}
@@ -103,7 +129,7 @@
 		
 		
 		// Send user to GT Login with a randomly-generated nonce prepared // 
-		public static function challenge( &$DBs ) {
+		public function challenge() {
 			
 			
 			// Set test cookie 
@@ -145,7 +171,7 @@
 			$binds[] = $nonce;
 			
 			// Perform insertion (and ensure row was inserted) 
-			$affected = $DBs->insert($insert, $binds);
+			$affected = $this->DBs->insert($insert, $binds);
 			if ( !$affected ) {
 				echo "not inserted";
 				die;
@@ -160,7 +186,7 @@
 		
 		
 		// Verify that they have succeeded the GT Login challenge //
-		public static function verifyChallenge( &$DBs ) {
+		public function verifyChallenge() {
 			
 			// Make sure they can have cookies set successfully
 			if ( !$_COOKIE["test"] ) {
@@ -171,7 +197,7 @@
 			
 			
 			// Decrypt provided challenge response 
-			$json = Authenticate::decryptChallenge($_POST["session"]);
+			$json = $this->decryptChallenge($_POST["session"]);
 			
 			
 			// Make sure too much time hasn't passed since cnonce was created // 
@@ -185,7 +211,7 @@
 			$binds[0] = "s";
 			$binds[] = $json["cnonce"];
 			
-			$res = $DBs->select($select, $binds);
+			$res = $this->DBs->select($select, $binds);
 			if ( is_null($res) ) {
 				echo "session pull fail";
 				return NULL;
@@ -219,7 +245,7 @@
 		
 		
 		// DECRYPT GIVEN SESSION (RETURNS JSON OBJECT) //
-		private static function decryptChallenge($encChallenge) {
+		private function decryptChallenge($encChallenge) {
 			
 			// Parse auth configuration file 
 			$ini_array = parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../dbconf.ini", true);
@@ -287,7 +313,7 @@
 		
 		
 		// Log user in if challenge succeeded //
-		public static function login($DBs, $userID, $tempSessionID) {
+		public function login($userID, $tempSessionID) {
 			// LOG THE USER IN (ASSIGN THEIR USERNAME TO THIS SESSION) //
 			
 			// Generate session ID 
@@ -313,7 +339,7 @@
 			$binds[] = $tempSessionID;
 			
 			// Perform insertion (and ensure row was inserted) 
-			$affected = $DBs->insert($insert, $binds);
+			$affected = $this->DBs->insert($insert, $binds);
 			if ( !$affected ) {
 				echo "not logged in (update fail)";
 				return false;

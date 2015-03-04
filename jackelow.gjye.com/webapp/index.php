@@ -2,6 +2,7 @@
 	
 	// Pull in toolkits for all instances 
 	require "../headers.php";
+	require "../db.php";
 	require "../toolkit.php";
 	require "../error.php";
 	require "../user.php";
@@ -10,7 +11,6 @@
 	
 	
 	// Prepare databases
-	require "../db.php";
 	try {
 		$DBs = new Database();
 	} catch (Error $e) {
@@ -21,7 +21,8 @@
 	
 	
 	// Ensure user is logged in 
-	$User = Authenticate::getUser();
+	$Auth = new Authenticate($DBs);
+	$User = $Auth->getUser();
 	echo "<h1>Welcome, " . $User->getUsername() . "!</h1>";
 	
 	

@@ -10,8 +10,11 @@
 	
 	// Pull in toolkits for all instances 
 	require "../headers.php";
+	require "../db.php";
 	require "../toolkit.php";
 	require "../error.php";
+	require "../user.php";
+	require "../auth.php";
 	require "handler.php";
 	
 	
@@ -34,7 +37,6 @@
 	
 	
 	// Prepare databases
-	require "../db.php";
 	try {
 		$DBs = new Database();
 	} catch (Error $e) {
@@ -43,15 +45,11 @@
 	////
 	
 	
-	// Prepare current user (and ensure they are logged in) 
-	if ( !$_COOKIE["sessionID"] ) {
+	// Ensure user is logged in, get User object 
+	$Auth = new Authenticate($DBs);
+	$User = $Auth->getUser(false);
+	if ( is_null( $User ) ) {
 		$e = new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "RESTful Error: You must be logged in.");
-		$e->kill();
-	}
-	require "../user.php";
-	try {
-		$User = new User($DBs, $_COOKIE["sessionID"]); 
-	} catch (Error $e) {
 		$e->kill();
 	}
 	////
