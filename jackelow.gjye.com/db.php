@@ -199,11 +199,19 @@
 		
 		
 		// Wrapper for SELECT statements (prepared-bound) //
-		public function select($SELECT_STR, $BINDS) {
+		public function select($SELECT_STR, $BINDS, $FORCE_UNSAFE = false) {
 			
-			// Only read permissions necessary for SELECT statement 
-			$hnd = $this->connect("ro");
+			// Force unsafe mode? (rw capabilities) 
+			if ( $FORCE_UNSAFE ) {
+				// To use transactions across INSERT/SELECT 
+				$hnd = $this->connect("rw");
+			}
+			else {
+				// Only read permissions necessary for SELECT statement 
+				$hnd = $this->connect("ro");
+			}
 			if ( !$hnd ) { return null; }
+			
 			
 			// Prepare statement 
 			if (!($stmt = $hnd->prepare($SELECT_STR))) {
