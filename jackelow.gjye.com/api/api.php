@@ -3,6 +3,7 @@
 		/event/ 				-- handle events
 		/category/				-- handle categories
 		/country/				-- handle countries
+		/type/					-- handle event types 
 		/user/					-- handle users 
 	*/
 	
@@ -59,7 +60,7 @@
 	// Display options for our API 
 	$REST_types = [ 
 		"event" => "event/event.php", "category" => "category/category.php", "city" => "city/city.php", 
-		"country" => "country/country.php", "eventtype" => "eventType/eventType.php", 
+		"country" => "country/country.php", "type" => "type/eventType.php", 
 		"session" => "session/session.php", "user" => "user/user.php"
 	];
 	
