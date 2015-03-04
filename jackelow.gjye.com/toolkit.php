@@ -24,6 +24,66 @@
 		// * // 
 		
 		
+		// Create a new user for a given GT Login //
+		public static function create_user( $DBs, $username ) {
+			$userID = 0;
+			
+			// See if user already exists // 
+			$select = "
+				SELECT `id`
+				FROM `Users` 
+				WHERE `username` = ?
+				LIMIT 1
+			";
+			$binds = [];
+			$binds[0] = "s";
+			$binds[] = $username;
+			
+			$res = $DBs->select($select, $binds);
+			if ( is_null($res) ) {
+				echo "user fail";
+				die;
+			}
+			
+			$row = $res->fetch_assoc();
+			
+			// No user exists with this ID -- create them 
+			if ( !$row ) {
+				
+				// Perform INSERT for Users table 
+				$insert = "
+					INSERT INTO `Users` (`username`) 
+					VALUES (?)
+				";
+				
+				// Bind insert params 
+				$binds = [];
+				$binds[0] = "s";
+				$binds[] = $username;
+				
+				// Perform insertion (and ensure row was inserted) 
+				$affected = $DBs->insert($insert, $binds);
+				if ( !$affected ) {
+					echo "user not created (insert fail)";
+					die;
+				}
+				
+				// Retrieve userID for future reference 
+				$userID = $DBs->insertID();
+				if ( !$userID ) {
+					echo "user not created (get ID fail)";
+					die;
+				}
+			}
+			else {
+				$userID = $row["id"];
+			}
+			
+			return $userID;
+		}
+		// * //
+		
+		
 		// Takes a set of rows from DB results and returns a JSON-format object // 
 		public static function build_json(&$results) {
 			$obj = [];

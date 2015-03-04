@@ -7,38 +7,15 @@
 	*/
 	
 	
-	// Show debugging output 
-	$GLOBALS["DEBUG"] = 0;
+	// Pull in toolkits for all instances 
+	require "../headers.php";
+	require "../toolkit.php";
+	require "../error.php";
+	require "handler.php";
 	
-	
-	// Image folder
-	$GLOBALS["IMG_DIR"] = 'https://'. $_SERVER['HTTP_HOST'] . "/imgs/";
-	
-	
-	// Geolocation API URI
-	$GLOBALS["GEOLOC"] = "http://maps.google.com/maps/api/geocode/json?address=";
-	
-	
-	// Generate HTTP Status codes index 
-	$GLOBALS["HTTP_STATUS"] = [
-		"OK" => 200, "Not Found" => 404, "Created" => 201, 
-		"Bad Request" => 400, "Forbidden" => 403, "Internal Error" => 500
-	];
-	
-	
-	// Do not print errors/warnings unless debugging is set 
-	if (!$GLOBALS["DEBUG"]) {
-		error_reporting(0);
-	}
 	
 	// We're returning JSON data 
 	header('Content-Type: application/javascript; charset=utf-8');
-	
-	
-	// Pull in toolkits for all instances 
-	require "toolkit.php";
-	require "error.php";
-	require "handler.php";
 	
 	
 	// Break up URI into tokens on "/" symbol 
@@ -52,7 +29,7 @@
 	
 	
 	// Prepare databases
-	require "db.php";
+	require "../db.php";
 	try {
 		$DBs = new Database();
 	} catch (Error $e) {
@@ -62,12 +39,14 @@
 	
 	
 	// Prepare current user (and ensure they are logged in) 
-	require "user.php";
+	if ( !$_COOKIE["sessionID"] ) {
+		$e = new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "RESTful Error: You must be logged in.");
+		$e->kill();
+	}
+	require "../user.php";
 	try {
-		$User = new User($DBs, 1); // fixed to userID=1 for now (later, pass sessionID) 
+		$User = new User($DBs, $_COOKIE["sessionID"]); 
 	} catch (Error $e) {
-		// TODO: If returned error was "Forbidden", send them to login page 
-		
 		$e->kill();
 	}
 	////

@@ -2,12 +2,16 @@
 	class User {
 		private $db;
 		private $id;
+		private $username;
 		private $sessionID;
 		private $GPS;
 		
 		
 		// Set up data structure //
 		function __construct(&$db, $sessionID) {
+			$this->db = &$db;
+			$this->GPS = [];
+			
 			
 			// A database object is required 
 			if ( is_null($db) ) {
@@ -41,10 +45,8 @@
 				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Invalid user ID.");
 			}
 			
-			$this->GPS = [];
 			$this->id = $usrid;
 			$this->sessionID = $sessionID;
-			$this->handle = &$db;
 		}
 		// * //
 		
@@ -64,10 +66,55 @@
 				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Invalid user ID.");
 			}
 			
-			// TODO: OBTAIN USERID FROM GIVEN SESSIONID 
-			return 1;
+			$select = "
+				SELECT `Sessions`.`userID`, `Sessions`.`datetime`, `Users`.`username`
+				FROM `Sessions` 
+				INNER JOIN `Users` AS `Users`
+					ON `Sessions`.`userID` = `Users`.`id`
+				WHERE `Sessions`.`id` = ?
+				LIMIT 1
+			";
+			$binds = [];
+			$binds[0] = "s";
+			$binds[] = $sessionID;
+			
+			$res = $this->db->select($select, $binds);
+			if ( is_null($res) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "User Error: Database error.");
+			}
+			
+			$row = $res->fetch_assoc();
+			if ( !$row ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Cannot find session.");
+			}
+			
+			// Ensure the userID is good 
+			if ( !is_int( $row["userID"] ) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Invalid user ID from database.");
+			}
+			
+			
+			// Verify the session isn't too old? 
+			
+			
+			// Set username
+			$this->username = $row["username"];
+			
+			return $row["userID"];
 		}
 		// * //
+		
+		
+		
+		// Return current username //
+		public function getUsername() {
+			if ( $this->username == "" ) {
+				$this->sessionToUserID($this->sessionID);
+			}
+			
+			return $this->username;
+		}
+		// * // 
 		
 		
 		
