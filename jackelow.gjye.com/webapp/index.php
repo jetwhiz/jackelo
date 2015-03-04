@@ -5,7 +5,7 @@
 	require "../toolkit.php";
 	require "../error.php";
 	require "../user.php";
-	require "auth.php";
+	require "../auth.php";
 	
 	
 	
