@@ -160,11 +160,19 @@
 				return NULL;
 			}
 			$seconds = strtotime($row["datetime"]) - strtotime($json["date"]);
-			if ( ($seconds/60) > $GLOBALS["CHALLENGE_TO"] ) {
-				echo "timeout";
+			if ( abs($seconds) > $GLOBALS["CCHALLENGE_TO"] ) {
+				echo "cnonce timeout";
 				return NULL;
 			}
 			//// 
+			
+			
+			// Make sure too much time hasn't passed since snonce was created 
+			$seconds = time() - strtotime($json["date"]);
+			if ( abs($seconds) > $GLOBALS["SCHALLENGE_TO"] ) {
+				echo "snonce timeout";
+				return NULL;
+			}
 			
 			
 			return $json;

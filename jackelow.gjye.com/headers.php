@@ -24,8 +24,9 @@
 	$GLOBALS["GATECH_LOGIN"] = "https://dev.m.gatech.edu/developer/cmunson3/api/jackelo/login/";
 	
 	
-	// Amount of time to allow before login challenge expiration (in minutes)
-	$GLOBALS["CHALLENGE_TO"] = 5;
+	// Amount of time to allow before login challenge expiration (in seconds)
+	$GLOBALS["CCHALLENGE_TO"] = 300;
+	$GLOBALS["SCHALLENGE_TO"] = 30;
 	
 	
 	// Time before session cookie expires (in seconds)
