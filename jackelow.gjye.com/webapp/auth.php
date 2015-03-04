@@ -2,14 +2,37 @@
 	class Authenticate {
 		
 		
+		// Assertion version of getUser; dies if not logged in //
 		public static function assert_login() {
+			
+			$user = Authenticate::getUser();
+			if ( is_null( $user ) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], get_class($this) . " Error: Failed to authenticate.");
+			}
+			
+			return;
+		}
+		// * //
+		
+		
+		
+		// Obtain the current user; if not logged in, make them log in // 
+		public static function getUser() {
+			
+			// Pull in prereqs 
+			require_once "../error.php";
+			
 			
 			// Prepare databases
 			require_once "../db.php";
 			try {
 				$DBs = new Database();
 			} catch (Error $e) {
-				$e->kill();
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Authenticate: Cannot access database\n");
+				}
+				
+				return null;
 			}
 			////
 			
@@ -23,7 +46,7 @@
 					setcookie("sessionID", "0", time()-3600, "/", $_SERVER['HTTP_HOST'], true, true);
 					$PATH = strtok($_SERVER["REQUEST_URI"],'?');
 					header("Location: https://" . $_SERVER['HTTP_HOST'] . $PATH);
-					die;
+					die; // die to be safe (redirection) 
 				}
 				
 				return $User;
@@ -34,32 +57,46 @@
 			// no challenge provided .. send them to the GT Login page (dies) 
 			if (!array_key_exists('session', $_POST)) {
 				Authenticate::challenge( $DBs );
+				
+				// challenge redirects, so die to be safe 
 				die;
 			}
 			
 			// we have an encrypted session key 
 			$json = Authenticate::verifyChallenge( $DBs );
 			if ( is_null($json) ) {
-				echo "Failed to authenticate!";
-				die;
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Authenticate: Failed to authenticate\n");
+				}
+				
+				return null;
 			}
 			
 			// Get userID based on username (or create if non-existent) 
 			$userID = Toolkit::create_user( $DBs, $json["name"] );
 			if ( !$userID ) {
-				echo "Failed to get userID!";
-				die;
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Authenticate: Failed to get user ID\n");
+				}
+				
+				return null;
 			}
 			
 			// Authenticated, now log user in -- redirects upon success (dies) 
 			if ( !Authenticate::login( $DBs, $userID, $json["cnonce"] ) ) {
-				echo "Failed to log in!";
-				die;
+				if ($GLOBALS["DEBUG"]) {
+					print_r("Authenticate: Failed to log in\n");
+				}
+				
+				return null;
 			}
 			
+			
 			// We should never get this far 
-			echo "Untrapped assertion";
-			die;
+			if ($GLOBALS["DEBUG"]) {
+				print_r("Authenticate: Untrapped assertion\n");
+			}
+			return null;
 		}
 		// * //
 		

@@ -1,11 +1,11 @@
 <?
 	
 	// Pull in toolkits for all instances 
-	require "auth.php";
 	require "../headers.php";
 	require "../toolkit.php";
 	require "../error.php";
 	require "../user.php";
+	require "auth.php";
 	
 	
 	
@@ -21,7 +21,7 @@
 	
 	
 	// Ensure user is logged in 
-	$User = Authenticate::assert_login();
+	$User = Authenticate::getUser();
 	echo "<h1>Welcome, " . $User->getUsername() . "!</h1>";
 	
 	
