@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<api>
+    <description>Simple login API</description>
+	
+	<command id='login' security='protected'>
+		<index>
+			<description><![CDATA[This will log a user in]]></description>
+			<action file="login.php"><![CDATA[login();]]></action>
+		</index>
+		<get>
+			<description><![CDATA[This will log a user in]]></description>
+			<action file='login.php'><![CDATA[login($_REST['login']);]]></action>
+		</get>
+	</command>
+</api>

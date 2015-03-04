@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<widget title="Jackelo" security="protected">
+    <library name="jquery"/>
+	
+	<javascript file="login.js"/>
+	
+</widget>
