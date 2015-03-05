@@ -116,7 +116,7 @@ function attachHandlers() {
 	
 	// Attach onresize event to window 
 	$( window ).resize( function(e) {
-		if ( limitScroll ) return;
+		if ( limitResize ) return;
 		
 		limitResize = 1;
 		setTimeout(updateChildren, 250); 			// load events when scrolled into view 
