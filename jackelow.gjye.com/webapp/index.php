@@ -32,11 +32,39 @@
 		<meta charset="utf-8" />
 		
 		<link type="text/css" rel="stylesheet" href="base.css" />
+		<link type="text/css" rel="stylesheet" href="index.css" />
 		
 		<script type="text/javascript" src="jquery.js"></script>
+		<script type="text/javascript" src="index.js"></script>
 	</head>
 	<body>
 		<div id="header"><h1>Jackelo</h1></div>
-		<div id="content-body"><? echo "<h1>Welcome, " . $User->getUsername() . "!</h1>"; ?></div>
+		<div id="content-body">
+			<div id="wrapper">
+				<? echo "<h1>Welcome, " . $User->getUsername() . "!</h1>"; ?>
+				
+				<div id="injection-point"></div>
+				<div id="event-template">
+					<div class="event-block">
+						<div class="tr">
+							<div class="thumb-cell"></div>
+							<div class="info-cell">
+								<div class="title-cell"></div>
+								<div class="username-cell"></div>
+								<div class="dates-cell"></div>
+								<div class="tags-cell"></div>
+							</div>
+						</div>
+						<div class="tr">
+							<div class="td">
+								&nbsp;
+							</div>
+							<div class="description-cell"></div>
+						</div>
+					</div>
+					<br />
+				</div>
+			</div>
+		</div>
 	</body>
 </html>

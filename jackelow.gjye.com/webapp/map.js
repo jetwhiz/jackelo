@@ -47,8 +47,8 @@ function funcFactory( map, count ) {
 
 
 // Populate the given map with events 
-function populate(map) {
-	map = initialize();
+function populate() {
+	var map = initialize();
 	
 	$.get( "/api/event/group/", function( groups ) {
 		for ( var result in groups.results ) {
