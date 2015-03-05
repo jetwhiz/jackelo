@@ -58,32 +58,6 @@
 		$ciphertext_base64 = base64_encode($ciphertext);
 		
 		echo  "{ \"session\": \"" . $ciphertext_base64 . "\" }";
-		
-		
-		
-		
-		// DECRYPT 
-		/*
-		$ciphertext_dec = base64_decode($ciphertext_base64);
-		$iv_dec = substr($ciphertext_dec, 0, $iv_size);
-		$ciphertext_dec = substr($ciphertext_dec, $iv_size);
-		$plaintext_dec = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $ciphertext_dec, MCRYPT_MODE_CBC, $iv_dec);
-		*/
-		
-		//echo  $plaintext_dec . "<br><br>";
-		
-		
-		
-		
-		/*
-		// Key strengthening 
-		$hash = "CS8803";
-		for ($i = 0; $i < 5; ++$i) {
-			$salt = mcrypt_create_iv(3, MCRYPT_DEV_URANDOM);
-			$hash .= crypt("$hash team-technopole-2000", $salt);
-		}
-		echo bin2hex($hash);
-		*/
 	}
 	
 ?>
