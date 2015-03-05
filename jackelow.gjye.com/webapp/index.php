@@ -23,7 +23,20 @@
 	// Ensure user is logged in 
 	$Auth = new Authenticate($DBs);
 	$User = $Auth->getUser();
-	echo "<h1>Welcome, " . $User->getUsername() . "!</h1>";
-	
-	
 ?>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Jackelo - GTL Events Manager</title>
+		
+		<meta charset="utf-8" />
+		
+		<link type="text/css" rel="stylesheet" href="base.css" />
+		
+		<script type="text/javascript" src="jquery.js"></script>
+	</head>
+	<body>
+		<div id="header"><h1>Jackelo</h1></div>
+		<div id="content-body"><? echo "<h1>Welcome, " . $User->getUsername() . "!</h1>"; ?></div>
+	</body>
+</html>
