@@ -174,11 +174,17 @@
 			// group by (country) -- cannot be combined with others 
 			if ( $this->REST_vars["group"] ) {
 				$select = "
-					SELECT COUNT(*) AS `count`, `countryID`
+					SELECT COUNT(*) AS `count`, `EventDestinations`.`countryID`
 					FROM `EventDestinations` 
-					GROUP BY `countryID`
+					INNER JOIN `Events` AS `Events`
+						ON `EventDestinations`.`eventID` = `Events`.`id`
+					WHERE `Events`.`eventTypeID` != ?
+					GROUP BY `EventDestinations`.`countryID`
 					ORDER BY `count` DESC
 				";
+				
+				$binds[0] .= "i";
+				$binds[] = $GLOBALS["EventTypes"]["Info"];
 				
 				if ($GLOBALS["DEBUG"]) {
 					print_r($select . "\n");
