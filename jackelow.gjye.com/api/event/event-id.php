@@ -70,9 +70,15 @@
 			
 			// Get main event data 
 			$select = "
-					SELECT `name`, `datetimeStart`, `datetimeEnd`, `description`, `ownerID`, `eventTypeID` 
+					SELECT `Events`.`name`, `Events`.`datetimeStart`, `Events`.`datetimeEnd`, 
+						`Events`.`description`, `Events`.`ownerID`, `Users`.`username`,
+						`Events`.`eventTypeID`, `EventTypes`.`name` AS `eventType`
 					FROM `Events` 
-					WHERE `id` = ?
+					INNER JOIN `EventTypes` AS `EventTypes`
+						ON `EventTypes`.`id` = `Events`.`eventTypeID`
+					INNER JOIN `Users` AS `Users`
+						ON `Users`.`id` = `Events`.`ownerID`
+					WHERE `Events`.`id` = ?
 			";
 			$binds = ["i", $this->REST_vars["eventID"]];
 			
@@ -88,21 +94,25 @@
 				$obj["datetimeStart"] = $row['datetimeStart'];
 				$obj["datetimeEnd"] = $row['datetimeEnd'];
 				$obj["ownerID"] = $row['ownerID'];
+				$obj["username"] = $row['username'];
 				
 				// Hide non-simple elements 
 				if ( $this->REST_vars["simple"] != 1 ) {
 					$obj["description"] = $row['description'];
 					$obj["eventTypeID"] = $row['eventTypeID'];
+					$obj["eventType"] = $row['eventType'];
 				}
 				
 				// Get event destinations 
 				if ( $this->REST_vars["simple"] == 1 ) {
 					$select = "
-							SELECT `EventDestinations`.`cityID`, 
-								`EventDestinations`.`countryID`, 
-								CONCAT(?, `Cities`.`thumb`) AS `thumb`
+							SELECT `EventDestinations`.`cityID`, `Cities`.`name` AS `cityName`, 
+								`EventDestinations`.`countryID`, `Countries`.`name` AS `countryName`,
+								CONCAT(?, `Cities`.`thumb`, '.thumb.jpg') AS `thumb`,
+								CONCAT(?, `Cities`.`thumb`) AS `img`
 							FROM `EventDestinations` 
 							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
+							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `EventDestinations`.`countryID`
 							WHERE `EventDestinations`.`eventID` = ?
 							ORDER BY `EventDestinations`.`datetimeStart`
 					";
@@ -110,17 +120,20 @@
 				else {
 					$select = "
 							SELECT `EventDestinations`.`address`, `EventDestinations`.`datetimeStart`, 
-								`EventDestinations`.`datetimeEnd`, `EventDestinations`.`cityID`, 
-								`EventDestinations`.`countryID`, 
-								CONCAT(?, `Cities`.`thumb`) AS `thumb`
+								`EventDestinations`.`datetimeEnd`, 
+								`EventDestinations`.`cityID`, `Cities`.`name` AS `cityName`, 
+								`EventDestinations`.`countryID`, `Countries`.`name` AS `countryName`,
+								CONCAT(?, `Cities`.`thumb`, '.thumb.jpg') AS `thumb`,
+								CONCAT(?, `Cities`.`thumb`) AS `img`
 							FROM `EventDestinations` 
 							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
+							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `EventDestinations`.`countryID`
 							WHERE `EventDestinations`.`eventID` = ?
 							ORDER BY `EventDestinations`.`datetimeStart`
 					";
 				}
 				
-				$binds = ["si", $GLOBALS["IMG_DIR"], $this->REST_vars["eventID"]];
+				$binds = ["ssi", $GLOBALS["IMG_DIR"], $GLOBALS["IMG_DIR"], $this->REST_vars["eventID"]];
 				
 				$result = $this->DBs->select($select, $binds);
 				if ( is_null($result) ) {
@@ -134,9 +147,11 @@
 				// Get event categories (non-simple) 
 				if ( $this->REST_vars["simple"] != 1 ) {
 					$select = "
-							SELECT `categoryID`
+							SELECT `EventCategories`.`categoryID`, `Categories`.`name`
 							FROM `EventCategories` 
-							WHERE `eventID` = ?
+							INNER JOIN `Categories` AS `Categories` 
+								ON `Categories`.`id` = `EventCategories`.`categoryID`
+							WHERE `EventCategories`.`eventID` = ?
 					";
 					$binds = ["i", $this->REST_vars["eventID"]];
 					

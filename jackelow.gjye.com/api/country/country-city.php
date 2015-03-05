@@ -158,7 +158,8 @@
 				$obj["name"] = $row['name'];
 				$obj["latitude"] = $row['latitude'];
 				$obj["longitude"] = $row['longitude'];
-				$obj["thumb"] = $GLOBALS["IMG_DIR"] . $row['thumb'];
+				$obj["thumb"] = $GLOBALS["IMG_DIR"] . $row['thumb'] . ".thumb.jpg";
+				$obj["img"] = $GLOBALS["IMG_DIR"] . $row['thumb'];
 				
 				$JSON[] = $obj;
 			}
