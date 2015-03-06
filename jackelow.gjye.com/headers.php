@@ -37,6 +37,10 @@
 	$GLOBALS["LOOP_DETECT"] = 2;
 	
 	
+	// Results per page 
+	$GLOBALS["NUM_RESULTS"] = 10;
+	
+	
 	// Do not print errors/warnings unless debugging is set 
 	if (!$GLOBALS["DEBUG"]) {
 		error_reporting(0);

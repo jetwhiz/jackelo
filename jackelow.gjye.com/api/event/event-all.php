@@ -167,6 +167,7 @@
 			$where = "";
 			$groupBy = "";
 			$orderBy = "";
+			$limit = "";
 			$binds = null;
 			
 			
@@ -271,7 +272,21 @@
 			// NOTE: Sort by location performed AFTER results pulled from database 
 			
 			
-			$prepared = "$select$join$where$groupBy$orderBy";
+			
+			// limit results (with offset if given) 
+			if ( $this->REST_vars["start"] ) {
+				$limit .= "
+					LIMIT " . $this->REST_vars["start"] . ", " . $GLOBALS["NUM_RESULTS"] . "
+				";
+			}
+			else {
+				$limit .= "
+					LIMIT 0, " . $GLOBALS["NUM_RESULTS"] . "
+				";
+			}
+			
+			
+			$prepared = "$select$join$where$groupBy$orderBy$limit";
 			
 			if ($GLOBALS["DEBUG"]) {
 				print_r($prepared . "\n");

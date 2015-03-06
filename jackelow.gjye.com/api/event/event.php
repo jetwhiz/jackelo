@@ -18,7 +18,7 @@
 	
 	
 	// Display options for our API 
-	$REST_strs_opts = [ "category", "country", "show" ];
+	$REST_strs_opts = [ "category", "country", "show", "start" ];
 	
 	
 	
