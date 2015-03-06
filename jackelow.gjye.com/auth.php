@@ -89,6 +89,11 @@
 			}
 			
 			
+			// Do not force login unless it is specified 
+			if ( !$forceLogin ) {
+				return null;
+			}
+			
 			
 			// no challenge provided .. send them to the GT Login page (dies) 
 			if (!array_key_exists('session', $_POST)) {

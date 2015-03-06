@@ -46,7 +46,7 @@
 	
 	
 	// Ensure user is logged in, get User object 
-	$Auth = new Authenticate($DBs);
+	$Auth = new Authenticate();
 	$User = $Auth->getUser(false);
 	if ( is_null( $User ) ) {
 		$e = new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "RESTful Error: You must be logged in.");
