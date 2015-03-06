@@ -1,10 +1,20 @@
 <?
+	
+	// Pull in toolkits for all instances 
+	require_once "headers.php";
+	require_once "db.php";
+	require_once "toolkit.php";
+	require_once "error.php";
+	require_once "user.php";
+	
 	class Authenticate {
 		protected $DBs;
 		
 		
 		// CONSTRUCTOR //
-		function __construct( &$dbs ) {
+		function __construct() {
+			
+			$dbs = new Database();
 			if ( is_null($dbs) ) {
 				if ($GLOBALS["DEBUG"]) {
 					print_r(get_class($this) . " Error: Database not supplied\n");

@@ -1,4 +1,9 @@
 <?
+	
+	// Pull in toolkits for all instances 
+	require_once "headers.php";
+	require_once "error.php";
+	
 	class User {
 		private $db;
 		private $id;

@@ -1,4 +1,8 @@
 <?
+	
+	// Pull in toolkits for all instances 
+	require_once "headers.php";
+	
 	class Error extends Exception {
 		private $httpStatus;
 		

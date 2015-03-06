@@ -1,4 +1,8 @@
-<?
+<?	
+	
+	// Pull in toolkits for all instances 
+	require_once "headers.php";
+	
 	class Database {
 		private $handle;
 		
