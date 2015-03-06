@@ -224,8 +224,8 @@
 				$binds[] = $this->REST_vars["category"];
 			}
 			
-			// filter by country id (cannot be used with group) 
-			if ( $this->REST_vars["country"] && !$this->REST_vars["group"] ) {
+			// filter by country id 
+			if ( $this->REST_vars["country"] ) {
 				$join .= "
 					INNER JOIN `EventDestinations` AS `EventDestinations`
 						ON `Events`.`id` = `EventDestinations`.`eventID`
@@ -240,13 +240,13 @@
 			}
 			
 			// filter by type 
-			if ( $this->REST_vars["show"] ) {
+			if ( $this->REST_vars["type"] ) {
 				$where .= "
 					WHERE `Events`.`eventTypeID` = ?
 				";
 				
 				$binds[0] .= "i";
-				$binds[] = $this->REST_vars["show"];
+				$binds[] = $this->REST_vars["type"];
 			}
 			else {
 				$where .= "

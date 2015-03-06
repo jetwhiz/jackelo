@@ -12,13 +12,13 @@
 		(category/#)(/)?	-- get all events matching categoryID
 		(group/#)(/)?		-- get all events grouped (0 - false, 1 - true) 
 		(country/#)(/)?		-- get all events matching countryID
-		(show/#)(/)?		-- get all events matching eventType
+		(type/#)(/)?		-- get all events matching eventType
 	*/
 	
 	
 	
 	// Display options for our API 
-	$REST_strs_opts = [ "category", "country", "show", "start" ];
+	$REST_strs_opts = [ "category", "country", "type", "start" ];
 	
 	
 	
