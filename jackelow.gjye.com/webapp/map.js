@@ -22,7 +22,8 @@ function placeEvent( map, country, count ) {
 		fillColor: '#FF0000',
 		fillOpacity: 0.35,
 		map: map,
-		cityName: country.name + " (" + count + ")",
+		countryID: country.id,
+		countryName: country.name + " (" + count + ")",
 		center: new google.maps.LatLng(country.latitude, country.longitude),
 		radius: (Math.log(count)+1) * 50000
 	};
@@ -32,7 +33,7 @@ function placeEvent( map, country, count ) {
 	
 	(function(marker) {
 		google.maps.event.addListener(marker, 'click', function() {
-			alert(marker["cityName"]);
+			document.location = "/webapp/country/" + marker["countryID"] + "/";
 		});
 	})(cityCircle);
 }

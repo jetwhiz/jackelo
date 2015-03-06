@@ -20,11 +20,29 @@ body {
 	left: 0; 
 	right: 0; 
 }
+.header-text {
+	display: block; 
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	width: 100%; 
+	color: #ffffff; 
+	text-decoration: none;
+}
+.mapicon {
+	position: absolute; 
+	width: 50px; 
+	height: 50px; 
+	top: 13px; 
+	right: 10px; 
+	display: block; 
+	background-image: url('/imgs/map.png'); 
+	background-repeat: no-repeat;
+}
 #content-body { 
 	top: 75px; 
 	bottom: 0px; 
 	margin: 0; 
-	overflow: hidden; 
 	position: absolute; 
 	left: 0; 
 	right: 0; 

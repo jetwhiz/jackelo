@@ -25,14 +25,14 @@ function updateFields( elem, results ) {
 	// Populate thumbnail 
 	var img = results.destinations[0].thumb;
 	var country = results.destinations[0].countryName;
-	$(elem).find('div.thumb-cell:first').html('<img src="' + img + '" alt="' + country + '" class="thumb" />');
+	$(elem).find('div.thumb-cell:first').html('<img src="' + img + '" alt="' + country + '" title="' + country + '" class="thumb" />');
 	
 	// Populate categories (tags) 
 	var categoryStr = [];
 	for ( var i = 0; i < results.categories.length; ++i ) {
-		categoryStr.push('#"' + results.categories[i].name + '"'); 
+		categoryStr.push('<a class="tags-link" href="/webapp/category/' + results.categories[i].categoryID + '/">' + results.categories[i].name + '</a>'); 
 	}
-	$(elem).find('div.tags-cell:first').text(categoryStr.join(", "));
+	$(elem).find('div.tags-cell:first').html(categoryStr.join(", "));
 }
 // * //
 
@@ -68,8 +68,45 @@ function updateChildren() {
 function populate( offset ) {
 	$(window).data('busy', true);
 	
+	
+	// Determine if filters were requested 
+	var pathFilters = "";
+	var pathTokens = window.location.pathname.split("/");
+	pathTokens = $.grep( pathTokens, function(n) {
+		return (typeof n !== 'undefined' && n != "");
+	});
+	
+	if ( pathTokens[0] && pathTokens[0] == "webapp" ) {
+		pathTokens.shift();
+	}
+	
+	while ( pathTokens.length ) {
+		var token = pathTokens.shift();
+		
+		switch ( token ) {
+			case "country":
+				var countryID = pathTokens.shift();
+				if ( !isNaN(countryID) ) 
+					pathFilters += "country/" + countryID + "/";
+				break;
+			
+			case "category":
+				var categoryID = pathTokens.shift();
+				if ( !isNaN(categoryID) ) 
+					pathFilters += "category/" + categoryID + "/";
+				break;
+		}
+	}
+	////
+	
+	
+	// Get offset of results
+	var offset = $( "#injection-point" ).children().length;
+	////
+	
+	
 	// Load all events from API and populate page 
-	$.get( "/api/event/", // "/api/event/start/" 
+	$.get( "/api/event/" + pathFilters, // "/api/event/start/#/" 
 	function( event ) {
 		for (var i = 0; i < event.results.length; ++i) {
 			var $template = $( "#event-template" ).children().first().clone();

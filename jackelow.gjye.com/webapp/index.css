@@ -62,6 +62,10 @@
 	font-size: 16px; 
 	font-style: italic;
 }
+.tags-link {
+	text-decoration: none;
+	color: #0000cc;
+}
 
 .thumb {
 	width: 100px; 
