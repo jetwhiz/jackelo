@@ -73,7 +73,7 @@ EOHT;
 EOHT;
 
 		$contentBodyWrapper = <<<EOBW
-			<h1>&nbsp;Welcome, $usrname!</h1>
+			<h2>&nbsp;Welcome, $usrname!</h2>
 			
 			<div id="injection-point"></div>
 			<div id="event-template">
@@ -88,7 +88,7 @@ EOHT;
 						</div>
 					</div>
 					<div class="tr">
-						<div class="td">
+						<div class="spacer">
 							&nbsp;
 						</div>
 						<div class="description-cell"></div>
@@ -110,7 +110,9 @@ EOBW;
 		<meta http-equiv="X-UA-Compatible" content="IE=edge;" />
 		
 		<link type="text/css" rel="stylesheet" href="/webapp/base.css" />
-		<script type="text/javascript" src="/webapp/jquery.js"></script>
+		<link type="text/css" rel="stylesheet" href="/webapp/jquery/jquery-ui.min.css" />
+		<script type="text/javascript" src="/webapp/jquery/jquery.min.js"></script>
+		<script type="text/javascript" src="/webapp/jquery/jquery-ui.min.js"></script>
 		
 		<? echo $headTags; ?>
 		
@@ -120,6 +122,7 @@ EOBW;
 			<a class="header-text" href="/webapp/">
 				<h1>Jackelo</h1>
 			</a>
+			<a title="Add Event" class="addeventicon" href="javascript: void(0);">&nbsp;</a>
 			<a title="Map View" class="mapicon" href="/webapp/map/">&nbsp;</a>
 		</div>
 		<div id="content-body">

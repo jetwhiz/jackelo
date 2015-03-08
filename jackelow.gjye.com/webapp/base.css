@@ -4,6 +4,7 @@ html {
 }
 body { 
 	font-family: Helvetica,Arial,"lucida grande",tahoma,verdana,arial,sans-serif;
+	font-size: 16px;
 	height: 100%; 
 	margin: 0; 
 	padding: 0; 
@@ -19,24 +20,35 @@ body {
 	position: absolute; 
 	left: 0; 
 	right: 0; 
+	width: 100%;
 }
 .header-text {
 	display: block; 
 	position: absolute; 
 	top: 0; 
-	left: 0; 
-	width: 100%; 
+	left: 48%; 
 	color: #ffffff; 
 	text-decoration: none;
+	font-size: 16px;
 }
 .mapicon {
 	position: absolute; 
 	width: 50px; 
 	height: 50px; 
 	top: 13px; 
-	right: 10px; 
+	right: 20px; 
 	display: block; 
 	background-image: url('/imgs/map.png'); 
+	background-repeat: no-repeat;
+}
+.addeventicon {
+	position: absolute; 
+	width: 50px; 
+	height: 50px; 
+	top: 13px; 
+	left: 20px; 
+	display: block; 
+	background-image: url('/imgs/add-event.png'); 
 	background-repeat: no-repeat;
 }
 #content-body { 
@@ -47,4 +59,5 @@ body {
 	left: 0; 
 	right: 0; 
 	overflow-y: auto; 
+	width: 100%;
 }

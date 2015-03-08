@@ -9,65 +9,77 @@
 	display: table; 
 	padding: 5px; 
 	margin-left: 20px; 
+	margin-right: 20px; 
 	margin-bottom: 5px; 
 	border: 0; 
-	width: 500px; 
-	background-color: #eeeeee;
+	background-color: #efefef;
+	font-size: 16px; 
+}
+.event-block:nth-child(odd) {
+	background-color: #f8f8ff;
+}
+.event-block:nth-child(even) {
+	background-color: #efefff;
+}
+@media (max-width: 425px) {
+	.event-block {
+		width: 425px;
+	}
 }
 
 .tr {
 	display: table-row;
+	width: 100%;
 }
 
 
-.td, .thumb-cell, .info-cell, .description-cell {
+.td, .spacer, .thumb-cell, .info-cell, .description-cell {
 	display: table-cell;
-	font-size: 15px;
+	font-size: 110%;
 }
 
-.thumb-cell {
+.thumb-cell, .thumb {
 	width: 100px; 
 	height: 75px;
+}
+@media (max-width: 525px) {
+	.thumb-cell, .thumb, .spacer {
+		display: none;
+	}
 }
 
 .info-cell {
 	padding-left: 5px; 
 	vertical-align: top;
+	width: 100%;
 }
-
-
 .title-cell {
 	white-space: nowrap; 
+	padding-bottom: 5px;
 	float: left; 
 	overflow: hidden; 
-	width: 280px; 
-	font-size: 18px; 
+	width: 45%; 
+	font-size: 125%; 
 	font-weight: bold;
 }
-
 .username-cell {
-	margin-left: 10px;
+	margin-right: 5px;
 	white-space: nowrap; 
-	float: left; 
+	padding-bottom: 5px;
+	float: right; 
 	overflow: hidden; 
-	width: 100px; 
-	font-size: 16px;
+	width: 45%; 
+	text-align: right;
 }
-
 .dates-cell, .tags-cell {
 	white-space: nowrap; 
+	padding-bottom: 5px;
 	float: left; 
 	overflow: hidden; 
-	width: 380px; 
-	font-size: 16px; 
+	width: 90%; 
 	font-style: italic;
 }
 .tags-link {
 	text-decoration: none;
 	color: #0000cc;
-}
-
-.thumb {
-	width: 100px; 
-	height: 75px;
 }
