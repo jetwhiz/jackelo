@@ -26,7 +26,8 @@ body {
 	display: block; 
 	position: absolute; 
 	top: 0; 
-	left: 48%; 
+	left: 70px;
+	right: 70px;
 	color: #ffffff; 
 	text-decoration: none;
 	font-size: 16px;

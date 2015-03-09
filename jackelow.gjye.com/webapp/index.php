@@ -85,13 +85,8 @@ EOHT;
 							<div class="username-cell"></div>
 							<div class="dates-cell"></div>
 							<div class="tags-cell"></div>
+							<div class="description-cell"></div>
 						</div>
-					</div>
-					<div class="tr">
-						<div class="spacer">
-							&nbsp;
-						</div>
-						<div class="description-cell"></div>
 					</div>
 				</div>
 				<br />
@@ -108,6 +103,7 @@ EOBW;
 		
 		<meta charset="utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge;" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		
 		<link type="text/css" rel="stylesheet" href="/webapp/base.css" />
 		<link type="text/css" rel="stylesheet" href="/webapp/jquery/jquery-ui.min.css" />
