@@ -58,8 +58,11 @@
 			$result = file_get_contents($GLOBALS["GEOLOC"] . urlencode("$cityName, $countryName"));
 			$json = json_decode($result, true);
 			
-			// Ensure we have exactly 1 result 
-			if ( count($json["results"]) != 1 || count($json["results"][0]["geometry"]["location"]) != 2 ) {
+			
+			// Ensure we have good results 
+			if ( count($json["results"]) <= 0 
+				|| $json["results"][0]["partial_match"] == true
+				|| count($json["results"][0]["geometry"]["location"]) != 2 ) {
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to obtain GPS coordinates.");
 			}
 			////
