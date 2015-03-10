@@ -1,0 +1,11 @@
+.validateTips { border: 1px solid transparent; padding: 0.3em; }
+.ui-dialog .ui-state-error, .ui-autocomplete { padding: .3em; }
+.ui-menu-item { padding: 10px !important; }
+.ui-widget-overlay { opacity: .75; filter: Alpha(Opacity=75); }
+
+label, input, select { display:block; }
+label { font-weight: bold; }
+fieldset { margin-top:10px; }
+input.text, select { margin-bottom:12px; width:95%; padding: .4em; }
+
+.category { background-color: #eeffee; color: #008800; padding: 5px; margin: 5px; float: left; }
