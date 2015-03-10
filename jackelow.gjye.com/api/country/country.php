@@ -44,13 +44,52 @@
 				if ($GLOBALS["DEBUG"]) {
 					print_r("CITY ID: " . $REST_vars["cityID"] . "\n");
 				}
+				
+				require "country-city.php";
+				try {
+					$handler = new CountryCity($REST_vars, $DBs, $User);
+				} catch (Error $e) {
+					$e->kill();
+				}
 			}
 			
-			require "country-city.php";
-			try {
-				$handler = new CountryCity($REST_vars, $DBs, $User);
-			} catch (Error $e) {
-				$e->kill();
+			// Filter request 
+			elseif( $queryArray[0] == "filter" ) {
+				array_shift($queryArray);
+				
+				// No filter terms supplied 
+				if ( !count($queryArray) ) {
+					$e = new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], "Country Error: You did not supply search terms.");
+					$e->kill();
+				}
+				
+				
+				// Clean up search terms 
+				$search = array_shift($queryArray);
+				$REST_vars["terms"] = preg_replace("/[^\x{00C0}-\x{1FFF}\x{2C00}-\x{D7FF}\w ]/u", "", $search);
+				
+				
+				// Debug dump 
+				if ($GLOBALS["DEBUG"]) {
+					print_r("TERMS: " . $REST_vars["terms"] . "\n");
+				}
+				
+				require "country-city-filter.php";
+				try {
+					$handler = new CountryCityFilter($REST_vars, $DBs, $User);
+				} catch (Error $e) {
+					$e->kill();
+				}
+			}
+			
+			// No cityID provided (all cities) 
+			else {
+				require "country-city.php";
+				try {
+					$handler = new CountryCity($REST_vars, $DBs, $User);
+				} catch (Error $e) {
+					$e->kill();
+				}
 			}
 		}
 		
