@@ -10,6 +10,10 @@ function addDestination() {
 	
 	// Do datepicker for start/end dates for this destination 
 	$template.find( ".datetimeStart" ).datepicker({
+		showOn: "button",
+		buttonImage: "/webapp/jquery/images/calendar.gif",
+		buttonImageOnly: true,
+		buttonText: "Select date",
 		defaultDate: "+1d",
 		changeMonth: true,
 		numberOfMonths: 1,
@@ -18,6 +22,10 @@ function addDestination() {
 		dateFormat: "yy-mm-dd"
 	});
 	$template.find( ".datetimeEnd" ).datepicker({
+		showOn: "button",
+		buttonImage: "/webapp/jquery/images/calendar.gif",
+		buttonImageOnly: true,
+		buttonText: "Select date",
 		defaultDate: "+1d",
 		changeMonth: true,
 		numberOfMonths: 1,
@@ -278,7 +286,7 @@ $(function() {
 		
 		
 		if ( valid ) {
-			alert(queryString);
+			//alert(queryString);
 			
 			$.post( "/api/event/", 
 				queryString, 
@@ -288,6 +296,7 @@ $(function() {
 						return false;
 					}
 					
+					// Go to newly-created event
 					document.location = "/webapp/event/" + data.results["eventID"];
 				}, "json");
 			
@@ -331,6 +340,10 @@ $(function() {
 	
 	// Add datepicker to (main) start and end times for event 
 	$( "#datetimeStart" ).datepicker({
+		showOn: "button",
+		buttonImage: "/webapp/jquery/images/calendar.gif",
+		buttonImageOnly: true,
+		buttonText: "Select date",
 		defaultDate: "+1d",
 		changeMonth: true,
 		numberOfMonths: 1,
@@ -343,6 +356,10 @@ $(function() {
 		}
 	});
 	$( "#datetimeEnd" ).datepicker({
+		showOn: "button",
+		buttonImage: "/webapp/jquery/images/calendar.gif",
+		buttonImageOnly: true,
+		buttonText: "Select date",
 		defaultDate: "+1d",
 		changeMonth: true,
 		numberOfMonths: 1,

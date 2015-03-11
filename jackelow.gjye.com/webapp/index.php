@@ -174,9 +174,9 @@ EOBW;
 					
 					<div id="destination-injection-point"></div>
 					
-					<a href="javascript: void(0);" onclick="addDestination()" style="display: block; padding: 10px; " title="Add destination">Add destination</a>
+					<a href="javascript: void(0);" onclick="addDestination()" style="display: block; padding: 10px; float: left; clear: both;" title="Add destination">Add destination</a>
 					
-					<fieldset id="destination-template" style="display: none; background-color: #efefef;">
+					<fieldset id="destination-template" style="display: none; float: left; clear: both; width: 90%; background-color: #efefef;">
 						<legend>Destination</legend>
 						
 						<label>Address</label>
@@ -197,7 +197,7 @@ EOBW;
 							<input type="hidden" name="destination[][cityID]" class="cityID" /> <!-- cityID (from city) -->
 						</div>
 						
-						<a href="javascript: void(0);" onclick="removeDestination(this)" style="display: block;" title="Remove">Remove</a>
+						<a href="javascript: void(0);" onclick="removeDestination(this)" style="display: block; float: left; clear: both;" title="Remove">Remove</a>
 					</fieldset>
 					
 					<!-- Allow form submission with keyboard without duplicating the dialog button -->
