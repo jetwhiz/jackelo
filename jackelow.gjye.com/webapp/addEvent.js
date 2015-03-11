@@ -132,6 +132,35 @@ function categorySelected(id) {
 
 
 
+// Dynamically change the dialog dimensions according to display size 
+function setDialogSize() {
+	var wWidth = $(window).width();
+	var wHeight = $(window).height();
+	
+	if ( (document.URL.indexOf("/createEvent") == -1) && wWidth > 750 && wHeight > 750 ) {
+		wWidth = 600;
+		wHeight = 600;
+	}
+	else {
+		wWidth = wWidth*0.95;
+		wHeight = wHeight*0.95;
+	}
+	
+	$( "#dialog-form" ).dialog( "option", "height", wHeight );
+	$( "#dialog-form" ).dialog( "option", "width", wWidth );
+	
+	
+	// Re-focus form element (if one is selected) 
+	var elem = document.activeElement;
+	if ( elem.nodeName.toLowerCase() === 'input' && !isInView(elem) ) {
+		var elemPos = $(elem).position().top;
+		var containerPos = $( "#dialog-form" ).find('fieldset:first').offset().top;
+		$( "#dialog-form" ).scrollTop(elemPos - containerPos);
+	}
+}
+
+
+
 // All stuff that doesn't need to be called globally 
 $(function() {
 	var dialog, form;
@@ -336,20 +365,8 @@ $(function() {
 	// Attach event for when user clicks the "new event" button 
 	$( "#add-event" ).on( "click", function() {
 		// Determine appropriate dialog size 
-		var wWidth = $(window).width();
-		var wHeight = $(window).height();
+		setDialogSize();
 		
-		if ( (document.URL.indexOf("/createEvent") == -1) && wWidth > 750 && wHeight > 750 ) {
-			wWidth = 600;
-			wHeight = 600;
-		}
-		else {
-			wWidth = wWidth*0.95;
-			wHeight = wHeight*0.95;
-		}
-		
-		dialog.dialog( "option", "height", wHeight );
-		dialog.dialog( "option", "width", wWidth );
 		dialog.dialog( "open" );
 	});
 	if ( document.URL.indexOf("/createEvent") > -1 ) {

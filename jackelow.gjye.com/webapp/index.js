@@ -159,9 +159,23 @@ function attachHandlers() {
 	
 	// Attach onresize event to window 
 	$( window ).resize( function(e) {
+		var wWidth = $(window).width();
+		var wHeight = $(window).height();
+		
+		// Flood control check 
 		if ( limitResize ) return;
 		
+		// Make sure window size *really* changed (handheld device bug) 
+		if ( windowWidth == wWidth ) return;
+		
+		// If they changed size, update 
+		windowWidth = wWidth;
+		windowHeight = wHeight;
+		
 		limitResize = 1;
+		if ( typeof(setDialogSize) == "function" ) {
+			setTimeout(setDialogSize, 250); 		// resize addevent dialog on window resize
+		}
 		setTimeout(updateChildren, 250); 			// load events when scrolled into view 
 		setTimeout(infiniScroll, 250); 				// infinite-scroll
 		setTimeout(function(){limitResize=0}, 750);	// flood control 
@@ -174,6 +188,8 @@ function attachHandlers() {
 // When page is loaded //
 var limitScroll = 0;
 var limitResize = 0;
+var windowWidth = $(window).width();
+var windowHeight = $(window).height();
 $( window ).load(function() {
 	$(window).data('busy', false);
 	populate(0);
