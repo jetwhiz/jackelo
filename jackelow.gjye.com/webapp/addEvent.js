@@ -76,7 +76,7 @@ function addDestination() {
 			
 			// Not already existing -- we have to create it 
 			if ( ui.item.value == -1 ) {
-				alert( "Create new city: " + ui.item.label + " in country " + $(country).val() );
+				//alert( "Create new city: " + ui.item.label + " in country " + $(country).val() );
 				$.post( "/api/country/" + $(country).val() + "/city/", 
 					"name=" + encodeURIComponent(ui.item.label), 
 					function( data, status, xhr ) {
@@ -115,6 +115,19 @@ function removeDestination(that) {
 // When user clicks to remove a category 
 function removeCategory(that) {
 	$(that).remove();
+}
+
+
+
+// Is this category id already selected for new event?  
+function categorySelected(id) {
+	var exists = false;
+	$( "#categories" ).children().each( function(index) {
+		if ( id == $(this).attr("catID") ) {
+			exists = true;
+		}
+	});
+	return exists;
 }
 
 
@@ -249,7 +262,7 @@ $(function() {
 					document.location = "/webapp/event/" + data.results["eventID"];
 				}, "json");
 			
-			dialog.dialog( "close" );
+			//dialog.dialog( "close" );
 		}
 		
 		return valid;
@@ -325,16 +338,23 @@ $(function() {
 		// Determine appropriate dialog size 
 		var wWidth = $(window).width();
 		var wHeight = $(window).height();
-		wWidth = (wWidth > 500 ? 500 : wWidth*0.75);
-		wHeight = (wHeight > 500 ? 500 : wHeight*0.75);
 		
-		// redirect if size is too small 
-		// document.location = "/webapp/newEvent/";
+		if ( (document.URL.indexOf("/createEvent") == -1) && wWidth > 750 && wHeight > 750 ) {
+			wWidth = 600;
+			wHeight = 600;
+		}
+		else {
+			wWidth = wWidth*0.95;
+			wHeight = wHeight*0.95;
+		}
 		
 		dialog.dialog( "option", "height", wHeight );
 		dialog.dialog( "option", "width", wWidth );
 		dialog.dialog( "open" );
 	});
+	if ( document.URL.indexOf("/createEvent") > -1 ) {
+		$( "#add-event" ).trigger( "click" );
+	}
 	
 	
 	
@@ -383,9 +403,16 @@ $(function() {
 			});
 		}, 
 		select: function( event, ui ) {
+			
+			// Make sure category selection is not already in list 
+			if ( ui.item.value > 0 && categorySelected(ui.item.value) ) {
+				this.value = "";
+				return false;
+			}
+			
 			// Not already existing -- we have to create it 
 			if ( ui.item.value == -1 ) {
-				alert( "Create new category: " + ui.item.label );
+				//alert( "Create new category: " + ui.item.label );
 				$.post( "/api/category/", 
 					"name=" + encodeURIComponent(ui.item.label), 
 					function( data, status, xhr ) {

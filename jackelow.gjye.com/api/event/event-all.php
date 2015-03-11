@@ -83,7 +83,7 @@
 			
 			
 			// Perform INSERT for EventCategories table
-			$categories = Toolkit::array_clean(explode(",", $_POST["categoryID"]));
+			$categories = Toolkit::array_clean(array_unique(explode(",", $_POST["categoryID"])));
 			foreach ($categories as $categoryID) {
 				$insert = "
 					INSERT INTO `EventCategories` (`eventID`, `categoryID`)

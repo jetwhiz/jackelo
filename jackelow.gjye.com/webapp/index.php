@@ -49,6 +49,18 @@
 EOHT;
 	}
 	
+	
+	
+	// Param indicated "createEvent" 
+	elseif ( count($queryArray) && $queryArray[0] == "createevent" ) {
+		array_shift($queryArray);
+		
+		$headTags = "";
+		$contentBodyWrapper = "";
+	}
+	
+	
+	
 	// Param indicated "event" 
 	elseif ( count($queryArray) && $queryArray[0] == "event" ) {
 		array_shift($queryArray);
@@ -62,6 +74,7 @@ EOHT;
 			die(0);
 		}
 	}
+	
 	
 	
 	// Otherwise it is some flavor of index 
@@ -147,7 +160,7 @@ EOBW;
 					<input type="text" name="description" id="description" value="" class="text ui-widget-content ui-corner-all" />
 					
 					<label for="category">Categories</label>
-					<div id="categories"></div>
+					<div id="categories"></div><br style="clear: both;" />
 					<input type="text" name="category" id="category" value="" class="text ui-widget-content ui-corner-all" />
 					
 					<!-- These need to be dynamically populated! -->
