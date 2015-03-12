@@ -6,9 +6,9 @@
 
 
 .event-block {
+	cursor: pointer;
 	display: table; 
 	padding: 5px; 
-	margin-left: 20px; 
 	margin-right: 20px; 
 	margin-bottom: 5px; 
 	border: 0; 

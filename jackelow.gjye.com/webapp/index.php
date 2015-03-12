@@ -9,6 +9,10 @@
 	
 	
 	
+	// Declare we're returning HTML in UTF-8
+	header('Content-Type: text/html; charset=utf-8');
+	
+	
 	// Break up URI into tokens on "/" symbol 
 	$URI = $_SERVER['REQUEST_URI'];
 	if ( strpos($URI, "?") !== false ) {
@@ -67,12 +71,157 @@ EOHT;
 		
 		// Ensure eventID given 
 		if ( count($queryArray) && is_numeric($queryArray[0]) ) {
+			$eventID = $queryArray[0];
+			
+			// Pull in main event data 
+			$file = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID);
+			if ( !$file ) {
+				echo "can't connect to API";
+				die(0);
+			}
+			$JSON = json_decode($file, true);
+			if ( count($JSON["results"]) != 1 ){
+				echo "invalid event ID";
+				die(0);
+			}
+			
+			$eventName = $JSON["results"][0]["name"];
+			$ownerName = $JSON["results"][0]["username"];
+			$dateStart = date("F d, Y", strtotime($JSON["results"][0]["datetimeStart"]));
+			$datetimeEnd = date("F d, Y", strtotime($JSON["results"][0]["datetimeEnd"]));
+			$eventType = $JSON["results"][0]["eventType"];
+			$description = $JSON["results"][0]["description"];
+			
+			$categories = [];
+			foreach ( $JSON["results"][0]["categories"] as $category ) {
+				$categories[] = "<a class='tags-link' href='/webapp/category/" . $category["categoryID"] . "/'>" . $category["name"] . "</a>";
+			}
+			$categoryStr = implode( ", ", $categories );
+			
+			
+			$destinations = "";
+			foreach ( $JSON["results"][0]["destinations"] as $destination ) {
+				$city = $destination["cityName"];
+				$country = $destination["countryName"];
+				$ddateStart = date("F d, Y", strtotime($destination["datetimeStart"]));
+				$ddatetimeEnd = date("F d, Y", strtotime($destination["datetimeEnd"]));
+				$address = $destination["address"];
+				$thumb = $destination["thumb"];
+				
+				$destinations .= <<<EOD
+					<li style="clear: both; border-bottom: solid 1px; margin: 5px;">
+						<div style="float: left; width: 150px; margin-top: 10px; text-align: center;">
+							<img src="$thumb" alt="$city, $country" title="$city, $country" class="thumb" />
+						</div>
+						<div style="float: left; width: 70%;"> 
+							<div style="float: left; width: 90%; padding: 0px; clear: both;">
+								<h3>$city, $country</h3>
+							</div>
+							<div style="float: left; width: 90%; padding: 10px; clear: both;">
+								$ddateStart &ndash; $ddatetimeEnd
+							</div>
+							<div style="float: left; width: 90%; padding: 10px; clear: both;">
+								<span style="font-style: italic;">Address:</span> $address 
+							</div>
+						</div>
+						<br style="clear: both;" />
+					</li>
+
+EOD;
+			}
+			if ( $destinations != "" ) {
+				$destinations = "<li style='font-style: italic;'>Destinations: </li>$destinations";
+			}
+			////
+			
+			// Pull in event comments 
+			$comments = "";
+			$comments_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/comments/");
+			if ( !$comments_raw ) {
+				echo "can't connect to API";
+				die(0);
+			}
+			$JSON_comments = json_decode($comments_raw, true);
+			
+			foreach ( $JSON_comments["results"] as $commentID ) {
+				$comment_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/comments/" . $commentID );
+				if ( !$comment_raw ) {
+					echo "can't connect to API";
+					die(0);
+				}
+				$JSON_comment = json_decode($comment_raw, true);
+				
+				$commentUsername = $JSON_comment["results"][0]["username"];
+				$datetime = date("F d, Y", strtotime($JSON_comment["results"][0]["datetime"]));
+				$message = $JSON_comment["results"][0]["message"];
+				
+				$comments .= <<<EOC
+					<li style="clear: both; border-bottom: dotted 1px; margin: 5px;">
+						<div style="float: left; width: 90%; padding: 0px; clear: both;">
+							<span style="font-weight: bold;">$commentUsername</span> ($datetime)
+						</div>
+						<div style="float: left; width: 90%; padding: 10px; clear: both;">
+							$message
+						</div>
+						<br style="clear: both;" />
+					</li>
+
+EOC;
+			}
+			////
+			
+			
 			$headTags = <<<EOHT
 				<script type="text/javascript" src="/webapp/index.js"></script>
 				<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
 
 EOHT;
-			$contentBodyWrapper = "<a id='edit-event' href='#'>Edit event</a>";
+			$contentBodyWrapper = <<<EOEP
+				
+				<div style="margin: 20px; padding: 5px;">
+					<div style="clear: both; padding: 10px;">
+						<div style="float: left; width: 60%;">
+							<h2>$eventName</h2>
+						</div>
+						<div style="float: right; width: 30%;">
+							($ownerName)<br />
+							<a id='edit-event' href='javascript: void(0);'>Edit event</a>
+						</div>
+					</div>
+					<div style="clear: both; padding: 10px;">
+						<div style="float: left; width: 60%;">
+							$dateStart &ndash; $datetimeEnd
+						</div>
+						<div style="float: right; width: 30%;">
+							$eventType
+						</div>
+					</div>
+					<div style="clear: both; padding: 10px;">
+						<div style="float: left; width: 90%;">
+							$categoryStr
+						</div>
+					</div>
+					<div style="clear: both; padding: 10px;">
+						<div style="float: left; width: 90%;">
+							$description
+						</div>
+					</div>
+					<div style="clear: both; padding: 10px;">
+						<ul style="list-style-type: none; float: left; width: 90%; margin-left: 10px;">
+							$destinations
+						</ul>
+					</div>
+					<div style="clear: both; padding: 10px;">
+						<div style="float: left; width: 90%; font-style: italic;">
+							Comments: 
+						</div>
+						<ul style="list-style-type: none; float: left; width: 90%; margin-left: 10px;">
+							$comments
+						</ul>
+					</div>
+				</div>
+
+EOEP;
 		}
 		else {
 			echo "no eventID";
@@ -93,9 +242,9 @@ EOHT;
 		$contentBodyWrapper = <<<EOBW
 			<h2>&nbsp;Welcome, $usrname!</h2>
 			
-			<div id="injection-point"></div>
+			<ul style="list-style-type: none;" id="injection-point"></ul>
 			<div id="event-template">
-				<div class="event-block">
+				<li class="event-block">
 					<div class="tr">
 						<div class="thumb-cell"></div>
 						<div class="info-cell">
@@ -106,7 +255,7 @@ EOHT;
 							<div class="description-cell"></div>
 						</div>
 					</div>
-				</div>
+				</li>
 				<br />
 			</div>
 

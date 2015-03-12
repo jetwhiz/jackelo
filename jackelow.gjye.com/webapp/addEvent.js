@@ -430,7 +430,8 @@ $(function() {
 				data: queryString, 
 				success: function( data, status, xhr ) {
 					if ( typeof data.results["eventID"] == 'undefined' ) {
-						alert("ERROR: Failed to create event!");
+						console.log(data);
+						alert("ERROR: Failed to edit event!\r\n" + data.message);
 						return false;
 					}
 					
@@ -447,6 +448,7 @@ $(function() {
 				queryString, 
 				function( data, status, xhr ) {
 					if ( typeof data.results["eventID"] == 'undefined' ) {
+						console.log(data);
 						alert("ERROR: Failed to create event!");
 						return false;
 					}

@@ -46,8 +46,7 @@ function updateFields( elem, results ) {
 
 // Update event nodes when they get scrolled into view //
 function updateChildren() {
-	$('#injection-point').children('div').each(function () {
-		
+	$('#injection-point').children('li').each(function () {
 		// check if it is in view of the user 
 		var inview = isInView($(this));
 		if ( !inview ) return;
@@ -55,14 +54,19 @@ function updateChildren() {
 		// check if already loaded (only load once) 
 		if ( $(this).data('loaded') ) return;
 		
+		// Go to event page on click 
+		$(this).on("click", function() {
+			document.location = "/webapp/event/" + $(this).attr('jk:eventID');
+		});
+		
 		// otherwise load content 
-		$.get( "/api/event/"+ $(this).attr('jk:eventID'), 
+		$.getJSON( "/api/event/"+ $(this).attr('jk:eventID'), 
 		(function(elem) {
 			return function( event ) {
 				updateFields( $(elem), event.results[0] );
 			}
 		})($(this))
-		, "json" );
+		);
 		$(this).data('loaded', true);
 	});
 }
@@ -112,7 +116,7 @@ function populate( offset ) {
 	
 	
 	// Load all events from API and populate page 
-	$.get( "/api/event/" + pathFilters, // "/api/event/start/#/" 
+	$.getJSON( "/api/event/" + pathFilters, // "/api/event/start/#/" 
 	function( event ) {
 		for (var i = 0; i < event.results.length; ++i) {
 			var $template = $( "#event-template" ).children().first().clone();
@@ -125,7 +129,7 @@ function populate( offset ) {
 		// Force load of visible children before scrolling happens 
 		updateChildren();
 		$(window).data('busy', false);
-	}, "json" );
+	});
 }
 // * //
 

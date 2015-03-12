@@ -150,9 +150,11 @@
 			// Specific commentID given (give full details of comment) 
 			if ( $this->REST_vars["commentID"] ) {
 				$select = "
-						SELECT `eventID`, `ownerID`, `datetime`, `message`
+						SELECT `Comments`.`eventID`, `Comments`.`ownerID`, `Users`.`username`, `Comments`.`datetime`, `Comments`.`message`
 						FROM `Comments` 
-						WHERE `id` = ?
+						INNER JOIN `Users` AS `Users`
+						ON `Comments`.`ownerID` = `Users`.`id`
+						WHERE `Comments`.`id` = ?
 				";
 				$binds = ["i", $this->REST_vars["commentID"]];
 			}
