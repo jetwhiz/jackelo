@@ -141,6 +141,32 @@
 			}
 			
 			
+			// Auto-attend your own event
+			$insert = "
+				INSERT INTO `Attendants` (`eventID`, `userID`)
+				VALUES (?, ?)
+			";
+			
+			$binds = [];
+			$binds[0] = "ii";
+			$binds[] = $eventID;
+			$binds[] = $this->User->getID();
+			
+			if ($GLOBALS["DEBUG"]) {
+				print_r("\nBINDS\n");
+				print_r($insert."\n");
+				print_r($binds);
+			}
+			
+			$affected = $this->DBs->insert($insert, $binds);
+			if ( !$affected ) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert attendance failed!");
+			}
+			
+			
+			
 			// Commit transaction
 			if ( !$this->DBs->endTransaction() ) {
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to commit transaction.");
