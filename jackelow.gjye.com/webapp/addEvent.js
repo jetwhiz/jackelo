@@ -1,5 +1,7 @@
+"use strict";
 
-// When user clicks to add a new destination 
+
+// When user clicks to add a new destination // 
 function addDestination() {
 	// Clone template and add to DOM 
 	var $template = $( "#destination-template" ).clone();
@@ -109,25 +111,30 @@ function addDestination() {
 			return false;
 		}
 	});
+	
+	return $template;
 }
+// * //
 
 
 
-// When user clicks to remove a destination 
+// When user clicks to remove a destination // 
 function removeDestination(that) {
 	$(that).parent().remove();
 }
+// * //
 
 
 
-// When user clicks to remove a category 
+// When user clicks to remove a category // 
 function removeCategory(that) {
 	$(that).remove();
 }
+// * //
 
 
 
-// Is this category id already selected for new event?  
+// Is this category id already selected for new event?  // 
 function categorySelected(id) {
 	var exists = false;
 	$( "#categories" ).children().each( function(index) {
@@ -137,10 +144,50 @@ function categorySelected(id) {
 	});
 	return exists;
 }
+// * //
 
 
 
-// Dynamically change the dialog dimensions according to display size 
+// Handler for adding new categories //
+function addCategory(that, value, label) {
+
+	// Make sure category selection is not already in list 
+	if ( value > 0 && categorySelected(value) ) {
+		that.value = "";
+		return false;
+	}
+	
+	// Not already existing -- we have to create it 
+	if ( value == -1 ) {
+		//alert( "Create new category: " + label );
+		$.post( "/api/category/", 
+			"name=" + encodeURIComponent(label), 
+			function( data, status, xhr ) {
+				if ( typeof data.results["categoryID"] == 'undefined' ) {
+					alert("ERROR: Failed to create category!");
+					return false;
+				}
+				//alert(data.results["categoryID"] + " " + label);
+				
+				$( "#categories" ).append("<a title='Remove' onclick='removeCategory(this)' class='category' href='javascript: void(0);' catID='" + data.results["categoryID"] + "'>" + label + "</a>");
+				that.value = "";
+				
+				cache = {}; // invalidate cache 
+			}, "json");
+	}
+	else {
+		//alert("Existed: " + value + " " + label);
+		
+		$( "#categories" ).append("<a title='Remove' onclick='removeCategory(this)' class='category' href='javascript: void(0);' catID='" +  value + "'>" + label + "</a>");
+		that.value = "";
+	}
+	
+}
+// * //
+
+
+
+// Dynamically change the dialog dimensions according to display size // 
 function setDialogSize() {
 	var wWidth = $(window).width();
 	var wHeight = $(window).height();
@@ -166,6 +213,73 @@ function setDialogSize() {
 		$( "#dialog-form" ).scrollTop(elemPos - containerPos);
 	}
 }
+// * //
+
+
+
+// For edit event, auto-populate all fields //
+function populateFields() {
+	var pathFilter = window.location.pathname.match(/^\/webapp\/event\/([0-9]+)/); // /webapp/event/#
+	var eventNum = parseInt(pathFilter[1]);
+	console.log(eventNum);
+	if ( isNaN(eventNum) ) {
+		alert("Cannot get event number!");
+		return false;
+	}
+	
+	
+	$.getJSON( "/api/event/" + eventNum, // "/api/event/#/" 
+	function( events ) {
+		// Should only have one event upon success 
+		var event = events.results[0];
+		
+		
+		// Strip time from datetime
+		var dS = event.datetimeStart.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+		var dE = event.datetimeEnd.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+		
+		
+		// Set boundaries for calendar popups 
+		$( "#datetimeStart" ).datepicker( "option", "maxDate", dE[1] );
+		$( "#datetimeEnd" ).datepicker( "option", "minDate", dS[1] );
+		
+		
+		// Populate main input fields 
+		$( "#name" ).val(event.name);
+		$( "#datetimeStart" ).val(dS[1]);
+		$( "#datetimeEnd" ).val(dE[1]);
+		$( "#description" ).val(event.description);
+		
+		
+		// Populate categories
+		for ( var i = 0; i < event.categories.length; ++i ) {
+			addCategory( $( "#category" ), event.categories[i].categoryID, event.categories[i].name );
+		}
+		
+		
+		// Update event type ID 
+		$("#eventType" + parseInt(event.eventTypeID)).prop("checked", true);
+		$("#eventTypeID").buttonset("refresh");
+		
+		
+		// Add destinations 
+		for ( var i = 0; i < event.destinations.length; ++i ) {
+			var ddS = event.destinations[i].datetimeStart.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+			var ddE = event.destinations[i].datetimeEnd.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+			
+			var destination = addDestination();
+			destination.find( ".address" ).val( event.destinations[i].address );
+			destination.find( ".datetimeStart" ).val( ddS[1] );
+			destination.find( ".datetimeEnd" ).val( ddE[1] );
+			destination.find( ".countryID" ).val( event.destinations[i].countryID );
+			destination.find( ".cityID" ).val( event.destinations[i].cityID );
+			destination.find( ".cityName" ).val( event.destinations[i].cityName );
+		}
+	});
+	
+	return true;
+}
+// * //
 
 
 
@@ -173,7 +287,8 @@ function setDialogSize() {
 $(function() {
 	var dialog, form;
 	
-	// Helpers 
+	
+	// Helpers -- alerts user that they forgot something in the form 
 	var name = $( "#name" ),
 	datetimeStart = $( "#datetimeStart" ),
 	datetimeEnd = $( "#datetimeEnd" ),
@@ -198,11 +313,17 @@ $(function() {
 			return true;
 		}
 	}
+	////
 	
 	
 	
-	// Function to handle form submission 
-	function submitEvent() {
+	// Function to handle form submission //
+	function editEvent() {
+		submitEvent(null, true);
+	}
+	function submitEvent(obj, isEdit) {
+		isEdit = typeof isEdit !== 'undefined' ? isEdit : false;
+		
 		var queryString = "";
 		var valid = true;
 		allFields.removeClass( "ui-state-error" );
@@ -284,10 +405,29 @@ $(function() {
 		});
 		
 		
+		// Don't continue if we haven't validated 
+		if ( !valid ) {
+			return false;
+		}
 		
-		if ( valid ) {
-			//alert(queryString);
+		
+		// If we're editing, we need to do a PUT request 
+		if ( isEdit ) {
+			var pathFilter = window.location.pathname.match(/^\/webapp\/event\/([0-9]+)/); // /webapp/event/#
+			var eventNum = parseInt(pathFilter[1]);
 			
+			if ( isNaN(eventNum) ) {
+				alert("Cannot get event number!");
+				return false;
+			}
+			
+			console.log(eventNum);
+			
+			
+		}
+		
+		// Otherwise POST the new event 
+		else {
 			$.post( "/api/event/", 
 				queryString, 
 				function( data, status, xhr ) {
@@ -299,16 +439,16 @@ $(function() {
 					// Go to newly-created event
 					document.location = "/webapp/event/" + data.results["eventID"];
 				}, "json");
-			
-			//dialog.dialog( "close" );
 		}
 		
+		//dialog.dialog( "close" );
 		return valid;
 	}
+	// * //
 	
 	
 	
-	// Create dialog box to populate form in 
+	// Create dialog box to populate form in //
 	dialog = $( "#dialog-form" ).dialog({
 		autoOpen: false,
 		height: 500,
@@ -327,18 +467,20 @@ $(function() {
 			allFields.removeClass( "ui-state-error" );
 		}
 	});
+	// * //
 	
 	
 	
-	// Disable default functionality for form (we want to handle it manually) 
+	// Disable default functionality for form (we want to handle it manually) //
 	form = dialog.find( "form" ).on( "submit", function( event ) {
 		event.preventDefault();
 		submitEvent();
 	});
+	// * //
 	
 	
 	
-	// Add datepicker to (main) start and end times for event 
+	// Add datepicker to (main) start and end times for event //
 	$( "#datetimeStart" ).datepicker({
 		showOn: "button",
 		buttonImage: "/webapp/jquery/images/calendar.gif",
@@ -371,40 +513,70 @@ $(function() {
 			$( ".datetimeEnd" ).datepicker( "option", "maxDate", selectedDate );
 		}
 	});
+	// * //
 	
 	
 	
-	// Prettify the eventTypeID radios 
+	// Prettify the eventTypeID radios //
 	$( "#eventTypeID" ).buttonset();
+	// * //
 	
 	
 	
-	// Attach event for when user clicks the "new event" button 
+	// Attach event for when user clicks the "new event" button //
 	$( "#add-event" ).on( "click", function() {
 		// Determine appropriate dialog size 
 		setDialogSize();
 		
+		dialog.dialog( "option", "title", "Create event" );
+		dialog.dialog( "option", "buttons", {
+			"Create event": submitEvent,
+			Cancel: function() {
+				dialog.dialog( "close" );
+			}
+		});
 		dialog.dialog( "open" );
 	});
 	if ( document.URL.indexOf("/createEvent") > -1 ) {
 		$( "#add-event" ).trigger( "click" );
 	}
+	// * //
 	
 	
 	
-	// Load all countries from API and populate page 
-	$.get( "/api/country/",
+	// Attach event for when user clicks the "edit event" button //
+	$( "#edit-event" ).on( "click", function() {
+		// Determine appropriate dialog size 
+		setDialogSize();
+		populateFields();
+		
+		dialog.dialog( "option", "title", "Edit event" );
+		dialog.dialog( "option", "buttons", {
+			"Edit event": editEvent,
+			Cancel: function() {
+				dialog.dialog( "close" );
+			}
+		});
+		dialog.dialog( "open" );
+	});
+	// * //
+	
+	
+	
+	// Load all countries from API and populate page //
+	$.getJSON( "/api/country/",
 	function( event ) {
 		for (var i = 0; i < event.results.length; ++i) {
 			$( ".countryID" ).append('<option value="' + event.results[i].id + '">' + event.results[i].name + '</option>');
 		}
 		
 		//$( ".countryID" ).selectmenu();
-	}, "json" );
+	});
+	// * //
 	
 	
 	
-	// Autocomplete for category (with cache) 
+	// Autocomplete for category (with cache) // 
 	var cache = {};
 	$( "#category" ).autocomplete({
 		minLength: 2,
@@ -438,39 +610,11 @@ $(function() {
 		}, 
 		select: function( event, ui ) {
 			
-			// Make sure category selection is not already in list 
-			if ( ui.item.value > 0 && categorySelected(ui.item.value) ) {
-				this.value = "";
-				return false;
-			}
-			
-			// Not already existing -- we have to create it 
-			if ( ui.item.value == -1 ) {
-				//alert( "Create new category: " + ui.item.label );
-				$.post( "/api/category/", 
-					"name=" + encodeURIComponent(ui.item.label), 
-					function( data, status, xhr ) {
-						if ( typeof data.results["categoryID"] == 'undefined' ) {
-							alert("ERROR: Failed to create category!");
-							return false;
-						}
-						//alert(data.results["categoryID"] + " " + ui.item.label);
-						
-						$( "#categories" ).append("<a title='Remove' onclick='removeCategory(this)' class='category' href='javascript: void(0);' catID='" + data.results["categoryID"] + "'>" + ui.item.label + "</a>");
-						this.value = "";
-						
-						cache = {}; // invalidate cache 
-					}, "json");
-			}
-			else {
-				//alert("Existed: " + ui.item.value + " " + ui.item.label);
-				
-				$( "#categories" ).append("<a title='Remove' onclick='removeCategory(this)' class='category' href='javascript: void(0);' catID='" +  ui.item.value + "'>" + ui.item.label + "</a>");
-				this.value = "";
-			}
+			addCategory( this, ui.item.value, ui.item.label );
 			
 			return false;
 		}
 	});
+	// * //
 	
 });

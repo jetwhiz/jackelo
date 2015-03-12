@@ -67,7 +67,12 @@ EOHT;
 		
 		// Ensure eventID given 
 		if ( count($queryArray) && is_numeric($queryArray[0]) ) {
-			
+			$headTags = <<<EOHT
+				<script type="text/javascript" src="/webapp/index.js"></script>
+				<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
+
+EOHT;
+			$contentBodyWrapper = "<a id='edit-event' href='#'>Edit event</a>";
 		}
 		else {
 			echo "no eventID";
@@ -180,7 +185,7 @@ EOBW;
 						<legend>Destination</legend>
 						
 						<label>Address</label>
-						<input type="text" name="destination[][address]" value="" class="text ui-widget-content ui-corner-all" />
+						<input type="text" name="destination[][address]" value="" class="address text ui-widget-content ui-corner-all" />
 						
 						<label>Start date</label>
 						<input type="text" name="destination[][datetimeStart]" class="datetimeStart text ui-widget-content ui-corner-all">
