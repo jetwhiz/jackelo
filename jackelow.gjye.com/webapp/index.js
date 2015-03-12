@@ -28,10 +28,16 @@ function updateFields( elem, results ) {
 	$(elem).find('div.dates-cell:first').text(dSS + " - " + dES);
 	$(elem).find('div.description-cell:first').text(results.description);
 	
-	// Populate thumbnail 
-	var img = results.destinations[0].thumb;
-	var country = results.destinations[0].countryName;
-	$(elem).find('div.thumb-cell:first').html('<img src="' + img + '" alt="' + country + '" title="' + country + '" class="thumb" />');
+	// Populate thumbnail (or use generic) 
+	if ( results.destinations.length > 0 ) {
+		var img = results.destinations[0].thumb;
+		var country = results.destinations[0].countryName;
+		$(elem).find('div.thumb-cell:first').html('<img src="' + img + '" alt="' + country + '" title="' + country + '" class="thumb" />');
+	}
+	else {
+		$(elem).find('div.thumb-cell:first').html('<img src="https://jackelow.gjye.com/imgs/default.png.thumb.jpg" alt="Generic city" title="Generic city" class="thumb" />');
+	}
+	
 	
 	// Populate categories (tags) 
 	var categoryStr = [];
