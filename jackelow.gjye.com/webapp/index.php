@@ -134,6 +134,27 @@ EOD;
 			}
 			////
 			
+			
+			// Pull in attendants 
+			$attendants = 0;
+			$attending = "Attend";
+			$attendants_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/attendants/");
+			if ( !$attendants_raw ) {
+				echo "can't connect to API";
+				die(0);
+			}
+			$JSON_attendants = json_decode($attendants_raw, true);
+			
+			// Update # of attendants
+			$attendants = count($JSON_attendants["results"]);
+			
+			// Figure out if the current user is attending already 
+			if ( in_array( $User->getID(), $JSON_attendants["results"] ) ) {
+				$attending = "Unattend";
+			}
+			////
+			
+			
 			// Pull in event comments 
 			$comments = "";
 			$comments_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/comments/");
@@ -152,13 +173,13 @@ EOD;
 				$JSON_comment = json_decode($comment_raw, true);
 				
 				$commentUsername = $JSON_comment["results"][0]["username"];
-				$datetime = date("F d, Y", strtotime($JSON_comment["results"][0]["datetime"]));
+				$datetime = date("F d, Y, H:i:s T", strtotime($JSON_comment["results"][0]["datetime"]));
 				$message = $JSON_comment["results"][0]["message"];
 				
 				$comments .= <<<EOC
 					<li style="clear: both; border-bottom: dotted 1px; margin: 5px;">
 						<div style="float: left; width: 90%; padding: 0px; clear: both;">
-							<span style="font-weight: bold;">$commentUsername</span> ($datetime)
+							<span style="font-weight: bold;">$commentUsername</span> ($datetime) &mdash; <a href="javascript: void(0)" onclick="removeComment($commentID)">Delete</a>
 						</div>
 						<div style="float: left; width: 90%; padding: 10px; clear: both;">
 							$message
@@ -177,6 +198,7 @@ EOC;
 
 EOHT;
 			$contentBodyWrapper = <<<EOEP
+				<div id="dialog-confirm" title="Delete?">Are you sure you want to delete this?</div>
 				
 				<div style="margin: 20px; padding: 5px;">
 					<div style="clear: both; padding: 10px;">
@@ -185,7 +207,9 @@ EOHT;
 						</div>
 						<div style="float: right; width: 30%;">
 							($ownerName)<br />
-							<a id='edit-event' href='javascript: void(0);'>Edit event</a>
+							[ <a id='attend-event' type="$attending" href='javascript: void(0);'>$attending</a> - 
+							 <a id='edit-event' href='javascript: void(0);'>Edit</a> - 
+							 <a href="javascript: void(0)" onclick="removeEvent()">Delete</a> ]
 						</div>
 					</div>
 					<div style="clear: both; padding: 10px;">
@@ -194,6 +218,11 @@ EOHT;
 						</div>
 						<div style="float: right; width: 30%;">
 							$eventType
+						</div>
+					</div>
+					<div style="clear: both; padding: 10px;">
+						<div style="float: left; width: 90%;">
+							There are $attendants attendants so far.
 						</div>
 					</div>
 					<div style="clear: both; padding: 10px;">
@@ -217,6 +246,15 @@ EOHT;
 						</div>
 						<ul style="list-style-type: none; float: left; width: 90%; margin-left: 10px;">
 							$comments
+							<li style="clear: both; margin: 5px;">
+								<div id="create-comment" style="float: left; width: 90%;">
+									<form>
+										<textarea name="message" style="height: 50px; width: 100%;"></textarea>
+										<input type="submit" value="Comment" />
+									</form>
+								</div>
+								<br style="clear: both;" />
+							</li>
 						</ul>
 					</div>
 				</div>
