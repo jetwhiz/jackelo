@@ -245,10 +245,10 @@ function populateFields() {
 		
 		
 		// Populate main input fields 
-		$( "#name" ).val(event.name);
+		$( "#name" ).val($('<textarea />').html(event.name).text());
 		$( "#datetimeStart" ).val(dS[1]);
 		$( "#datetimeEnd" ).val(dE[1]);
-		$( "#description" ).val(event.description);
+		$( "#description" ).val($('<textarea />').html(event.description).text());
 		
 		
 		// Populate categories
@@ -268,7 +268,7 @@ function populateFields() {
 			var ddE = event.destinations[i].datetimeEnd.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
 			
 			var destination = addDestination();
-			destination.find( ".address" ).val( event.destinations[i].address );
+			destination.find( ".address" ).val( $('<textarea />').html(event.destinations[i].address).text() );
 			destination.find( ".datetimeStart" ).val( ddS[1] );
 			destination.find( ".datetimeEnd" ).val( ddE[1] );
 			destination.find( ".countryID" ).val( event.destinations[i].countryID );
@@ -363,7 +363,7 @@ $(function() {
 		if ( categories.length == 0 ) {
 			updateTips( "At least one category is required!" );
 		}
-		queryString += "category=" + encodeURIComponent(categories.join(",")) + "&";
+		queryString += "categoryID=" + encodeURIComponent(categories.join(",")) + "&";
 		
 		// Ensure good event type given 
 		var eventTypeID = $('[name="eventTypeID"]:checked').val();
@@ -422,8 +422,23 @@ $(function() {
 			}
 			
 			console.log(eventNum);
+			//alert(queryString);
 			
-			
+			$.ajax({
+				type: "PUT",
+				url: "/api/event/" + eventNum + "/", 
+				data: queryString, 
+				success: function( data, status, xhr ) {
+					if ( typeof data.results["eventID"] == 'undefined' ) {
+						alert("ERROR: Failed to create event!");
+						return false;
+					}
+					
+					// Go to newly-created event
+					document.location = "/webapp/event/" + eventNum;
+				}, 
+				dataType: "json"
+			});
 		}
 		
 		// Otherwise POST the new event 

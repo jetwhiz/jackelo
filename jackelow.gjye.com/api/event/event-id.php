@@ -15,12 +15,343 @@
 					$this->delete();
 					break;
 				case "put":
+					$this->put();
+					break;
 				case "post":
 				default: 
 					throw new Error($GLOBALS["HTTP_STATUS"]["Bad Request"], get_class($this) . " Error: Request method not supported.");
 			}
 		}
 		// * // 
+		
+		
+		
+		// EDIT EXISTING EVENT //
+		protected function put() {
+			
+			if ($GLOBALS["DEBUG"]) {
+				print_r("\nPUT-EventAll\n");
+				print_r($GLOBALS["_PUT"]);
+			}
+			
+			
+			
+			// start transaction 
+			if ( !$this->DBs->startTransaction() ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to begin transaction.");
+			}
+			
+			
+			
+			// Get ownership info data //
+			$select = "
+					SELECT `Events`.`ownerID`
+					FROM `Events` 
+					WHERE `Events`.`id` = ?
+					LIMIT 1
+			";
+			$binds = ["i", $this->REST_vars["eventID"]];
+			
+			$res = $this->DBs->select($select, $binds, true); // unsafe select (for transaction) 
+			if ( is_null($res) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
+			}
+			
+			// Verify event ID exists 
+			$row = $res->fetch_assoc();
+			if ( !$row ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Not Found"], get_class($this) . " Error: Failed to find event.");
+			}
+			
+			// Verify current user is owner 
+			if ( $this->User->getID() != $row['ownerID'] ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], get_class($this) . " Error: You are not the owner of this event.");
+			}
+			////
+			
+			
+			
+			
+			// Perform UPDATE for Events table 
+			$update = "
+				UPDATE `Events` 
+				SET `name` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `description` = ?, `eventTypeID` = ?
+				WHERE `ownerID` = ? AND `id` = ?
+			";
+			
+			$FLAGS = ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE;
+			
+			$binds = [];
+			$binds[0] = "ssssiii";
+			$binds[] = htmlspecialchars($GLOBALS["_PUT"]["name"], $FLAGS, "UTF-8");
+			$binds[] = $GLOBALS["_PUT"]["datetimeStart"];
+			$binds[] = $GLOBALS["_PUT"]["datetimeEnd"];
+			$binds[] = htmlspecialchars($GLOBALS["_PUT"]["description"], $FLAGS, "UTF-8");
+			$binds[] = intval($GLOBALS["_PUT"]["eventTypeID"], 10);
+			$binds[] = $this->User->getID();
+			$binds[] = $this->REST_vars["eventID"];
+			
+			if ($GLOBALS["DEBUG"]) {
+				print_r("\nBINDS\n");
+				print_r($update."\n");
+				print_r($binds);
+			}
+			
+			// Perform update (cannot do rows affected because there may be no changes) 
+			$this->DBs->update($update, $binds);
+			////
+			
+			
+			
+			// Get existing categories 
+			$select = "
+					SELECT `id`, `categoryID`
+					FROM `EventCategories` 
+					WHERE `eventID` = ?
+			";
+			$binds = ["i", $this->REST_vars["eventID"]];
+			
+			$res = $this->DBs->select($select, $binds, true); // unsafe select (for transaction) 
+			if ( is_null($res) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
+			}
+			
+			// Remember which categories this event used to have (and their EventCategories ID) 
+			$oldCategories = [];
+			while ($row = $res->fetch_assoc()) {
+				$oldCategories[] = [ "id" => $row['id'], "categoryID" => $row['categoryID'] ];
+			}
+			
+			
+			// Categories newly specified by user (may have overlap with old) 
+			$newCategories = Toolkit::array_clean(array_unique(explode(",", $GLOBALS["_PUT"]["categoryID"])));
+			
+			
+			// Scan list of old categories and find which ones are no longer chosen 
+			$catToRemove = [];
+			foreach ($oldCategories as $catE) {
+				$in = false;
+				
+				foreach ($newCategories as $catN) {
+					if ( $catN == $catE["categoryID"] ) {
+						$in = true;
+					}
+				}
+				
+				if ( $in == false ) {
+					// Perform DELETE for EventCategories table 
+					$delete = "
+						DELETE FROM `EventCategories` WHERE `id` = ? AND `eventID` = ?
+						LIMIT 1
+					";
+					
+					$binds = [];
+					$binds[0] = "ii";
+					$binds[] = $catE["id"];
+					$binds[] = $this->REST_vars["eventID"];
+					
+					if ($GLOBALS["DEBUG"]) {
+						print_r("\nBINDS\n");
+						print_r($delete."\n");
+						print_r($binds);
+					}
+					
+					// Perform removal (and ensure row was removed) 
+					$affected = $this->DBs->delete($delete, $binds);
+					if ( !$affected ) {
+						throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Category removal failed!");
+					}
+					
+					$catToRemove[] = $catE["categoryID"];
+				}
+			}
+			
+			
+			// Scan list of new categories and find which ones are new 
+			$catToAdd = [];
+			foreach ($newCategories as $catN) {
+				$in = false;
+				
+				foreach ($oldCategories as $catE) {
+					if ( $catN == $catE["categoryID"] ) {
+						$in = true;
+					}
+				}
+				
+				if ( $in == false ) {
+					// Perform INSERT for EventCategories table 
+					$insert = "
+						INSERT INTO `EventCategories` (`eventID`, `categoryID`)
+						VALUES (?, ?)
+					";
+					
+					$binds = [];
+					$binds[0] = "ii";
+					$binds[] = $this->REST_vars["eventID"];
+					$binds[] = $catN;
+					
+					if ($GLOBALS["DEBUG"]) {
+						print_r("\nBINDS\n");
+						print_r($insert."\n");
+						print_r($binds);
+					}
+					
+					// Perform insertion (and ensure row was inserted) 
+					$affected = $this->DBs->insert($insert, $binds);
+					if ( !$affected ) {
+						throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Add category failed!");
+					}
+					
+					$catToAdd[] = $catN;
+				}
+			}
+			
+			if ($GLOBALS["DEBUG"]) {
+				print_r("REMOVE: ");
+				print_r($catToRemove);
+				
+				print_r("ADD: ");
+				print_r($catToAdd);
+			}
+			////
+			
+			
+			
+			// Get existing destinations (order by id to ensure idempotence) 
+			$select = "
+					SELECT `id`
+					FROM `EventDestinations` 
+					WHERE `eventID` = ?
+					ORDER BY `id`
+			";
+			$binds = ["i", $this->REST_vars["eventID"]];
+			
+			$res = $this->DBs->select($select, $binds, true); // unsafe select (for transaction) 
+			if ( is_null($res) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve destinations.");
+			}
+			
+			// Remember which destinations this event used to have 
+			$oldDestinationIDs = [];
+			while ($row = $res->fetch_assoc()) {
+				$oldDestinationIDs[] = $row['id'];
+			}
+			if ($GLOBALS["DEBUG"]) {
+				print_r($oldDestinationIDs);
+			}
+			
+			
+			// Perform UPDATE/INSERT for EventDestinations table (replace old ones) 
+			$oldID = 0;
+			foreach ($GLOBALS["_PUT"]["destination"] as $destination) {
+				
+				// Update existing 
+				if ( $oldID < count($oldDestinationIDs) ) {
+					$update = "
+						UPDATE `EventDestinations` 
+						SET `address` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `cityID` = ?, `countryID` = ?
+						WHERE `id` = ? AND `eventID` = ? 
+					";
+					
+					$binds = [];
+					$binds[0] = "sssiiii";
+					$binds[] = htmlspecialchars($destination["address"], $FLAGS, "UTF-8");
+					$binds[] = $destination["datetimeStart"];
+					$binds[] = $destination["datetimeEnd"];
+					$binds[] = intval($destination["cityID"], 10);
+					$binds[] = intval($destination["countryID"], 10);
+					$binds[] = $oldDestinationIDs[$oldID];
+					$binds[] = $this->REST_vars["eventID"];
+					
+					if ($GLOBALS["DEBUG"]) {
+						print_r("\nU-BINDS\n");
+						print_r($update."\n");
+						print_r($binds);
+					}
+					
+					// Perform update (cannot do rows affected because there may be no changes) 
+					$this->DBs->update($update, $binds);
+				}
+				
+				// Otherwise there are more destinations than before (insert new ones) 
+				else {
+					$insert = "
+						INSERT INTO `EventDestinations` (`eventID`, `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`)
+						VALUES (?, ?, ?, ?, ?, ?)
+					";
+					
+					$binds = [];
+					$binds[0] = "isssii";
+					$binds[] = $this->REST_vars["eventID"];
+					$binds[] = htmlspecialchars($destination["address"], $FLAGS, "UTF-8");
+					$binds[] = $destination["datetimeStart"];
+					$binds[] = $destination["datetimeEnd"];
+					$binds[] = intval($destination["cityID"], 10);
+					$binds[] = intval($destination["countryID"], 10);
+					
+					if ($GLOBALS["DEBUG"]) {
+						print_r("\nI-BINDS\n");
+						print_r($insert."\n");
+						print_r($binds);
+					}
+					
+					$affected = $this->DBs->insert($insert, $binds);
+					if ( !$affected ) {
+						// Roll back transaction 
+						$this->DBs->abortTransaction();
+						throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert destination failed!");
+					}
+				}
+				
+				
+				// Proceed to next oldID 
+				++$oldID;
+			}
+			
+			// EventDestinations were removed (we have leftovers) -- DELETE 
+			for ( ; $oldID < count($oldDestinationIDs); ++$oldID ) {
+				// Perform DELETE for EventDestinations table 
+				$delete = "
+					DELETE FROM `EventDestinations` WHERE `id` = ? AND `eventID` = ?
+					LIMIT 1
+				";
+				
+				$binds = [];
+				$binds[0] = "ii";
+				$binds[] = $oldDestinationIDs[$oldID];
+				$binds[] = $this->REST_vars["eventID"];
+				
+				if ($GLOBALS["DEBUG"]) {
+					print_r("\nBINDS\n");
+					print_r($delete."\n");
+					print_r($binds);
+				}
+				
+				// Perform removal (and ensure row was removed) 
+				$affected = $this->DBs->delete($delete, $binds);
+				if ( !$affected ) {
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Destination removal failed!");
+				}
+				
+			}
+			////
+			
+			
+			
+			// Commit transaction
+			if ( !$this->DBs->endTransaction() ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to commit transaction.");
+			}
+			////
+			
+			
+			// Return updated eventID 
+			$JSON = [
+				"eventID" => $this->REST_vars["eventID"]
+			];
+			$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
+		}
+		// * //
 		
 		
 		
@@ -114,7 +445,7 @@
 							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
 							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `EventDestinations`.`countryID`
 							WHERE `EventDestinations`.`eventID` = ?
-							ORDER BY `EventDestinations`.`datetimeStart`
+							ORDER BY `EventDestinations`.`id`
 					";
 				}
 				else {
@@ -129,7 +460,7 @@
 							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
 							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `EventDestinations`.`countryID`
 							WHERE `EventDestinations`.`eventID` = ?
-							ORDER BY `EventDestinations`.`datetimeStart`
+							ORDER BY `EventDestinations`.`id`
 					";
 				}
 				

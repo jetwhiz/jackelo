@@ -137,6 +137,13 @@
 		// * //
 		
 		
+		// Wrapper for UPDATE statements (prepared-bound) //
+		public function update($INSERT_STR, $BINDS) {
+			return $this->insert($INSERT_STR, $BINDS);
+		}
+		// * //
+		
+		
 		// Wrapper for DELETE statements (prepared-bound) //
 		public function delete($INSERT_STR, $BINDS) {
 			return $this->insert($INSERT_STR, $BINDS);

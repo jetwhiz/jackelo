@@ -31,6 +31,12 @@
 	////
 	
 	
+	// Grab PUT data (assuming it is type application/x-www-form-urlencoded) 
+	if ( $_SERVER['REQUEST_METHOD'] == "PUT" && !isset($GLOBALS["_PUT"]) ) {
+		$putdata = file_get_contents("php://input");
+		parse_str($putdata, $GLOBALS["_PUT"]);
+	}
+	
 	
 	// Save the request method being used (GET, POST, PUT, DELETE) 
 	$REST_vars = [ "method" => strtolower($_SERVER['REQUEST_METHOD']) ];
