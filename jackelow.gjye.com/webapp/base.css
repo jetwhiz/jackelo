@@ -1,4 +1,12 @@
 
+.italic {
+	font-style: italic;
+}
+.bold {
+	font-weight: bold;
+}
+
+
 html { 
 	height: 100%; 
 }

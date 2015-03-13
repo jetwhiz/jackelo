@@ -39,8 +39,9 @@ $(function() {
 		
 		// Populate categories (tags) 
 		var categoryStr = [];
+		var existingPath = getPathFilters("category");
 		for ( var i = 0; i < results.categories.length; ++i ) {
-			categoryStr.push('<a class="tags-link" href="/webapp/category/' + results.categories[i].categoryID + '/">' + results.categories[i].name + '</a>'); 
+			categoryStr.push('<a class="tags-link" href="/webapp/' + existingPath + 'category/' + results.categories[i].categoryID + '/">' + results.categories[i].name + '</a>'); 
 		}
 		$(elem).find('div.tags-cell:first').html(categoryStr.join(", "));
 	}
@@ -81,15 +82,11 @@ $(function() {
 		});
 	}
 	// * //
-
-
-
-	// Populate the page with events (starting at offset) //
-	function populate(informational) {
-		$(window).data('busy', true);
-		
-		
-		// Determine if filters were requested 
+	
+	
+	
+	// Determine any path filters that were requested 
+	function getPathFilters(skip) {
 		var pathFilters = "";
 		var pathTokens = window.location.pathname.split("/");
 		pathTokens = $.grep( pathTokens, function(n) {
@@ -106,19 +103,31 @@ $(function() {
 			switch ( token ) {
 				case "country":
 					var countryID = pathTokens.shift();
-					if ( !isNaN(countryID) ) 
+					if ( skip != "country" && !isNaN(countryID) ) 
 						pathFilters += "country/" + countryID + "/";
 					break;
 				
 				case "category":
 					var categoryID = pathTokens.shift();
-					if ( !isNaN(categoryID) ) 
+					if ( skip != "category" && !isNaN(categoryID) ) 
 						pathFilters += "category/" + categoryID + "/";
 					break;
 			}
 		}
-		////
 		
+		return pathFilters;
+	}
+	// * //
+	
+	
+	
+	// Populate the page with events (starting at offset) //
+	function populate(informational) {
+		$(window).data('busy', true);
+		
+		
+		// Determine if filters were requested 
+		var pathFilters = getPathFilters();		
 		
 		
 		if ( !informational ) {

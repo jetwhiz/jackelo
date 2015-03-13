@@ -5,6 +5,17 @@
 #injection-point, #sticky-injection-point {
 	list-style-type: none;
 }
+#filters {
+	display: block;
+	background-color: #efffef;
+	padding: 5px;
+	margin-left: 10px;
+}
+.filter {
+	background-color: #e8f8e8; 
+	color: #008800; 
+	padding: 5px; 
+}
 
 
 .event-block, .info-block {

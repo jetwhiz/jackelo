@@ -176,23 +176,26 @@ EOD;
 				}
 				$JSON_comment = json_decode($comment_raw, true);
 				
-				$commentUsername = $JSON_comment["results"][0]["username"];
-				$datetime = date("F d, Y, H:i:s T", strtotime($JSON_comment["results"][0]["datetime"]));
-				$message = $JSON_comment["results"][0]["message"];
-				
-				$comments .= <<<EOC
-					<li class="comment">
-						<div class="comment-header">
-							<span class="bold">$commentUsername</span> ($datetime) &mdash; 
-							<a href="javascript: void(0)" class="remove-comment" commentID="$commentID">Delete</a>
-						</div>
-						<div class="comment-body">
-							$message
-						</div>
-						<br style="clear: both;" />
-					</li>
+				if ( count($JSON_comment["results"]) == 1 ) {
+					$commentUsername = $JSON_comment["results"][0]["username"];
+					$datetime = date("F d, Y, H:i:s T", strtotime($JSON_comment["results"][0]["datetime"]));
+					$message = $JSON_comment["results"][0]["message"];
+					
+					$comments .= <<<EOC
+						<li class="comment">
+							<div class="comment-header">
+								<span class="bold">$commentUsername</span> ($datetime) &mdash; 
+								<a href="javascript: void(0)" class="remove-comment" commentID="$commentID">Delete</a>
+							</div>
+							<div class="comment-body">
+								$message
+							</div>
+							<br style="clear: both;" />
+						</li>
 
 EOC;
+				}
+			
 			}
 			////
 			
@@ -281,6 +284,86 @@ EOEP;
 	
 	// Otherwise it is some flavor of index 
 	else {
+		
+		
+		// Get all filters chosen to display to user 
+		$filtersObj = [];
+		while ( count($queryArray) >= 2 ) {
+			$command = array_shift($queryArray);
+			$value = array_shift($queryArray);
+			
+			if ( $command == "country" && is_numeric($value) ) {
+				$value = intval($value, 10);
+				
+				// Convert countryID to title 
+				$country_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/country/" . $value);
+				if ( !$country_raw ) {
+					echo "can't connect to API";
+					die(0);
+				}
+				$JSON = json_decode($country_raw, true);
+				
+				if ( count($JSON["results"]) == 1 ) {
+					$filtersObj["country"] = [];
+					$filtersObj["country"]["id"] = $value;
+					$filtersObj["country"]["name"] = $JSON["results"][0]["name"];
+				}
+			}
+			elseif ( $command == "category" && is_numeric($value) ) {
+				$value = intval($value, 10);
+				
+				// Convert categoryID to title 
+				$category_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/category/" . $value);
+				if ( !$category_raw ) {
+					echo "can't connect to API";
+					die(0);
+				}
+				$JSON = json_decode($category_raw, true);
+				
+				if ( count($JSON["results"]) == 1 ) {
+					$filtersObj["category"] = [];
+					$filtersObj["category"]["id"] = $value;
+					$filtersObj["category"]["name"] = $JSON["results"][0]["name"];
+				}
+			}
+		}
+		
+		// Make chosen filters pretty to display to user 
+		$filters = [];
+		$filtersStr = "<span class='bold'>Chosen filters: </span>";
+		if ( count($filtersObj) ) {
+			
+			// If country filter was chosen 
+			if ( count($filtersObj["country"]) ) {
+				
+				// Keep any specified category filters
+				$filterKeepers = "";
+				if ( count($filtersObj["category"]) ) {
+					$filterKeepers = "category/" . $filtersObj["category"]["id"] . "/";
+				}
+				
+				$filters[] = "<a href='/webapp/" . $filterKeepers . "' class='filter'>Country: " . $filtersObj["country"]["name"] . "</a>";
+			}
+			
+			// If category filter was chosen 
+			if ( count($filtersObj["category"]) ) {
+				
+				// Keep any specified country filters
+				$filterKeepers = "";
+				if ( count($filtersObj["country"]) ) {
+					$filterKeepers = "country/" . $filtersObj["country"]["id"] . "/";
+				}
+				
+				$filters[] = "<a href='/webapp/" . $filterKeepers . "' class='filter'>Category: " . $filtersObj["category"]["name"] . "</a>";
+			}
+			
+			$filtersStr .= implode( ", ", $filters );
+		}
+		else {
+			$filtersStr .= "<span class='italic'>None</span>";
+		}
+		
+		
 		$headTags = <<<EOHT
 
 				<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
@@ -291,6 +374,7 @@ EOHT;
 		$contentBodyWrapper = <<<EOBW
 
 			<h2>&nbsp;Welcome, $usrname!</h2>
+			<div id="filters">$filtersStr</div>
 			
 			<ul id="sticky-injection-point"></ul>
 			<ul id="injection-point"></ul>
