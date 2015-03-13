@@ -91,14 +91,19 @@ EOHT;
 			$datetimeEnd = date("F d, Y", strtotime($JSON["results"][0]["datetimeEnd"]));
 			$eventType = $JSON["results"][0]["eventType"];
 			$description = $JSON["results"][0]["description"];
+			////
 			
+			
+			// Pull in categories 
 			$categories = [];
 			foreach ( $JSON["results"][0]["categories"] as $category ) {
 				$categories[] = "<a class='tags-link' href='/webapp/category/" . $category["categoryID"] . "/'>" . $category["name"] . "</a>";
 			}
 			$categoryStr = implode( ", ", $categories );
+			////
 			
 			
+			// Pull in destinations 
 			$destinations = "";
 			foreach ( $JSON["results"][0]["destinations"] as $destination ) {
 				$city = $destination["cityName"];
@@ -106,12 +111,15 @@ EOHT;
 				$ddateStart = date("F d, Y", strtotime($destination["datetimeStart"]));
 				$ddatetimeEnd = date("F d, Y", strtotime($destination["datetimeEnd"]));
 				$address = $destination["address"];
+				$img = $destination["img"];
 				$thumb = $destination["thumb"];
 				
 				$destinations .= <<<EOD
 					<li style="clear: both; border-bottom: solid 1px; margin: 5px;">
 						<div style="float: left; width: 150px; margin-top: 10px; text-align: center;">
-							<img src="$thumb" alt="$city, $country" title="$city, $country" class="thumb" />
+							<a href="$img" title="$city, $country" class="lightbox-image">
+								<img src="$thumb" alt="$city, $country" title="$city, $country" class="thumb" />
+							</a>
 						</div>
 						<div style="float: left; width: 70%;"> 
 							<div style="float: left; width: 90%; padding: 0px; clear: both;">
@@ -194,7 +202,9 @@ EOC;
 			
 			$headTags = <<<EOHT
 				<script type="text/javascript" src="/webapp/index.js"></script>
+				<script type="text/javascript" src="/webapp/jquery/jquery.colorbox-min.js"></script>
 				<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
+				<link type="text/css" rel="stylesheet" href="/webapp/jquery/jquery.colorbox.css" />
 
 EOHT;
 			$contentBodyWrapper = <<<EOEP
@@ -272,8 +282,10 @@ EOEP;
 	// Otherwise it is some flavor of index 
 	else {
 		$headTags = <<<EOHT
-			<script type="text/javascript" src="/webapp/index.js"></script>
-			<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
+				<script type="text/javascript" src="/webapp/index.js"></script>
+				<script type="text/javascript" src="/webapp/jquery/jquery.colorbox-min.js"></script>
+				<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
+				<link type="text/css" rel="stylesheet" href="/webapp/jquery/jquery.colorbox.css" />
 
 EOHT;
 

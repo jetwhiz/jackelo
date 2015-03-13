@@ -189,6 +189,7 @@ function attachHandlers() {
 var limitScroll = 0;
 var limitResize = 0;
 $( window ).load(function() {
+	$(".lightbox-image").colorbox({maxWidth:"90%", maxHeight:"90%"});
 	$(window).data('busy', false);
 	populate(0);
 	attachHandlers();
