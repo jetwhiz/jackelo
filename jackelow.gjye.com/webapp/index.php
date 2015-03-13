@@ -303,10 +303,12 @@ EOHT;
 							<div class="dates-cell"></div>
 							<div class="tags-cell"></div>
 							<div class="description-cell"></div>
+							<br style="clear: both;" />
 						</div>
+						<br style="clear: both;" />
 					</div>
+					<br style="clear: both;" />
 				</li>
-				<br />
 			</div>
 
 EOBW;

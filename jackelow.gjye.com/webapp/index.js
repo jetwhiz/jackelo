@@ -3,6 +3,10 @@
 
 $(function() {
 	
+	// Should be loaded in dynamically 
+	var eventTypes = { "Local Event": 1, "GTL Event": 2, "Trip": 3, "Info": 4 };
+	
+	
 	// For each event, populate the event box on the page // 
 	function updateChildFields( elem, results ) {
 		var months = new Array( "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" );
@@ -17,10 +21,16 @@ $(function() {
 		$(elem).find('div.description-cell:first').text(results.description);
 		
 		// Populate thumbnail (or use generic) 
-		if ( results.destinations.length > 0 ) {
+		if ( results.eventTypeID == eventTypes["Trip"] && results.destinations.length > 0 ) {
 			var img = results.destinations[0].thumb;
 			var country = results.destinations[0].countryName;
 			$(elem).find('div.thumb-cell:first').html('<img src="' + img + '" alt="' + country + '" title="' + country + '" class="thumb" />');
+		}
+		else if ( results.eventTypeID == eventTypes["GTL Event"] ) {
+			$(elem).find('div.thumb-cell:first').html('<img src="https://jackelow.gjye.com/imgs/GTL-event.jpg.thumb.jpg" alt="GTL Event" title="GTL Event" class="thumb" />');
+		}
+		else if ( results.eventTypeID == eventTypes["Local Event"] ) {
+			$(elem).find('div.thumb-cell:first').html('<img src="https://jackelow.gjye.com/imgs/local-event.jpg.thumb.jpg" alt="Local Event" title="Local Event" class="thumb" />');
 		}
 		else {
 			$(elem).find('div.thumb-cell:first').html('<img src="https://jackelow.gjye.com/imgs/default.png.thumb.jpg" alt="Generic city" title="Generic city" class="thumb" />');
@@ -69,7 +79,7 @@ $(function() {
 
 
 	// Populate the page with events (starting at offset) //
-	function populate( offset ) {
+	function populate() {
 		$(window).data('busy', true);
 		
 		
@@ -110,7 +120,7 @@ $(function() {
 		
 		
 		// Load all events from API and populate page 
-		$.getJSON( "/api/event/" + pathFilters, // "/api/event/start/#/" 
+		$.getJSON( "/api/event/" + pathFilters + "/start/" + offset, // "/api/event/{opts}/start/#/" 
 		function( event ) {
 			for (var i = 0; i < event.results.length; ++i) {
 				var $template = $( "#event-template" ).children().first().clone();
@@ -136,7 +146,7 @@ $(function() {
 		var wrapperHeight = $("#wrapper").height() - 100;
 		var scrollPos = $("#content-body").scrollTop() + $("#content-body").height();
 		if (scrollPos > wrapperHeight) {
-			populate( $(".event-block").length );
+			populate();
 		}
 	}
 	// * //
@@ -175,7 +185,7 @@ $(function() {
 	var limitResize = 0;
 	$( window ).load(function() {
 		$(window).data('busy', false);
-		populate(0);
+		populate();
 		attachHandlers();
 	});
 	// * //

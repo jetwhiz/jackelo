@@ -24,33 +24,57 @@
 
 
 .tr {
-	display: table-row;
+	display: block;
+	float: left;
 	width: 100%;
 }
 
 
-.td, .thumb-cell, .info-cell {
-	display: table-cell;
+.td {
+	display: block;
+	float: left;
 	font-size: 110%;
 }
-
+.thumb-cell {
+	display: block;
+	float: left;
+	font-size: 110%;
+}
 .thumb-cell, .thumb {
 	width: 100px; 
 	height: 75px;
 }
-@media (max-width: 525px) {
+@media (max-width: 600px) {
 	.thumb-cell, .thumb {
 		display: none;
 	}
 }
 
-.info-cell, .title-cell, .username-cell, .dates-cell, .tags-cell, .description-cell {
+.info-cell {
+	display: block;
+	float: left;
+	font-size: 110%;
 	padding-left: 5px; 
 	vertical-align: top;
-	width: 100%;
+	width: 90%;
+	padding-bottom: 5px;
+}
+@media (min-width: 601px) and (max-width: 1200px) {
+	.info-cell {
+		width: 80%;
+	}
+}
+.title-cell, .username-cell, .dates-cell, .tags-cell, .description-cell {
+	padding-left: 5px; 
+	vertical-align: top;
+	width: 70%;
 	white-space: nowrap; 
 	overflow: hidden; 
 	padding-bottom: 5px;
+}
+.description-cell {
+	white-space: normal; 
+	overflow: visible; 
 }
 .title-cell {
 	float: left; 
@@ -64,7 +88,7 @@
 	width: 45%; 
 	text-align: right;
 }
-@media (max-width: 525px) {
+@media (max-width: 600px) {
 	.title-cell {
 		width: 90%;
 	}

@@ -478,6 +478,8 @@ $(function() {
 		height: 500,
 		width: 500,
 		modal: true,
+		show: { effect: "slide", direction: "up", easing: "easeOutBounce" },
+		hide: { effect: "slide", direction: "up" },
 		buttons: {
 			"Create event": submitEvent,
 			Cancel: function() {
@@ -559,6 +561,7 @@ $(function() {
 				dialog.dialog( "close" );
 			}
 		});
+		
 		dialog.dialog( "open" );
 	});
 	if ( document.URL.indexOf("/createEvent") > -1 ) {
