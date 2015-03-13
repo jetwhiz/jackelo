@@ -13,5 +13,6 @@ input.text, select { margin-bottom: 12px; width: 80%; padding: .4em; float: left
 .thumb { width: 100px; height: 75px; }
 .category { background-color: #eeffee; color: #008800; padding: 5px; margin: 5px; float: left; }
 #add-destination { display: block; padding: 10px; float: left; clear: both; }
+#description { margin-bottom: 12px; width: 80%; height: 100px; padding: .4em; float: left; }
 .destination-template { display: none; float: left; clear: both; width: 90%; background-color: #efefef; }
 .remove-destination { display: block; float: left; clear: both; }

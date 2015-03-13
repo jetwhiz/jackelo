@@ -86,7 +86,7 @@ EOHT;
 			$dateStart = date("F d, Y", strtotime($JSON["results"][0]["datetimeStart"]));
 			$datetimeEnd = date("F d, Y", strtotime($JSON["results"][0]["datetimeEnd"]));
 			$eventType = $JSON["results"][0]["eventType"];
-			$description = $JSON["results"][0]["description"];
+			$description = nl2br($JSON["results"][0]["description"]);
 			////
 			
 			
@@ -178,8 +178,12 @@ EOD;
 				
 				if ( count($JSON_comment["results"]) == 1 ) {
 					$commentUsername = $JSON_comment["results"][0]["username"];
-					$datetime = date("F d, Y, H:i:s T", strtotime($JSON_comment["results"][0]["datetime"]));
 					$message = $JSON_comment["results"][0]["message"];
+					
+					$tz = new DateTimeZone('Europe/Paris');
+					$dateServer = new DateTime($JSON_comment["results"][0]["datetime"]);
+					$dateServer->setTimeZone($tz);					
+					$datetime = $dateServer->format("F d, Y, H:i:s T");
 					
 					$comments .= <<<EOC
 						<li class="comment">
