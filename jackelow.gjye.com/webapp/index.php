@@ -9,10 +9,6 @@
 	
 	
 	
-	// Declare we're returning HTML in UTF-8
-	header('Content-Type: text/html; charset=utf-8');
-	
-	
 	// Break up URI into tokens on "/" symbol 
 	$URI = $_SERVER['REQUEST_URI'];
 	if ( strpos($URI, "?") !== false ) {
@@ -46,9 +42,9 @@
 		array_shift($queryArray);
 		
 		$headTags = <<<EOHT
+
 			<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_a-dYE-RmPRjgAn1dVJfSJ9IAVvE-7rQ"></script>
 			<script type="text/javascript" src="/webapp/map.js"></script>
-			<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
 
 EOHT;
 	}
@@ -115,21 +111,21 @@ EOHT;
 				$thumb = $destination["thumb"];
 				
 				$destinations .= <<<EOD
-					<li style="clear: both; border-bottom: solid 1px; margin: 5px;">
-						<div style="float: left; width: 150px; margin-top: 10px; text-align: center;">
+					<li class="destination">
+						<div class="destination-thumb">
 							<a href="$img" title="$city, $country" class="lightbox-image">
 								<img src="$thumb" alt="$city, $country" title="$city, $country" class="thumb" />
 							</a>
 						</div>
-						<div style="float: left; width: 70%;"> 
-							<div style="float: left; width: 90%; padding: 0px; clear: both;">
+						<div class="destination-body"> 
+							<div class="dest-body-header">
 								<h3>$city, $country</h3>
 							</div>
-							<div style="float: left; width: 90%; padding: 10px; clear: both;">
+							<div class="dest-body-subsect">
 								$ddateStart &ndash; $ddatetimeEnd
 							</div>
-							<div style="float: left; width: 90%; padding: 10px; clear: both;">
-								<span style="font-style: italic;">Address:</span> $address 
+							<div class="dest-body-subsect">
+								<span class="italic">Address:</span> $address 
 							</div>
 						</div>
 						<br style="clear: both;" />
@@ -138,7 +134,7 @@ EOHT;
 EOD;
 			}
 			if ( $destinations != "" ) {
-				$destinations = "<li style='font-style: italic;'>Destinations: </li>$destinations";
+				$destinations = "<li class='italic'>Destinations: </li>$destinations";
 			}
 			////
 			
@@ -185,11 +181,12 @@ EOD;
 				$message = $JSON_comment["results"][0]["message"];
 				
 				$comments .= <<<EOC
-					<li style="clear: both; border-bottom: dotted 1px; margin: 5px;">
-						<div style="float: left; width: 90%; padding: 0px; clear: both;">
-							<span style="font-weight: bold;">$commentUsername</span> ($datetime) &mdash; <a href="javascript: void(0)" onclick="removeComment($commentID)">Delete</a>
+					<li class="comment">
+						<div class="comment-header">
+							<span class="bold">$commentUsername</span> ($datetime) &mdash; 
+							<a href="javascript: void(0)" class="remove-comment" commentID="$commentID">Delete</a>
 						</div>
-						<div style="float: left; width: 90%; padding: 10px; clear: both;">
+						<div class="comment-body">
 							$message
 						</div>
 						<br style="clear: both;" />
@@ -201,65 +198,68 @@ EOC;
 			
 			
 			$headTags = <<<EOHT
-				<script type="text/javascript" src="/webapp/index.js"></script>
-				<script type="text/javascript" src="/webapp/jquery/jquery.colorbox-min.js"></script>
-				<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
+
 				<link type="text/css" rel="stylesheet" href="/webapp/jquery/jquery.colorbox.css" />
+				<script type="text/javascript" src="/webapp/jquery/jquery.colorbox-min.js"></script>
+				
+				<link type="text/css" rel="stylesheet" href="/webapp/event.css" />
+				<script type="text/javascript" src="/webapp/event.js"></script>
 
 EOHT;
 			$contentBodyWrapper = <<<EOEP
+
 				<div id="dialog-confirm" title="Delete?">Are you sure you want to delete this?</div>
 				
-				<div style="margin: 20px; padding: 5px;">
-					<div style="clear: both; padding: 10px;">
-						<div style="float: left; width: 60%;">
+				<div id="event-block">
+					<div class="event-row">
+						<div class="esubrow-left">
 							<h2>$eventName</h2>
 						</div>
-						<div style="float: right; width: 30%;">
+						<div class="esubrow-right">
 							($ownerName)<br />
 							[ <a id='attend-event' type="$attending" href='javascript: void(0);'>$attending</a> - 
 							 <a id='edit-event' href='javascript: void(0);'>Edit</a> - 
-							 <a href="javascript: void(0)" onclick="removeEvent()">Delete</a> ]
+							 <a href="javascript: void(0)" id="remove-event">Delete</a> ]
 						</div>
 					</div>
-					<div style="clear: both; padding: 10px;">
-						<div style="float: left; width: 60%;">
+					<div class="event-row">
+						<div class="esubrow-left">
 							$dateStart &ndash; $datetimeEnd
 						</div>
-						<div style="float: right; width: 30%;">
+						<div class="esubrow-right">
 							$eventType
 						</div>
 					</div>
-					<div style="clear: both; padding: 10px;">
-						<div style="float: left; width: 90%;">
+					<div class="event-row">
+						<div class="esubrow-full">
 							There are $attendants attendants so far.
 						</div>
 					</div>
-					<div style="clear: both; padding: 10px;">
-						<div style="float: left; width: 90%;">
+					<div class="event-row">
+						<div class="esubrow-full">
 							$categoryStr
 						</div>
 					</div>
-					<div style="clear: both; padding: 10px;">
-						<div style="float: left; width: 90%;">
+					<div class="event-row">
+						<div class="esubrow-full">
 							$description
 						</div>
 					</div>
-					<div style="clear: both; padding: 10px;">
-						<ul style="list-style-type: none; float: left; width: 90%; margin-left: 10px;">
+					<div class="event-row">
+						<ul id="destinations-block">
 							$destinations
 						</ul>
 					</div>
-					<div style="clear: both; padding: 10px;">
-						<div style="float: left; width: 90%; font-style: italic;">
+					<div class="event-row">
+						<div id="comments-header">
 							Comments: 
 						</div>
-						<ul style="list-style-type: none; float: left; width: 90%; margin-left: 10px;">
+						<ul id="comments-block">
 							$comments
-							<li style="clear: both; margin: 5px;">
-								<div id="create-comment" style="float: left; width: 90%;">
+							<li class="comment-add">
+								<div id="create-comment">
 									<form>
-										<textarea name="message" style="height: 50px; width: 100%;"></textarea>
+										<textarea name="message" class="comment-add-textbox"></textarea>
 										<input type="submit" value="Comment" />
 									</form>
 								</div>
@@ -282,14 +282,14 @@ EOEP;
 	// Otherwise it is some flavor of index 
 	else {
 		$headTags = <<<EOHT
-				<script type="text/javascript" src="/webapp/index.js"></script>
-				<script type="text/javascript" src="/webapp/jquery/jquery.colorbox-min.js"></script>
+
 				<link type="text/css" rel="stylesheet" href="/webapp/index.css" />
-				<link type="text/css" rel="stylesheet" href="/webapp/jquery/jquery.colorbox.css" />
+				<script type="text/javascript" src="/webapp/index.js"></script>
 
 EOHT;
 
 		$contentBodyWrapper = <<<EOBW
+
 			<h2>&nbsp;Welcome, $usrname!</h2>
 			
 			<ul style="list-style-type: none;" id="injection-point"></ul>
@@ -312,102 +312,22 @@ EOHT;
 EOBW;
 	}
 	
+	
+	
+	
+	// Load template html 
+	$template = file_get_contents("template.html");
+	if ( !$template ) {
+		echo "can't get template";
+		die(0);
+	}
+	
+	$template_pop = str_replace("#headTags#", $headTags, $template);
+	$template_pop = str_replace("#contentBodyWrapper#", $contentBodyWrapper, $template_pop);
+	
+	
+	// Declare we're returning HTML in UTF-8
+	header('Content-Type: text/html; charset=utf-8');
+	
+	echo $template_pop;
 ?>
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<title>Jackelo - GTL Events Manager</title>
-		
-		<meta charset="utf-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge;" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		
-		<link type="text/css" rel="stylesheet" href="/webapp/base.css" />
-		<link type="text/css" rel="stylesheet" href="/webapp/jquery/jquery-ui.min.css" />
-		<script type="text/javascript" src="/webapp/jquery/jquery.min.js"></script>
-		<script type="text/javascript" src="/webapp/jquery/jquery-ui.min.js"></script>
-		
-		<? echo $headTags; ?>
-		
-		<script type="text/javascript" src="/webapp/addEvent.js"></script>
-		<link type="text/css" rel="stylesheet" href="/webapp/addEvent.css" />
-		
-	</head>
-	<body>
-		<div id="header">
-			<a class="header-text" href="/webapp/">
-				<h1>Jackelo</h1>
-			</a>
-			<a title="Add Event" id="add-event" class="addeventicon" href="javascript: void(0);">&nbsp;</a>
-			<a title="Map View" class="mapicon" href="/webapp/map/">&nbsp;</a>
-		</div>
-		<div id="content-body">
-			<div id="wrapper">
-				<? echo $contentBodyWrapper; ?>
-			</div>
-		</div>
-		<div id="dialog-form" title="Create new event">
-			<p class="validateTips">All form fields are required.</p>
-			
-			<form>
-				<fieldset>
-					<label for="name">Event name</label>
-					<input type="text" name="name" id="name" value="" class="text ui-widget-content ui-corner-all" />
-					
-					<label for="datetimeStart">Start date</label>
-					<input type="text" id="datetimeStart" name="datetimeStart" class="text ui-widget-content ui-corner-all">
-					
-					<label for="datetimeEnd">End date</label>
-					<input type="text" id="datetimeEnd" name="datetimeEnd" class="text ui-widget-content ui-corner-all">
-					
-					<label for="description">Description</label>
-					<input type="text" name="description" id="description" value="" class="text ui-widget-content ui-corner-all" />
-					
-					<label for="category">Categories</label>
-					<div id="categories"></div><br style="clear: both;" />
-					<input type="text" name="category" id="category" value="" class="text ui-widget-content ui-corner-all" />
-					
-					<!-- These need to be dynamically populated! -->
-					<div id="eventTypeID">
-						<input type="radio" id="eventType1" name="eventTypeID" value="1" /><label for="eventType1">Local Event</label>
-						<input type="radio" id="eventType2" name="eventTypeID" value="2" /><label for="eventType2">GTL Event</label>
-						<input type="radio" id="eventType3" name="eventTypeID" value="3" checked="checked" /><label for="eventType3">Trip</label>
-						<input type="radio" id="eventType4" name="eventTypeID" value="4" /><label for="eventType4">Info</label>
-					</div>
-					
-					
-					<div id="destination-injection-point"></div>
-					
-					<a href="javascript: void(0);" onclick="addDestination()" style="display: block; padding: 10px; float: left; clear: both;" title="Add destination">Add destination</a>
-					
-					<fieldset id="destination-template" style="display: none; float: left; clear: both; width: 90%; background-color: #efefef;">
-						<legend>Destination</legend>
-						
-						<label>Address</label>
-						<input type="text" name="destination[][address]" value="" class="address text ui-widget-content ui-corner-all" />
-						
-						<label>Start date</label>
-						<input type="text" name="destination[][datetimeStart]" class="datetimeStart text ui-widget-content ui-corner-all">
-						
-						<label>End date</label>
-						<input type="text" name="destination[][datetimeEnd]" class="datetimeEnd text ui-widget-content ui-corner-all">
-						
-						<div>
-							<label>Country</label>
-							<select name="destination[][countryID]" class="countryID ui-widget-content ui-corner-all"></select>
-							
-							<label>City</label>
-							<input type="text" name="destination[][cityName]" class="cityName text ui-widget-content ui-corner-all">
-							<input type="hidden" name="destination[][cityID]" class="cityID" /> <!-- cityID (from city) -->
-						</div>
-						
-						<a href="javascript: void(0);" onclick="removeDestination(this)" style="display: block; float: left; clear: both;" title="Remove">Remove</a>
-					</fieldset>
-					
-					<!-- Allow form submission with keyboard without duplicating the dialog button -->
-					<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
-				</fieldset>
-			</form>
-		</div>
-	</body>
-</html>

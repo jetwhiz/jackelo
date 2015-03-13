@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Jackelo - GTL Events Manager</title>
+		
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge;" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+		<link type="text/css" rel="stylesheet" href="/webapp/base.css" />
+		
+		<link type="text/css" rel="stylesheet" href="/webapp/jquery/jquery-ui.min.css" />
+		<script type="text/javascript" src="/webapp/jquery/jquery.min.js"></script>
+		<script type="text/javascript" src="/webapp/jquery/jquery-ui.min.js"></script>
+		
+		<script type="text/javascript" src="/webapp/toolkit.js"></script>
+		
+		#headTags#
+		
+		<link type="text/css" rel="stylesheet" href="/webapp/addEvent.css" />
+		<script type="text/javascript" src="/webapp/addEvent.js"></script>
+		
+	</head>
+	<body>
+		<div id="header">
+			<a class="header-text" href="/webapp/">
+				<h1>Jackelo</h1>
+			</a>
+			<a title="Add Event" id="add-event" class="addeventicon" href="javascript: void(0);">&nbsp;</a>
+			<a title="Map View" class="mapicon" href="/webapp/map/">&nbsp;</a>
+		</div>
+		<div id="content-body">
+			<div id="wrapper">
+				#contentBodyWrapper#
+			</div>
+		</div>
+		<div id="dialog-form" title="Create new event">
+			<p class="validateTips">All form fields are required.</p>
+			
+			<form>
+				<fieldset>
+					<label for="name">Event name</label>
+					<input type="text" name="name" id="name" value="" class="text ui-widget-content ui-corner-all" />
+					
+					<label for="datetimeStart">Start date</label>
+					<input type="text" id="datetimeStart" name="datetimeStart" class="text ui-widget-content ui-corner-all">
+					
+					<label for="datetimeEnd">End date</label>
+					<input type="text" id="datetimeEnd" name="datetimeEnd" class="text ui-widget-content ui-corner-all">
+					
+					<label for="description">Description</label>
+					<input type="text" name="description" id="description" value="" class="text ui-widget-content ui-corner-all" />
+					
+					<label for="category">Categories</label>
+					<div id="categories"></div><br style="clear: both;" />
+					<input type="text" name="category" id="category" value="" class="text ui-widget-content ui-corner-all" />
+					
+					<!-- These need to be dynamically populated! -->
+					<div id="eventTypeID">
+						<input type="radio" id="eventType1" name="eventTypeID" value="1" /><label for="eventType1">Local Event</label>
+						<input type="radio" id="eventType2" name="eventTypeID" value="2" /><label for="eventType2">GTL Event</label>
+						<input type="radio" id="eventType3" name="eventTypeID" value="3" checked="checked" /><label for="eventType3">Trip</label>
+						<input type="radio" id="eventType4" name="eventTypeID" value="4" /><label for="eventType4">Info</label>
+					</div>
+					
+					
+					<div id="destination-injection-point"></div>
+					
+					<a href="javascript: void(0);" id="add-destination" style="display: block; padding: 10px; float: left; clear: both;" title="Add destination">Add destination</a>
+					
+					<fieldset id="destination-template" style="display: none; float: left; clear: both; width: 90%; background-color: #efefef;">
+						<legend>Destination</legend>
+						
+						<label>Address</label>
+						<input type="text" name="destination[][address]" value="" class="address text ui-widget-content ui-corner-all" />
+						
+						<label>Start date</label>
+						<input type="text" name="destination[][datetimeStart]" class="datetimeStart text ui-widget-content ui-corner-all">
+						
+						<label>End date</label>
+						<input type="text" name="destination[][datetimeEnd]" class="datetimeEnd text ui-widget-content ui-corner-all">
+						
+						<div>
+							<label>Country</label>
+							<select name="destination[][countryID]" class="countryID ui-widget-content ui-corner-all"></select>
+							
+							<label>City</label>
+							<input type="text" name="destination[][cityName]" class="cityName text ui-widget-content ui-corner-all">
+							<input type="hidden" name="destination[][cityID]" class="cityID" /> <!-- cityID (from city) -->
+						</div>
+						
+						<a href="javascript: void(0);" class="remove-destination" style="display: block; float: left; clear: both;" title="Remove">Remove</a>
+					</fieldset>
+					
+					<!-- Allow form submission with keyboard without duplicating the dialog button -->
+					<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+				</fieldset>
+			</form>
+		</div>
+	</body>
+</html>

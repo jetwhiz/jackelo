@@ -11,3 +11,4 @@ fieldset { margin-top: 10px; }
 input.text, select { margin-bottom: 12px; width: 80%; padding: .4em; float: left; }
 
 .category { background-color: #eeffee; color: #008800; padding: 5px; margin: 5px; float: left; }
+.thumb { width: 100px; height: 75px; }

@@ -1,0 +1,110 @@
+
+.italic {
+	font-style: italic;
+}
+.bold {
+	font-weight: bold;
+}
+
+
+
+#destinations-block {
+	list-style-type: none; 
+	float: left; 
+	width: 90%; 
+	margin-left: 10px;
+}
+.destination {
+	clear: both; 
+	border-bottom: solid 1px; 
+	margin: 5px;
+}
+.destination-thumb {
+	float: left; 
+	width: 150px; 
+	margin-top: 10px; 
+	text-align: center;
+}
+.destination-body {
+	float: left; 
+	width: 70%;
+}
+.dest-body-header {
+	float: left; 
+	width: 90%; 
+	padding: 0px; 
+	clear: both;
+}
+.dest-body-subsect {
+	float: left; 
+	width: 90%; 
+	padding: 10px; 
+	clear: both;
+}
+
+
+
+#comments-header {
+	float: left; 
+	width: 90%; 
+	font-style: italic;
+}
+#comments-block {
+	list-style-type: none; 
+	float: left; 
+	width: 90%; 
+	margin-left: 10px;
+}
+.comment {
+	clear: both; 
+	border-bottom: dotted 1px; 
+	margin: 5px;
+}
+.comment-header {
+	float: left; 
+	width: 90%; 
+	padding: 0px; 
+	clear: both;
+}
+.comment-body {
+	float: left; 
+	width: 90%; 
+	padding: 10px; 
+	clear: both;
+}
+.comment-add {
+	clear: both; 
+	margin: 5px;
+}
+#create-comment {
+	float: left; 
+	width: 90%;
+}
+.comment-add-textbox {
+	height: 50px; 
+	width: 100%;
+}
+
+
+
+#event-block { 
+	margin: 20px; 
+	padding: 5px; 
+}
+.event-row {
+	clear: both; 
+	padding: 10px;
+}
+.esubrow-left {
+	float: left; 
+	width: 60%;
+}
+.esubrow-right {
+	float: right; 
+	width: 30%;
+}
+.esubrow-full {
+	float: left; 
+	width: 90%;
+}
+
