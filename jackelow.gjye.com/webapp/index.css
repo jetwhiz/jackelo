@@ -2,10 +2,12 @@
 #event-template, #destination-template {
 	display: none;
 }
+#injection-point, #sticky-injection-point {
+	list-style-type: none;
+}
 
 
-
-.event-block {
+.event-block, .info-block {
 	cursor: pointer;
 	display: table; 
 	padding: 5px; 
@@ -16,10 +18,16 @@
 	font-size: 16px; 
 }
 .event-block:nth-child(odd) {
-	background-color: #f8f8ff;
+	background-color: #f7f7ff;
 }
 .event-block:nth-child(even) {
 	background-color: #efefff;
+}
+.info-block:nth-child(odd) {
+	background-color: #fefaf8;
+}
+.info-block:nth-child(even) {
+	background-color: #fef7f0;
 }
 
 

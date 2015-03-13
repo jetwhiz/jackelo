@@ -292,7 +292,8 @@ EOHT;
 
 			<h2>&nbsp;Welcome, $usrname!</h2>
 			
-			<ul style="list-style-type: none;" id="injection-point"></ul>
+			<ul id="sticky-injection-point"></ul>
+			<ul id="injection-point"></ul>
 			<div id="event-template">
 				<li class="event-block">
 					<div class="tr">

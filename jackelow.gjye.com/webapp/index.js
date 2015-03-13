@@ -49,8 +49,14 @@ $(function() {
 
 
 	// Update event nodes when they get scrolled into view //
-	function updateChildren() {
-		$('#injection-point').children('li').each(function () {
+	function updateChildren(informational) {
+		var container = "sticky-injection-point";
+		
+		if ( !informational) {
+			container = "injection-point";
+		}
+		
+		$('#' + container).children('li').each(function () {
 			// check if it is in view of the user 
 			var inview = isInView($(this));
 			if ( !inview ) return;
@@ -79,7 +85,7 @@ $(function() {
 
 
 	// Populate the page with events (starting at offset) //
-	function populate() {
+	function populate(informational) {
 		$(window).data('busy', true);
 		
 		
@@ -114,26 +120,54 @@ $(function() {
 		////
 		
 		
-		// Get offset of results
-		var offset = $( "#injection-point" ).children().length;
-		////
 		
-		
-		// Load all events from API and populate page 
-		$.getJSON( "/api/event/" + pathFilters + "/start/" + offset, // "/api/event/{opts}/start/#/" 
-		function( event ) {
-			for (var i = 0; i < event.results.length; ++i) {
-				var $template = $( "#event-template" ).children().first().clone();
-				$template.show();
-				$template.data('loaded', false);
-				$template.attr({"jk:eventID" : event.results[i]});
-				$template.appendTo( "#injection-point" );
-			}
+		if ( !informational ) {
 			
-			// Force load of visible children before scrolling happens 
-			updateChildren();
-			$(window).data('busy', false);
-		});
+			// Get offset of results
+			var offset = $( "#injection-point" ).children().length;
+			
+			// Load all events from API and populate page 
+			$.getJSON( "/api/event/" + pathFilters + "/start/" + offset, // "/api/event/{opts}/start/#/" 
+			function( event ) {
+				for (var i = 0; i < event.results.length; ++i) {
+					var $template = $( "#event-template" ).children().first().clone();
+					$template.show();
+					$template.data('loaded', false);
+					$template.attr({"jk:eventID" : event.results[i]});
+					$template.appendTo( "#injection-point" );
+				}
+				
+				// Force load of visible children before scrolling happens 
+				updateChildren(false);
+				$(window).data('busy', false);
+			});
+			
+		}
+		else {
+			
+			// Get offset of results
+			var offset = $( "#sticky-injection-point" ).children().length;
+			
+			// Load all info events from API and populate page 
+			$.getJSON( "/api/event/type/" + eventTypes["Info"] + "/" + pathFilters + "/start/" + offset, // "/api/event/type/4/{opts}/start/#/" 
+			function( event ) {
+				for (var i = 0; i < event.results.length; ++i) {
+					var $template = $( "#event-template" ).children().first().clone();
+					$template.show();
+					$template.data('loaded', false);
+					$template.attr({"jk:eventID" : event.results[i]});
+					$template.addClass("info-block");
+					$template.removeClass("event-block");
+					$template.appendTo( "#sticky-injection-point" );
+				}
+				
+				// Force load of visible children before scrolling happens 
+				updateChildren(true);
+				$(window).data('busy', false);
+			});
+			
+		}
+		
 	}
 	// * //
 
@@ -143,10 +177,13 @@ $(function() {
 	function infiniScroll() {
 		if ($(window).data('busy') == true) return;
 		
+		// Always try to load more info events 
+		populate(true);
+		
 		var wrapperHeight = $("#wrapper").height() - 100;
 		var scrollPos = $("#content-body").scrollTop() + $("#content-body").height();
 		if (scrollPos > wrapperHeight) {
-			populate();
+			populate(false);
 		}
 	}
 	// * //
@@ -185,7 +222,8 @@ $(function() {
 	var limitResize = 0;
 	$( window ).load(function() {
 		$(window).data('busy', false);
-		populate();
+		populate(true);
+		populate(false);
 		attachHandlers();
 	});
 	// * //
