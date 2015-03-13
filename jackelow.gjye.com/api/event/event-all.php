@@ -33,6 +33,12 @@
 			}
 			
 			
+			// Verify given event date range is valid  
+			if ( !Toolkit::daterange_valid($_POST["datetimeStart"], $_POST["datetimeEnd"]) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert Event failed (bad date range)!");
+			}
+			
+			
 			// start transaction 
 			if ( !$this->DBs->startTransaction() ) {
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to begin transaction.");
@@ -112,6 +118,17 @@
 			
 			// Perform INSERT for EventDestinations table 
 			foreach ($_POST["destination"] as $destination) {
+				
+				
+				// Verify date ranges are valid and within event start-end dates 
+				if ( !Toolkit::daterange_bounded( $_POST["datetimeStart"], $_POST["datetimeEnd"], 
+												$destination["datetimeStart"], $destination["datetimeEnd"] ) ) {
+					// Roll back transaction 
+					$this->DBs->abortTransaction();
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Insert destination failed (bad date range)!");
+				}
+				
+				
 				$insert = "
 					INSERT INTO `EventDestinations` (`eventID`, `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`)
 					VALUES (?, ?, ?, ?, ?, ?)
@@ -125,6 +142,7 @@
 				$binds[] = $destination["datetimeEnd"];
 				$binds[] = intval($destination["cityID"], 10);
 				$binds[] = intval($destination["countryID"], 10);
+				
 				
 				if ($GLOBALS["DEBUG"]) {
 					print_r("\nBINDS\n");

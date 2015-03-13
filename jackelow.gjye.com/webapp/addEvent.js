@@ -456,7 +456,7 @@ $(function() {
 				function( data, status, xhr ) {
 					if ( typeof data.results["eventID"] == 'undefined' ) {
 						console.log(data);
-						alert("ERROR: Failed to create event!");
+						alert("ERROR: Failed to create event!\r\n" + data.message);
 						return false;
 					}
 					

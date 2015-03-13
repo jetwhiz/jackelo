@@ -54,18 +54,32 @@
 			
 			$res = $this->DBs->select($select, $binds, true); // unsafe select (for transaction) 
 			if ( is_null($res) ) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 			}
 			
 			// Verify event ID exists 
 			$row = $res->fetch_assoc();
 			if ( !$row ) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
 				throw new Error($GLOBALS["HTTP_STATUS"]["Not Found"], get_class($this) . " Error: Failed to find event.");
 			}
 			
 			// Verify current user is owner 
 			if ( $this->User->getID() != $row['ownerID'] ) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
 				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], get_class($this) . " Error: You are not the owner of this event.");
+			}
+			////
+			
+			// Verify given event date range is valid  
+			if ( !Toolkit::daterange_valid($GLOBALS["_PUT"]["datetimeStart"], $GLOBALS["_PUT"]["datetimeEnd"]) ) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Edit event failed (bad date range)!");
 			}
 			////
 			
@@ -113,6 +127,8 @@
 			
 			$res = $this->DBs->select($select, $binds, true); // unsafe select (for transaction) 
 			if ( is_null($res) ) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 			}
 			
@@ -159,6 +175,8 @@
 					// Perform removal (and ensure row was removed) 
 					$affected = $this->DBs->delete($delete, $binds);
 					if ( !$affected ) {
+						// Roll back transaction 
+						$this->DBs->abortTransaction();
 						throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Category removal failed!");
 					}
 					
@@ -199,6 +217,8 @@
 					// Perform insertion (and ensure row was inserted) 
 					$affected = $this->DBs->insert($insert, $binds);
 					if ( !$affected ) {
+						// Roll back transaction 
+						$this->DBs->abortTransaction();
 						throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Add category failed!");
 					}
 					
@@ -228,6 +248,8 @@
 			
 			$res = $this->DBs->select($select, $binds, true); // unsafe select (for transaction) 
 			if ( is_null($res) ) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve destinations.");
 			}
 			
@@ -244,6 +266,15 @@
 			// Perform UPDATE/INSERT for EventDestinations table (replace old ones) 
 			$oldID = 0;
 			foreach ($GLOBALS["_PUT"]["destination"] as $destination) {
+				
+				// Verify date ranges are valid and within event start-end dates 
+				if ( !Toolkit::daterange_bounded( $GLOBALS["_PUT"]["datetimeStart"], $GLOBALS["_PUT"]["datetimeEnd"], 
+												$destination["datetimeStart"], $destination["datetimeEnd"] ) ) {
+					// Roll back transaction 
+					$this->DBs->abortTransaction();
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Edit destination failed (bad date range)!");
+				}
+				
 				
 				// Update existing 
 				if ( $oldID < count($oldDestinationIDs) ) {
@@ -330,6 +361,8 @@
 				// Perform removal (and ensure row was removed) 
 				$affected = $this->DBs->delete($delete, $binds);
 				if ( !$affected ) {
+					// Roll back transaction 
+					$this->DBs->abortTransaction();
 					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Destination removal failed!");
 				}
 				

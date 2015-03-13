@@ -2,6 +2,35 @@
 	class Toolkit {
 		
 		
+		// Determine if the given date range is valid // 
+		public static function daterange_valid($start, $end) {
+		  
+		  // Convert all to UNIX timestamps 
+		  $startTS = strtotime($start);
+		  $endTS = strtotime($end);
+		  
+		  return (($startTS <= $endTS));
+		}
+		// * //
+		
+		
+		// Determine if the given date range is within range of start - end dates (and valid) // 
+		public static function daterange_bounded($start, $end, $dateStart, $dateEnd) {
+		  
+		  // Convert all to UNIX timestamps 
+		  $startTS = strtotime($start);
+		  $endTS = strtotime($end);
+		  $dateStartTS = strtotime($dateStart);
+		  $dateEndTS = strtotime($dateEnd);
+		  
+		  return ( ($dateStartTS >= $startTS) && ($dateStartTS <= $endTS)
+					&& ($dateEndTS >= $startTS) && ($dateEndTS <= $endTS)
+					&& ($dateStartTS <= $dateEndTS)
+				);
+		}
+		// * //
+		
+		
 		// Strip empty/null elements from array //
 		public static function array_clean(&$array) {
 			$temp = array_filter($array, function($v) {
