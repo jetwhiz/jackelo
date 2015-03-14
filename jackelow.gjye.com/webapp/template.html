@@ -53,7 +53,7 @@
 					
 					<label for="category">Categories</label>
 					<div id="categories"></div><br style="clear: both;" />
-					<input type="text" name="category" id="category" value="" class="text ui-widget-content ui-corner-all" />
+					<input type="text" name="category" id="category" value=""  maxlength="35" class="text ui-widget-content ui-corner-all" />
 					
 					<!-- These need to be dynamically populated! -->
 					<div id="eventTypeID">
@@ -72,7 +72,7 @@
 						<legend>Destination</legend>
 						
 						<label>Address</label>
-						<input type="text" name="destination[][address]" value="" class="address text ui-widget-content ui-corner-all" />
+						<input type="text" name="destination[][address]" value="" maxlength="100" class="address text ui-widget-content ui-corner-all" />
 						
 						<label>Start date</label>
 						<input type="text" name="destination[][datetimeStart]" class="datetimeStart text ui-widget-content ui-corner-all">

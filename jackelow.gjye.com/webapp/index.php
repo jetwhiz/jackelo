@@ -86,7 +86,10 @@ EOHT;
 			$dateStart = date("F d, Y", strtotime($JSON["results"][0]["datetimeStart"]));
 			$datetimeEnd = date("F d, Y", strtotime($JSON["results"][0]["datetimeEnd"]));
 			$eventType = $JSON["results"][0]["eventType"];
-			$description = nl2br($JSON["results"][0]["description"]);
+			
+			// Convert newlines to breaks, allow clickable links    
+			$description = Toolkit::clickify($JSON["results"][0]["description"]);
+			$description = nl2br($description);
 			////
 			
 			
@@ -180,18 +183,8 @@ EOD;
 					$commentUsername = $JSON_comment["results"][0]["username"];
 					
 					// Convert newlines to breaks, allow clickable links 
-					$message = nl2br($JSON_comment["results"][0]["message"]);      
-					$message = preg_replace_callback(
-								'!(((f|ht)tp(s)?:)(//[-a-zA-Zа-яА-Я0-9.]+)(/[-a-zA-Zа-яА-Я0-9/._~$&()*+,;=:@%]+)?(\?[-a-zA-Zа-яА-Я()0-9%_+.~&;=]*)?(#[-a-zA-Zа-яА-Я()0-9%_+.~&;=]*)?)!',
-								function ($matches) {
-									if ( filter_var($matches[1], FILTER_VALIDATE_URL) ) {
-										return '<a href="' . $matches[1] . '">' . $matches[1] . '</a>';
-									}
-									
-									return $matches[1];
-								},
-								$message
-					);
+					$message = Toolkit::clickify($JSON_comment["results"][0]["message"]);
+					$message = nl2br($message);
 					
 					// Convert comment timestamp to Paris timezone 
 					$tz = new DateTimeZone('Europe/Paris');

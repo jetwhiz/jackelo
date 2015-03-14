@@ -109,17 +109,17 @@
 }
 @media (max-width: 600px) {
 	.title-cell {
-		width: 90%;
+		width: 100%;
 	}
 	.username-cell {
-		width: 90%;
+		width: 100%;
 		float: left;
 		text-align: left;
 	}
 }
 .dates-cell, .tags-cell {
 	float: left; 
-	width: 90%; 
+	width: 100%; 
 	font-style: italic;
 }
 .tags-link {
@@ -128,5 +128,5 @@
 }
 .description-cell {
 	float: left; 
-	width: 90%; 
+	width: 100%; 
 }

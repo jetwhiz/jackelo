@@ -39,6 +39,15 @@
 			}
 			
 			
+			// Verify certain field lengths 
+			if ( strlen($_POST["name"]) > $GLOBALS["MAX_LENGTHS"]["event_name"] ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Event name length too long!");
+			}
+			if ( strlen($_POST["description"]) > $GLOBALS["MAX_LENGTHS"]["event_description"] ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Event description length too long!");
+			}
+			
+			
 			// start transaction 
 			if ( !$this->DBs->startTransaction() ) {
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to begin transaction.");
@@ -134,10 +143,13 @@
 					VALUES (?, ?, ?, ?, ?, ?)
 				";
 				
+				// Crop silently (don't tell user, shh!) 
+				$dest_address = substr($destination["address"], 0, $GLOBALS["MAX_LENGTHS"]["destination_address"]);
+				
 				$binds = [];
 				$binds[0] = "isssii";
 				$binds[] = $eventID;
-				$binds[] = htmlspecialchars($destination["address"], $FLAGS, "UTF-8");
+				$binds[] = htmlspecialchars($dest_address, $FLAGS, "UTF-8");
 				$binds[] = $destination["datetimeStart"];
 				$binds[] = $destination["datetimeEnd"];
 				$binds[] = intval($destination["cityID"], 10);

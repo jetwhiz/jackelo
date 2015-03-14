@@ -41,6 +41,16 @@
 	$GLOBALS["NUM_RESULTS"] = 10;
 	
 	
+	// Max field lengths for various inputs
+	$GLOBALS["MAX_LENGTHS"] = [
+		"category_name" => 35,
+		"event_description" => 2500,
+		"event_name" => 100,
+		"destination_address" => 100,
+		"comment_length" => 1000
+	];
+	
+	
 	// Do not print errors/warnings unless debugging is set 
 	if (!$GLOBALS["DEBUG"]) {
 		error_reporting(0);

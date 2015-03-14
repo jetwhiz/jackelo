@@ -94,6 +94,11 @@
 				$e->kill();
 			}
 			
+			// Verify field lengths 
+			if ( strlen($_POST["message"]) > $GLOBALS["MAX_LENGTHS"]["comment_length"] ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Comment length too long!");
+			}
+			
 			
 			// Perform INSERT for Comments table 
 			$insert = "

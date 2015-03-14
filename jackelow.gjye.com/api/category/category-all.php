@@ -43,6 +43,9 @@
 			
 			// Sanitize input string 
 			$term = preg_replace("/[^\x{00C0}-\x{1FFF}\x{2C00}-\x{D7FF}\w ]/u", "", $_POST["name"]);
+			if ( strlen($term) > $GLOBALS["MAX_LENGTHS"]["category_name"] ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Category length too long!");
+			}
 			
 			$binds = [];
 			$binds[0] = "s";

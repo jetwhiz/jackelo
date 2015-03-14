@@ -9,16 +9,31 @@ $(function() {
 	
 	// For each event, populate the event box on the page // 
 	function updateChildFields( elem, results ) {
+		
+		// Prep date range
 		var months = new Array( "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" );
 		var dS = results.datetimeStart.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/);
 		var dSS = months[dS[2]-1] + " " + dS[3] + ", " + dS[1];
 		var dE = results.datetimeEnd.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/);
 		var dES = months[dE[2]-1] + " " + dE[3] + ", " + dE[1];
-		
-		$(elem).find('div.title-cell:first').text(results.name);
-		$(elem).find('div.username-cell:first').text('(' + results.username + ')');
 		$(elem).find('div.dates-cell:first').text(dSS + " - " + dES);
-		$(elem).find('div.description-cell:first').text(results.description);
+		
+		// Prep description 
+		var description = results.description;
+		if ( description.length > 150 ) {
+			description = description.substr(0, 150) + " &hellip;";
+		}
+		$(elem).find('div.description-cell:first').html(description);
+		
+		// Prep title 
+		var title = results.name;
+		if ( title.length > 16 ) {
+			title = title.substr(0, 16) + " &hellip;";
+		}
+		$(elem).find('div.title-cell:first').html(title);
+		
+		// Username
+		$(elem).find('div.username-cell:first').text('(' + results.username + ')');
 		
 		// Populate thumbnail (or use generic) 
 		if ( results.eventTypeID == eventTypes["Trip"] && results.destinations.length > 0 ) {

@@ -94,7 +94,8 @@ $(function() {
 						"name=" + encodeURIComponent(ui.item.label), 
 						function( data, status, xhr ) {
 							if ( typeof data.results["cityID"] == 'undefined' ) {
-								alert("ERROR: Failed to create city!");
+								console.log(data);
+								alert("ERROR: Failed to create city!\r\n" + data.message);
 								$(cityID).val("");
 								return false;
 							}
@@ -164,7 +165,8 @@ $(function() {
 				"name=" + encodeURIComponent(label), 
 				function( data, status, xhr ) {
 					if ( typeof data.results["categoryID"] == 'undefined' ) {
-						alert("ERROR: Failed to create category!");
+						console.log(data);
+						alert("ERROR: Failed to create category!\r\n" + data.message);
 						return false;
 					}
 					//alert(data.results["categoryID"] + " " + label);
@@ -344,10 +346,10 @@ $(function() {
 		
 		
 		// Bulk check 
-		valid = valid && checkLength( name, "name", 3, 255 );
-		valid = valid && checkLength( datetimeStart, "start date", 3, 255 );
-		valid = valid && checkLength( datetimeEnd, "end date", 3, 255 );
-		valid = valid && checkLength( description, "description", 3, 10000 );
+		valid = valid && checkLength( name, "name", 3, 100 );
+		valid = valid && checkLength( datetimeStart, "start date", 3, 25 );
+		valid = valid && checkLength( datetimeEnd, "end date", 3, 25 );
+		valid = valid && checkLength( description, "description", 3, 2500 );
 		
 		// Don't bother continuing if the main stuff isn't good 
 		if ( !valid ) {

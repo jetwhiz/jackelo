@@ -66,7 +66,7 @@ $(function() {
 			function( data, status, xhr ) {
 				if ( typeof data.results["commentID"] == 'undefined' ) {
 					console.log(data);
-					alert("ERROR: Failed to create comment!");
+					alert("ERROR: Failed to create comment!\r\n" + data.message);
 					return false;
 				}
 				
