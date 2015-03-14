@@ -129,9 +129,11 @@
 			
 			// Get all attendants to event # eventID
 			$select = "
-					SELECT `userID`
+					SELECT `Attendants`.`userID` AS `id`, `Users`.`username`
 					FROM `Attendants` 
-					WHERE `eventID` = ?
+					INNER JOIN `Users` AS `Users`
+						ON `Users`.`id` = `Attendants`.`userID`
+					WHERE `Attendants`.`eventID` = ?
 			";
 			$binds = ["i", $this->REST_vars["eventID"]];
 			
