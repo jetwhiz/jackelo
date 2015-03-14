@@ -10,6 +10,12 @@
 	border-bottom: solid 1px; 
 	margin: 5px;
 }
+.destination:nth-child(odd) {
+	background-color: #efefff;
+}
+.destination:nth-child(even) {
+	background-color: #f7f7ff;
+}
 .destination-thumb {
 	float: left; 
 	width: 150px; 
@@ -50,6 +56,13 @@
 	clear: both; 
 	border-bottom: dotted 1px; 
 	margin: 5px;
+	padding: 10px;
+}
+.comment:nth-child(odd) {
+	background-color: #ffffff;
+}
+.comment:nth-child(even) {
+	background-color: #f8f8f8;
 }
 .comment-header {
 	float: left; 
@@ -69,7 +82,7 @@
 }
 #create-comment {
 	float: left; 
-	width: 90%;
+	width: 100%;
 }
 .comment-add-textbox {
 	height: 50px; 
@@ -86,6 +99,10 @@
 	clear: both; 
 	padding: 10px;
 }
+.event-head {
+	background-color: #bbbbee;
+	color: #ffffff;
+}
 .esubrow-left {
 	float: left; 
 	width: 60%;
@@ -98,4 +115,11 @@
 	float: left; 
 	width: 90%;
 }
-
+.description {
+	margin-left: 5px;
+	background-color: #f8f8f8;
+	padding: 10px;
+}
+#attend-event, #edit-event, #remove-event {
+	color: #ffffff;
+}

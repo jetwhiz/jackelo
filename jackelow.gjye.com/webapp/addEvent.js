@@ -347,7 +347,7 @@ $(function() {
 		valid = valid && checkLength( name, "name", 3, 255 );
 		valid = valid && checkLength( datetimeStart, "start date", 3, 255 );
 		valid = valid && checkLength( datetimeEnd, "end date", 3, 255 );
-		valid = valid && checkLength( description, "description", 3, 5000 );
+		valid = valid && checkLength( description, "description", 3, 10000 );
 		
 		// Don't bother continuing if the main stuff isn't good 
 		if ( !valid ) {

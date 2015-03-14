@@ -178,7 +178,7 @@ EOD;
 				
 				if ( count($JSON_comment["results"]) == 1 ) {
 					$commentUsername = $JSON_comment["results"][0]["username"];
-					$message = $JSON_comment["results"][0]["message"];
+					$message = nl2br($JSON_comment["results"][0]["message"]);
 					
 					$tz = new DateTimeZone('Europe/Paris');
 					$dateServer = new DateTime($JSON_comment["results"][0]["datetime"]);
@@ -218,23 +218,22 @@ EOHT;
 				<div id="dialog-confirm" title="Delete?">Are you sure you want to delete this?</div>
 				
 				<div id="event-block">
-					<div class="event-row">
+					<div class="event-head event-row">
 						<div class="esubrow-left">
 							<h2>$eventName</h2>
 						</div>
 						<div class="esubrow-right">
-							($ownerName)<br />
-							[ <a id='attend-event' type="$attending" href='javascript: void(0);'>$attending</a> - 
-							 <a id='edit-event' href='javascript: void(0);'>Edit</a> - 
-							 <a href="javascript: void(0)" id="remove-event">Delete</a> ]
+							<span class='bold'>Owner: </span> $ownerName<br />
+							<span class='bold'>Type: </span> $eventType<br />
+							<a id='attend-event' type="$attending" href='javascript: void(0);'>$attending</a> - 
+							<a id='edit-event' href='javascript: void(0);'>Edit</a> - 
+							<a href="javascript: void(0)" id="remove-event">Delete</a>
 						</div>
+						<br style="clear: both;" />
 					</div>
 					<div class="event-row">
-						<div class="esubrow-left">
+						<div class="esubrow-full">
 							$dateStart &ndash; $datetimeEnd
-						</div>
-						<div class="esubrow-right">
-							$eventType
 						</div>
 					</div>
 					<div class="event-row">
@@ -248,7 +247,7 @@ EOHT;
 						</div>
 					</div>
 					<div class="event-row">
-						<div class="esubrow-full">
+						<div class="description esubrow-full">
 							$description
 						</div>
 					</div>
