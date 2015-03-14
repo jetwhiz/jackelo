@@ -139,6 +139,7 @@ $(function() {
 	// Populate the page with events (starting at offset) //
 	function populate(informational) {
 		$(window).data('busy', true);
+		//console.log("Populate called: " + (informational ? "info" : "event"));
 		
 		
 		// Determine if filters were requested 
@@ -153,6 +154,13 @@ $(function() {
 			// Load all events from API and populate page 
 			$.getJSON( "/api/event/" + pathFilters + "/start/" + offset, // "/api/event/{opts}/start/#/" 
 			function( event ) {
+				
+				// If no more results 
+				if ( !event.results.length ) {
+					//console.log("End of event results");
+					$(window).data('event-noresult', true);
+				}
+				
 				for (var i = 0; i < event.results.length; ++i) {
 					var $template = $( "#event-template" ).children().first().clone();
 					$template.show();
@@ -175,6 +183,13 @@ $(function() {
 			// Load all info events from API and populate page 
 			$.getJSON( "/api/event/type/" + eventTypes["Info"] + "/" + pathFilters + "/start/" + offset, // "/api/event/type/4/{opts}/start/#/" 
 			function( event ) {
+				
+				// If no more results 
+				if ( !event.results.length ) {
+					//console.log("End of info results");
+					$(window).data('sticky-noresult', true);
+				}
+				
 				for (var i = 0; i < event.results.length; ++i) {
 					var $template = $( "#event-template" ).children().first().clone();
 					$template.show();
@@ -201,13 +216,18 @@ $(function() {
 	function infiniScroll() {
 		if ($(window).data('busy') == true) return;
 		
-		// Always try to load more info events 
-		populate(true);
+		// Always try to load more info events (unless we hit the end) 
+		if (!$(window).data('sticky-noresult')) {
+			populate(true);
+		}
 		
-		var wrapperHeight = $("#wrapper").height() - 100;
-		var scrollPos = $("#content-body").scrollTop() + $("#content-body").height();
-		if (scrollPos > wrapperHeight) {
-			populate(false);
+		// Don't bother grabbing more events if we hit the end 
+		if (!$(window).data('event-noresult')) {
+			var wrapperHeight = $("#wrapper").height() - 100;
+			var scrollPos = $("#content-body").scrollTop() + $("#content-body").height();
+			if (scrollPos > wrapperHeight) {
+				populate(false);
+			}
 		}
 	}
 	// * //
@@ -246,6 +266,8 @@ $(function() {
 	var limitResize = 0;
 	$( window ).load(function() {
 		$(window).data('busy', false);
+		$(window).data('sticky-noresult', false);
+		$(window).data('event-noresult', false);
 		populate(true);
 		populate(false);
 		attachHandlers();
