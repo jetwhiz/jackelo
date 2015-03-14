@@ -14,7 +14,7 @@
 	
 	// Generate HTTP Status codes index 
 	$GLOBALS["HTTP_STATUS"] = [
-		"OK" => 200, "Not Found" => 404, "Created" => 201, 
+		"OK" => 200, "Not Found" => 404, "Created" => 201, "Not Modified" => 304, 
 		"Bad Request" => 400, "Forbidden" => 403, "Internal Error" => 500
 	];
 	

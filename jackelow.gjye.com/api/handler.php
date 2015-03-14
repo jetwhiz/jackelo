@@ -47,6 +47,16 @@
 			// Print out header status 
 			http_response_code($code);
 			
+			// Send last-modified header (if appropriate) 
+			if ( $code == $GLOBALS["HTTP_STATUS"]["OK"] ) {
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+			}
+			
+			// Do not send message body if not modified (already sent 304 above) 
+			if ( $code == $GLOBALS["HTTP_STATUS"]["Not Modified"] ) {
+				exit;
+			}
+			
 			// Get status text from code # 
 			$status = array_search($code, $GLOBALS["HTTP_STATUS"]);
 			

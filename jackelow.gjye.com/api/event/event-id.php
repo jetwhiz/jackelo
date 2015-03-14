@@ -97,7 +97,7 @@
 			// Perform UPDATE for Events table 
 			$update = "
 				UPDATE `Events` 
-				SET `name` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `description` = ?, `eventTypeID` = ?
+				SET `name` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `description` = ?, `eventTypeID` = ?, `lastUpdated` = CURRENT_TIMESTAMP
 				WHERE `ownerID` = ? AND `id` = ?
 			";
 			
@@ -442,6 +442,30 @@
 		
 		// GET //
 		protected function get() {
+			
+			// Determine if modified since last request //
+			if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+				
+				$select = " SELECT `lastUpdated` FROM `Events` WHERE `id` = ? ";
+				$binds = ["i", $this->REST_vars["eventID"]];
+				
+				$res = $this->DBs->select($select, $binds);
+				if ( is_null($res) ) {
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
+				}
+				
+				$row = $res->fetch_assoc();
+				
+				// If not modified, just return 304
+				if ( isset($row['lastUpdated']) 
+						&& strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= strtotime($row['lastUpdated']) 
+					) {
+					$this->send( [], $GLOBALS["HTTP_STATUS"]["Not Modified"] );
+					exit;
+				}
+			}
+			////
+			
 			
 			// Get main event data 
 			$select = "

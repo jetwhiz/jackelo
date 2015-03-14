@@ -20,7 +20,6 @@
 	
 	// We're returning JSON data 
 	header('Content-Type: application/javascript; charset=utf-8');
-	header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 	
 	
 	// Break up URI into tokens on "/" symbol 
