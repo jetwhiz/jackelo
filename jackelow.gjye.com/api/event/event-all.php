@@ -328,18 +328,19 @@
 			// NOTE: Sort by location performed AFTER results pulled from database 
 			
 			
-			
+			// limit number of results  
+			$numResults = $GLOBALS["NUM_RESULTS"];
+			if ( $this->REST_vars["limit"] > 0 ) {
+				$numResults = $this->REST_vars["limit"];
+			}
 			// limit results (with offset if given) 
-			if ( $this->REST_vars["start"] ) {
-				$limit .= "
-					LIMIT " . $this->REST_vars["start"] . ", " . $GLOBALS["NUM_RESULTS"] . "
-				";
+			$offsetResults = 0;
+			if ( $this->REST_vars["start"] > 0 ) {
+				$offsetResults = $this->REST_vars["start"];
 			}
-			else {
-				$limit .= "
-					LIMIT 0, " . $GLOBALS["NUM_RESULTS"] . "
-				";
-			}
+			$limit .= "
+				LIMIT " . $offsetResults . ", " . $numResults . "
+			";
 			
 			
 			$prepared = "$select$join$where$groupBy$orderBy$limit";

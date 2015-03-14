@@ -6,19 +6,20 @@
 		#/attendants(/)?	-- get attendants for eventID
 		#/comments(/)?		-- get comments for eventID
 		#/comments/#(/)?	-- get commentID
+		#/group/#(/)?		-- get all events grouped (0 - false, 1 - true) 
 		
 	 -- OR in any order (and any combo): 
-		(sort/#)(/)?		-- get all events, sorting by sortID
 		(category/#)(/)?	-- get all events matching categoryID
-		(group/#)(/)?		-- get all events grouped (0 - false, 1 - true) 
 		(country/#)(/)?		-- get all events matching countryID
+		(limit/#)(/)?		-- specify number of results to return (default in header) 
+		(start/#)(/)?		-- specify offset of results to return (starting at 0)
 		(type/#)(/)?		-- get all events matching eventType
 	*/
 	
 	
 	
 	// Display options for our API 
-	$REST_strs_opts = [ "category", "country", "type", "start" ];
+	$REST_strs_opts = [ "category", "country", "type", "start", "limit" ];
 	
 	
 	
