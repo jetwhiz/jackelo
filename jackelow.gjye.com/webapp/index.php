@@ -178,8 +178,22 @@ EOD;
 				
 				if ( count($JSON_comment["results"]) == 1 ) {
 					$commentUsername = $JSON_comment["results"][0]["username"];
-					$message = nl2br($JSON_comment["results"][0]["message"]);
 					
+					// Convert newlines to breaks, allow clickable links 
+					$message = nl2br($JSON_comment["results"][0]["message"]);      
+					$message = preg_replace_callback(
+								'!(((f|ht)tp(s)?:)(//[-a-zA-Zа-яА-Я0-9.]+)(/[-a-zA-Zа-яА-Я0-9/._~$&()*+,;=:@%]+)?(\?[-a-zA-Zа-яА-Я()0-9%_+.~&;=]*)?(#[-a-zA-Zа-яА-Я()0-9%_+.~&;=]*)?)!',
+								function ($matches) {
+									if ( filter_var($matches[1], FILTER_VALIDATE_URL) ) {
+										return '<a href="' . $matches[1] . '">' . $matches[1] . '</a>';
+									}
+									
+									return $matches[1];
+								},
+								$message
+					);
+					
+					// Convert comment timestamp to Paris timezone 
 					$tz = new DateTimeZone('Europe/Paris');
 					$dateServer = new DateTime($JSON_comment["results"][0]["datetime"]);
 					$dateServer->setTimeZone($tz);					
