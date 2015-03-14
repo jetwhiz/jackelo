@@ -2,6 +2,29 @@
 	class Toolkit {
 		
 		
+		// Convert links to hyperlinks in given string // 
+		public static function clickify($str) {
+			
+			// Sanitize (possibly again) just in case 
+			$FLAGS = ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE;
+			$str = htmlspecialchars($str, $FLAGS, "UTF-8", false); // false = don't re-encode 
+			
+			// Regex replace links with hyperlinks 
+			return preg_replace_callback(
+					'!(((f|ht)tp(s)?:)(//[-a-zA-Zа-яА-Я0-9.]+)(/[-a-zA-Zа-яА-Я0-9/._~$&()*+,;=:@%]+)?(\?[-a-zA-Zа-яА-Я()0-9%_+.~&;=]*)?(#[-a-zA-Zа-яА-Я()0-9%_+.~&;=]*)?)!',
+					function ($matches) {
+						if ( filter_var($matches[1], FILTER_VALIDATE_URL) ) {
+							return '<a href="' . $matches[1] . '">' . $matches[1] . '</a>';
+						}
+						
+						return $matches[1];
+					},
+					$str
+			);
+		}
+		// * //
+		
+		
 		// Determine if the given date range is valid // 
 		public static function daterange_valid($start, $end) {
 		  
