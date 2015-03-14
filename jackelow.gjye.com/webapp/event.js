@@ -61,11 +61,13 @@ $(function() {
 		}
 		
 		// POST to server 
-		$.post( "/api/event/" + eventNum + "/comments/", 
-			"message=" + encodeURIComponent(message), 
-			function( data, status, xhr ) {
+		$.ajax({
+			type: "POST",
+			data: "message=" + encodeURIComponent(message), 
+			dataType: "json",
+			url: "/api/event/" + eventNum + "/comments/", 
+			success: function( data, status, xhr ) {
 				if ( typeof data.results["commentID"] == 'undefined' ) {
-					console.log(data);
 					alert("ERROR: Failed to create comment!\r\n" + data.message);
 					return false;
 				}
@@ -73,7 +75,10 @@ $(function() {
 				// Refresh page & reset form 
 				obj.target.reset();
 				location.reload();
-			}, "json");
+			}
+		}).fail(function( xhr, status, error ) {
+			alert( "ERROR: Failed to send request!\r\n" + status );
+		});
 		
 		
 		return true;
@@ -115,18 +120,19 @@ $(function() {
 				// Delete comment 
 				$.ajax({
 					type: "DELETE",
+					dataType: "json",
 					url: "/api/event/" + eventNum + "/comments/" + commentID,
 					success: function( data, status, xhr ) {
 						if ( data.code != 200 ) {
-							console.log(data);
 							alert("ERROR: Failed to delete comment!\r\n" + data.message);
 							return false;
 						}
 						
 						// Refresh page
 						location.reload();
-					}, 
-					dataType: "json"
+					}
+				}).fail(function( xhr, status, error ) {
+					alert( "ERROR: Failed to send request!\r\n" + status );
 				});
 				
 				$( "#dialog-confirm" ).dialog( "close" );
@@ -160,18 +166,19 @@ $(function() {
 				// Delete event 
 				$.ajax({
 					type: "DELETE",
+					dataType: "json",
 					url: "/api/event/" + eventNum + "/",
 					success: function( data, status, xhr ) {
 						if ( data.code != 200 ) {
-							console.log(data);
 							alert("ERROR: Failed to delete event!\r\n" + data.message);
 							return false;
 						}
 						
 						// Back home 
 						document.location = "/webapp/";
-					}, 
-					dataType: "json"
+					}
+				}).fail(function( xhr, status, error ) {
+					alert( "ERROR: Failed to send request!\r\n" + status );
 				});
 				
 				$( "#dialog-confirm" ).dialog( "close" );
@@ -198,35 +205,41 @@ $(function() {
 		var anchor = $(obj.target);
 		if ( $(anchor).attr("type") == "Attend" ) {
 			// POST to server 
-			$.post( "/api/event/" + eventNum + "/attendants/", 
-				"", 
-				function( data, status, xhr ) {
+			$.ajax({
+				type: "POST",
+				data: "", 
+				dataType: "json",
+				url: "/api/event/" + eventNum + "/attendants/", 
+				success: function( data, status, xhr ) {
 					if ( data.code > 300 ) {
-						console.log(data);
 						alert("ERROR: Failed to attend event!\r\n" + data.message);
 						return false;
 					}
 					
 					// Refresh page 
 					location.reload();
-				}, "json");
+				}
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
+			});
 		}
 		else if ( $(anchor).attr("type") == "Unattend" ) {
 			// DELETE to server 
 			$.ajax({
 				type: "DELETE",
+				dataType: "json",
 				url: "/api/event/" + eventNum + "/attendants/",
 				success: function( data, status, xhr ) {
 					if ( data.code > 300 ) {
-						console.log(data);
 						alert("ERROR: Failed to unattend event!\r\n" + data.message);
 						return false;
 					}
 					
 					// Refresh page 
 					location.reload();
-				}, 
-				dataType: "json"
+				}
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
 			});
 		}
 		else {

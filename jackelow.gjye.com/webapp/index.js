@@ -86,13 +86,19 @@ $(function() {
 			});
 			
 			// otherwise load content 
-			$.getJSON( "/api/event/"+ $(this).attr('jk:eventID'), 
-			(function(elem) {
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				ifModified: true,
+				url: "/api/event/"+ $(this).attr('jk:eventID'), 
+				success: (function(elem) {
 				return function( event ) {
 					updateChildFields( $(elem), event.results[0] );
 				}
 			})($(this))
-			);
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
+			});
 			$(this).data('loaded', true);
 		});
 	}
@@ -152,26 +158,33 @@ $(function() {
 			var offset = $( "#injection-point" ).children().length;
 			
 			// Load all events from API and populate page 
-			$.getJSON( "/api/event/" + pathFilters + "/start/" + offset, // "/api/event/{opts}/start/#/" 
-			function( event ) {
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				ifModified: true,
+				url: "/api/event/" + pathFilters + "/start/" + offset, // "/api/event/{opts}/start/#/" 
+				success: function( data, status, xhr ) {
 				
 				// If no more results 
-				if ( !event.results.length ) {
+					if ( !data.results.length ) {
 					//console.log("End of event results");
 					$(window).data('event-noresult', true);
 				}
 				
-				for (var i = 0; i < event.results.length; ++i) {
+					for (var i = 0; i < data.results.length; ++i) {
 					var $template = $( "#event-template" ).children().first().clone();
 					$template.show();
 					$template.data('loaded', false);
-					$template.attr({"jk:eventID" : event.results[i]});
+						$template.attr({"jk:eventID" : data.results[i]});
 					$template.appendTo( "#injection-point" );
 				}
 				
 				// Force load of visible children before scrolling happens 
 				updateChildren(false);
 				$(window).data('busy', false);
+				}
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
 			});
 			
 		}
@@ -181,20 +194,24 @@ $(function() {
 			var offset = $( "#sticky-injection-point" ).children().length;
 			
 			// Load all info events from API and populate page 
-			$.getJSON( "/api/event/type/" + eventTypes["Info"] + "/" + pathFilters + "/start/" + offset, // "/api/event/type/4/{opts}/start/#/" 
-			function( event ) {
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				ifModified: true,
+				url: "/api/event/type/" + eventTypes["Info"] + "/" + pathFilters + "/start/" + offset, // "/api/event/type/4/{opts}/start/#/" 
+				success: function( data, status, xhr ) {
 				
 				// If no more results 
-				if ( !event.results.length ) {
+					if ( !data.results.length ) {
 					//console.log("End of info results");
 					$(window).data('sticky-noresult', true);
 				}
 				
-				for (var i = 0; i < event.results.length; ++i) {
+					for (var i = 0; i < data.results.length; ++i) {
 					var $template = $( "#event-template" ).children().first().clone();
 					$template.show();
 					$template.data('loaded', false);
-					$template.attr({"jk:eventID" : event.results[i]});
+						$template.attr({"jk:eventID" : data.results[i]});
 					$template.addClass("info-block");
 					$template.removeClass("event-block");
 					$template.appendTo( "#sticky-injection-point" );
@@ -203,6 +220,9 @@ $(function() {
 				// Force load of visible children before scrolling happens 
 				updateChildren(true);
 				$(window).data('busy', false);
+				}
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
 			});
 			
 		}

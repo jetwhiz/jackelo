@@ -60,25 +60,33 @@ $(function() {
 					return false;
 				}
 				
-				$.getJSON( "/api/country/" + $(country).val() + "/city/filter/" + term, function( data, status, xhr ) {
-					var bifur = {};
-					var i = 0;
-					for ( ; i < data.results.length; ++i) {
-						bifur[i] = {};
-						bifur[i]["label"] = data.results[i].name;
-						bifur[i]["value"] = data.results[i].id;
+				$.ajax({
+					type: "GET",
+					dataType: "json",
+					ifModified: true,
+					url: "/api/country/" + $(country).val() + "/city/filter/" + term, 
+					success: function( data, status, xhr ) {
+						var bifur = {};
+						var i = 0;
+						for ( ; i < data.results.length; ++i) {
+							bifur[i] = {};
+							bifur[i]["label"] = data.results[i].name;
+							bifur[i]["value"] = data.results[i].id;
+						}
+						
+						// Give option to create new city (if no exact match) 
+						if ( i == 0 || bifur[0]["label"] != term ) {
+							bifur[i] = {
+								"label" : term,
+								"value" : -1
+							};
+						}
+						
+						cache[ term ] = bifur;
+						response( bifur );
 					}
-					
-					// Give option to create new city (if no exact match) 
-					if ( i == 0 || bifur[0]["label"] != term ) {
-						bifur[i] = {
-							"label" : term,
-							"value" : -1
-						};
-					}
-					
-					cache[ term ] = bifur;
-					response( bifur );
+				}).fail(function( xhr, status, error ) {
+					alert( "ERROR: Failed to send request!\r\n" + status );
 				});
 			}, 
 			select: function( event, ui ) {
@@ -90,11 +98,13 @@ $(function() {
 				// Not already existing -- we have to create it 
 				if ( ui.item.value == -1 ) {
 					//alert( "Create new city: " + ui.item.label + " in country " + $(country).val() );
-					$.post( "/api/country/" + $(country).val() + "/city/", 
-						"name=" + encodeURIComponent(ui.item.label), 
-						function( data, status, xhr ) {
+					$.ajax({
+						type: "POST",
+						data: "name=" + encodeURIComponent(ui.item.label), 
+						dataType: "json",
+						url: "/api/country/" + $(country).val() + "/city/", 
+						success: function( data, status, xhr ) {
 							if ( typeof data.results["cityID"] == 'undefined' ) {
-								console.log(data);
 								alert("ERROR: Failed to create city!\r\n" + data.message);
 								$(cityID).val("");
 								return false;
@@ -104,7 +114,10 @@ $(function() {
 							$(cityID).val(data.results["cityID"]);
 							$(cityName).val(ui.item.label);
 							cache = {}; // invalidate cache 
-						}, "json");
+						}
+					}).fail(function( xhr, status, error ) {
+						alert( "ERROR: Failed to send request!\r\n" + status );
+					});
 				}
 				else {
 					//alert("Existed: " + ui.item.value + " " + ui.item.label);
@@ -161,11 +174,13 @@ $(function() {
 		// Not already existing -- we have to create it 
 		if ( value == -1 ) {
 			//alert( "Create new category: " + label );
-			$.post( "/api/category/", 
-				"name=" + encodeURIComponent(label), 
-				function( data, status, xhr ) {
+			$.ajax({
+				type: "POST",
+				data: "name=" + encodeURIComponent(label), 
+				dataType: "json",
+				url: "/api/category/", 
+				success: function( data, status, xhr ) {
 					if ( typeof data.results["categoryID"] == 'undefined' ) {
-						console.log(data);
 						alert("ERROR: Failed to create category!\r\n" + data.message);
 						return false;
 					}
@@ -176,7 +191,10 @@ $(function() {
 					that.value = "";
 					
 					cache = {}; // invalidate cache 
-				}, "json");
+				}
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
+			});
 		}
 		else {
 			//alert("Existed: " + value + " " + label);
@@ -243,53 +261,60 @@ $(function() {
 		}
 		
 		
-		$.getJSON( "/api/event/" + eventNum, // "/api/event/#/" 
-		function( events ) {
-			// Should only have one event upon success 
-			var event = events.results[0];
-			
-			
-			// Strip time from datetime
-			var dS = event.datetimeStart.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
-			var dE = event.datetimeEnd.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
-			
-			
-			// Set boundaries for calendar popups 
-			$( "#datetimeStart" ).datepicker( "option", "maxDate", dE[1] );
-			$( "#datetimeEnd" ).datepicker( "option", "minDate", dS[1] );
-			
-			
-			// Populate main input fields 
-			$( "#name" ).val($('<textarea />').html(event.name).text());
-			$( "#datetimeStart" ).val(dS[1]);
-			$( "#datetimeEnd" ).val(dE[1]);
-			$( "#description" ).val($('<textarea />').html(event.description).text());
-			
-			
-			// Populate categories
-			for ( var i = 0; i < event.categories.length; ++i ) {
-				addCategory( $( "#category" ), event.categories[i].categoryID, event.categories[i].name );
-			}
-			
-			
-			// Update event type ID 
-			$("#eventType" + parseInt(event.eventTypeID)).prop("checked", true);
-			$("#eventTypeID").buttonset("refresh");
-			
-			
-			// Add destinations 
-			for ( var i = 0; i < event.destinations.length; ++i ) {
-				var ddS = event.destinations[i].datetimeStart.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
-				var ddE = event.destinations[i].datetimeEnd.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+		$.ajax({
+			type: "GET",
+			dataType: "json",
+			ifModified: true,
+			url: "/api/event/" + eventNum, // "/api/event/#/" 
+			success: function( data, status, xhr ) {
+				// Should only have one event upon success 
+				var event = data.results[0];
 				
-				var destination = addDestination();
-				destination.find( ".address" ).val( $('<textarea />').html(event.destinations[i].address).text() );
-				destination.find( ".datetimeStart" ).val( ddS[1] );
-				destination.find( ".datetimeEnd" ).val( ddE[1] );
-				destination.find( ".countryID" ).val( event.destinations[i].countryID );
-				destination.find( ".cityID" ).val( event.destinations[i].cityID );
-				destination.find( ".cityName" ).val( event.destinations[i].cityName );
+				
+				// Strip time from datetime
+				var dS = event.datetimeStart.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+				var dE = event.datetimeEnd.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+				
+				
+				// Set boundaries for calendar popups 
+				$( "#datetimeStart" ).datepicker( "option", "maxDate", dE[1] );
+				$( "#datetimeEnd" ).datepicker( "option", "minDate", dS[1] );
+				
+				
+				// Populate main input fields 
+				$( "#name" ).val($('<textarea />').html(event.name).text());
+				$( "#datetimeStart" ).val(dS[1]);
+				$( "#datetimeEnd" ).val(dE[1]);
+				$( "#description" ).val($('<textarea />').html(event.description).text());
+				
+				
+				// Populate categories
+				for ( var i = 0; i < event.categories.length; ++i ) {
+					addCategory( $( "#category" ), event.categories[i].categoryID, event.categories[i].name );
+				}
+				
+				
+				// Update event type ID 
+				$("#eventType" + parseInt(event.eventTypeID)).prop("checked", true);
+				$("#eventTypeID").buttonset("refresh");
+				
+				
+				// Add destinations 
+				for ( var i = 0; i < event.destinations.length; ++i ) {
+					var ddS = event.destinations[i].datetimeStart.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+					var ddE = event.destinations[i].datetimeEnd.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+					
+					var destination = addDestination();
+					destination.find( ".address" ).val( $('<textarea />').html(event.destinations[i].address).text() );
+					destination.find( ".datetimeStart" ).val( ddS[1] );
+					destination.find( ".datetimeEnd" ).val( ddE[1] );
+					destination.find( ".countryID" ).val( event.destinations[i].countryID );
+					destination.find( ".cityID" ).val( event.destinations[i].cityID );
+					destination.find( ".cityName" ).val( event.destinations[i].cityName );
+				}
 			}
+		}).fail(function( xhr, status, error ) {
+			alert( "ERROR: Failed to send request!\r\n" + status );
 		});
 		
 		return true;
@@ -307,12 +332,12 @@ $(function() {
 	allFields = $( [] ).add( name ).add( datetimeStart ).add( datetimeEnd ).add( description ),
 	tips = $( ".validateTips" );
 	function updateTips( t ) {
-		tips
-			.text( t )
-			.addClass( "ui-state-highlight" );
-		setTimeout(function() {
-			tips.removeClass( "ui-state-highlight", 1500 );
-		}, 500 );
+		tips.text( t ).addClass( "ui-state-highlight" );
+		setTimeout(
+			function() {
+				tips.removeClass( "ui-state-highlight", 1500 );
+			}
+		, 500);
 	}
 	function checkLength( o, n, min, max ) {
 		if ( o.val().length > max || o.val().length < min ) {
@@ -430,41 +455,46 @@ $(function() {
 				return false;
 			}
 			
-			console.log(eventNum);
 			//alert(queryString);
 			
 			$.ajax({
 				type: "PUT",
-				url: "/api/event/" + eventNum + "/", 
 				data: queryString, 
+				dataType: "json",
+				url: "/api/event/" + eventNum + "/", 
 				success: function( data, status, xhr ) {
 					if ( typeof data.results["eventID"] == 'undefined' ) {
-						console.log(data);
 						alert("ERROR: Failed to edit event!\r\n" + data.message);
 						return false;
 					}
 					
 					// Go to newly-created event
 					document.location = "/webapp/event/" + eventNum;
-				}, 
-				dataType: "json"
+				}
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
 			});
 		}
 		
 		// Otherwise POST the new event 
 		else {
-			$.post( "/api/event/", 
-				queryString, 
-				function( data, status, xhr ) {
+			$.ajax({
+				type: "POST",
+				data: queryString, 
+				dataType: "json",
+				url: "/api/event/", 
+				success: function( data, status, xhr ) {
 					if ( typeof data.results["eventID"] == 'undefined' ) {
-						console.log(data);
 						alert("ERROR: Failed to create event!\r\n" + data.message);
 						return false;
 					}
 					
 					// Go to newly-created event
 					document.location = "/webapp/event/" + data.results["eventID"];
-				}, "json");
+				}
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
+			});
 		}
 		
 		//dialog.dialog( "close" );
@@ -601,13 +631,20 @@ $(function() {
 	
 	
 	// Load all countries from API and populate page //
-	$.getJSON( "/api/country/",
-	function( event ) {
-		for (var i = 0; i < event.results.length; ++i) {
-			$( ".countryID" ).append('<option value="' + event.results[i].id + '">' + event.results[i].name + '</option>');
+	$.ajax({
+		type: "GET",
+		dataType: "json",
+		ifModified: true,
+		url: "/api/country/",
+		success: function( data, status, xhr ) {
+			for (var i = 0; i < data.results.length; ++i) {
+				$( ".countryID" ).append('<option value="' + data.results[i].id + '">' + data.results[i].name + '</option>');
+			}
+			
+			//$( ".countryID" ).selectmenu();
 		}
-		
-		//$( ".countryID" ).selectmenu();
+	}).fail(function( xhr, status, error ) {
+		alert( "ERROR: Failed to send request!\r\n" + status );
 	});
 	// * //
 	
@@ -624,33 +661,39 @@ $(function() {
 				return;
 			}
 			
-			$.getJSON( "/api/category/filter/" + term, function( data, status, xhr ) {
-				var bifur = {};
-				var i = 0;
-				for ( ; i < data.results.length; ++i) {
-					bifur[i] = {};
-					bifur[i]["label"] = data.results[i].name;
-					bifur[i]["value"] = data.results[i].id;
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				ifModified: true,
+				url: "/api/category/filter/" + term, 
+				success: function( data, status, xhr ) {
+					var bifur = {};
+					var i = 0;
+					for ( ; i < data.results.length; ++i) {
+						bifur[i] = {};
+						bifur[i]["label"] = data.results[i].name;
+						bifur[i]["value"] = data.results[i].id;
+					}
+					
+					// Give option to create new city (if no exact match) 
+					if ( i == 0 || bifur[0]["label"] != term ) {
+						bifur[i] = {
+							"label" : term,
+							"value" : -1
+						};
+					}
+					
+					cache[ term ] = bifur;
+					response( bifur );
 				}
-				
-				// Give option to create new city (if no exact match) 
-				if ( i == 0 || bifur[0]["label"] != term ) {
-					bifur[i] = {
-						"label" : term,
-						"value" : -1
-					};
-				}
-				
-				cache[ term ] = bifur;
-				response( bifur );
+			}).fail(function( xhr, status, error ) {
+				alert( "ERROR: Failed to send request!\r\n" + status );
 			});
 		}, 
 		select: function( event, ui ) {
-			
-			addCategory( this, ui.item.value, ui.item.label );
-			
-			return false;
-		}
+					addCategory( this, ui.item.value, ui.item.label );
+					return false;
+				}
 	});
 	// * //
 	
