@@ -27,29 +27,47 @@
 		
 		// Determine if the given date range is valid // 
 		public static function daterange_valid($start, $end) {
-		  
-		  // Convert all to UNIX timestamps 
-		  $startTS = strtotime($start);
-		  $endTS = strtotime($end);
-		  
-		  return (($startTS <= $endTS));
+			
+			// Convert all to UNIX timestamps 
+			$startTS = strtotime($start);
+			$endTS = strtotime($end);
+			
+			// Make sure the dates are valid (not Feb 31) 
+			$dS = date('Y-m-d', $startTS);
+			$dE = date('Y-m-d', $endTS);
+			if ( !$dS || $dS != $start || !$dE || $dE != $end ) {
+				return false;
+			}
+			
+			return (($startTS <= $endTS));
 		}
 		// * //
 		
 		
 		// Determine if the given date range is within range of start - end dates (and valid) // 
 		public static function daterange_bounded($start, $end, $dateStart, $dateEnd) {
-		  
-		  // Convert all to UNIX timestamps 
-		  $startTS = strtotime($start);
-		  $endTS = strtotime($end);
-		  $dateStartTS = strtotime($dateStart);
-		  $dateEndTS = strtotime($dateEnd);
-		  
-		  return ( ($dateStartTS >= $startTS) && ($dateStartTS <= $endTS)
-					&& ($dateEndTS >= $startTS) && ($dateEndTS <= $endTS)
-					&& ($dateStartTS <= $dateEndTS)
-				);
+			
+			// Convert all to UNIX timestamps 
+			$startTS = strtotime($start);
+			$endTS = strtotime($end);
+			$dateStartTS = strtotime($dateStart);
+			$dateEndTS = strtotime($dateEnd);
+			
+			// Make sure the dates are valid (not Feb 31) 
+			$dS = date('Y-m-d', $startTS);
+			$dE = date('Y-m-d', $endTS);
+			$ddS = date('Y-m-d', $dateStartTS);
+			$ddE = date('Y-m-d', $dateEndTS);
+			if ( !$dS || $dS != $start || !$dE || $dE != $end
+				|| !$ddS || $ddS != $dateStart || !$ddE || $ddE != $dateEnd 
+			) {
+				return false;
+			}
+			
+			return ( ($dateStartTS >= $startTS) && ($dateStartTS <= $endTS)
+				&& ($dateEndTS >= $startTS) && ($dateEndTS <= $endTS)
+				&& ($dateStartTS <= $dateEndTS)
+			);
 		}
 		// * //
 		
