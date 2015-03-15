@@ -532,7 +532,6 @@ $(function() {
 	// Disable default functionality for form (we want to handle it manually) //
 	form = dialog.find( "form" ).on( "submit", function( event ) {
 		event.preventDefault();
-		submitEvent();
 	});
 	// * //
 	

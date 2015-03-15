@@ -3,6 +3,10 @@
 
 $(function() {
 	
+	// Events (children) that have been added to page (IDs)
+	var children = { "event" : [], "info" : [] };
+	
+	
 	// Should be loaded in dynamically 
 	var eventTypes = { "Local Event": 1, "GTL Event": 2, "Trip": 3, "Info": 4 };
 	
@@ -65,10 +69,10 @@ $(function() {
 
 
 	// Update event nodes when they get scrolled into view //
-	function updateChildren(informational) {
+	function updateChildren(infoType) {
 		var container = "sticky-injection-point";
 		
-		if ( !informational) {
+		if ( !infoType) {
 			container = "injection-point";
 		}
 		
@@ -86,16 +90,22 @@ $(function() {
 			});
 			
 			// otherwise load content 
+			var eventID = $(this).attr('jk:eventID');
 			$.ajax({
 				type: "GET",
 				dataType: "json",
 				ifModified: true,
-				url: "/api/event/"+ $(this).attr('jk:eventID'), 
+				url: "/api/event/" + eventID, 
 				success: (function(elem) {
-				return function( event ) {
-					updateChildFields( $(elem), event.results[0] );
-				}
-			})($(this))
+					return function( data, status, xhr ) {
+						if ( !data ) {
+							alert("ERROR: Cannot load eventID " + eventID );
+							return false;
+						}
+						
+						updateChildFields( $(elem), data.results[0] );
+					}
+				})($(this))
 			}).fail(function( xhr, status, error ) {
 				alert( "ERROR: Failed to send request!\r\n" + status );
 			});
@@ -142,90 +152,213 @@ $(function() {
 	
 	
 	
+	// Determine if an event (child) has already been injected into the page (return index) //
+	function getChildIndexById(id, infoType) {
+		var index = -1;
+		var type = "event";
+		
+		// If they want info type (sticky) 
+		if ( infoType ) {
+			type = "info";
+		}
+		
+		//console.log(array);
+		index = $.inArray( id, children[type] );
+		
+		return index;
+	}
+	// * //
+	
+	
+	
+	// Get the child node at index "index" (for appending/removal) //
+	function getChildNodeByIndex(index, infoType) {
+		var node = null;
+		
+		// Differentiate between event vs info types 
+		var injectionPoint = "injection-point";
+		if ( infoType ) {
+			injectionPoint = "sticky-injection-point";
+		}
+		
+		// Loop through all children until we hit the correct index 
+		$( "#" + injectionPoint ).children().each( function(i) {
+			if ( index == i ) {
+				node = $(this);
+				return false;
+			}
+		});
+		
+		return node;
+	}
+	// * //
+	
+	
+	
 	// Populate the page with events (starting at offset) //
-	function populate(informational) {
+	function populate(infoType, offset, limit) {
 		$(window).data('busy', true);
-		//console.log("Populate called: " + (informational ? "info" : "event"));
+		//console.log("Populate called: " + (infoType ? "info" : "event"));
+		
+		// If not specified, set limit to default (10) 
+		limit = typeof limit !== 'undefined' ? limit : 10;
 		
 		
 		// Determine if filters were requested 
 		var pathFilters = getPathFilters();		
 		
 		
-		if ( !informational ) {
-			
-			// Get offset of results
-			var offset = $( "#injection-point" ).children().length;
-			
-			// Load all events from API and populate page 
-			$.ajax({
-				type: "GET",
-				dataType: "json",
-				ifModified: true,
-				url: "/api/event/" + pathFilters + "/start/" + offset, // "/api/event/{opts}/start/#/" 
-				success: function( data, status, xhr ) {
+		// Differentiate between info and event types 
+		var injectionPoint = "injection-point";
+		var childType = "event";
+		var noResult = "event-noresult";
+		var typeFilter = "";
+		if ( infoType ) {
+			injectionPoint = "sticky-injection-point";
+			childType = "info";
+			noResult = "sticky-noresult";
+			typeFilter = "type/" + eventTypes["Info"] + "/";
+		}
+		
+		
+		// Get number of results
+		var numResults = $( "#" + injectionPoint ).children().length;
+		
+		// If not specified, default offset to number of results (append mode) 
+		offset = typeof offset !== 'undefined' ? offset : numResults;
+		
+		// If offset == number of results, this is append mode 
+		var appendMode = ( offset == numResults );
+		
+		
+		// Load all events from API and populate page 
+		$.ajax({
+			type: "GET",
+			dataType: "json",
+			ifModified: true,
+			url: "/api/event/" + typeFilter + pathFilters + "start/" + offset + "/limit/" + limit,
+			success: function( data, status, xhr ) {
+				
+				// Ensure we're received a good response 
+				if ( data.code != 200 ) {
+					alert("ERROR: Bad response pulling events!");
+					return;
+				}
 				
 				// If no more results 
-					if ( !data.results.length ) {
+				if ( !data.results.length ) {
 					//console.log("End of event results");
-					$(window).data('event-noresult', true);
+					$(window).data(noResult, true);
 				}
 				
-					for (var i = 0; i < data.results.length; ++i) {
-					var $template = $( "#event-template" ).children().first().clone();
-					$template.show();
-					$template.data('loaded', false);
-						$template.attr({"jk:eventID" : data.results[i]});
-					$template.appendTo( "#injection-point" );
+				for (var i = 0; i < data.results.length; ++i) {
+					var thisID = data.results[i];
+					
+					if ( appendMode ) {
+						// Make sure it isn't already added 
+						if ( getChildIndexById(thisID, infoType) != -1 ) {
+							alert("ERROR: Attempted to double-insert an event into page!");
+							continue;
+						}
+						
+						var $template = $( "#event-template" ).children().first().clone();
+						$template.show();
+						$template.data('loaded', false);
+						$template.attr({"jk:eventID" : thisID});
+						
+						// Change style to info type (instead of event) 
+						if (infoType) {
+							$template.addClass("info-block");
+							$template.removeClass("event-block");
+						}
+						
+						$template.appendTo( "#" + injectionPoint );
+						children[childType].push(thisID); // add to children list 
+					}
+					else {
+						
+						//console.log("Working on thisID: " + thisID);
+						
+						// If this is an already-existing child 
+						if ( getChildIndexById(thisID, infoType) != -1 ) {
+							
+							// Prune existing list of non-existant children 
+							while ( children[childType].length 
+									&& thisID != children[childType][i] 
+								) {
+									
+								// Get node to remove from page 
+								var node = getChildNodeByIndex(i, infoType);
+								if (!node) {
+									alert("ERROR: Node does not exist!  Cannot remove it!");
+									return false;
+								}
+								
+								// Remove from page and array 
+								console.log("Removing node " + i + " from page. ID: " + $(node).attr('jk:eventID'));
+								$(node).remove();
+								console.log("Array before: " + children[childType]);
+								children[childType].splice(i, 1);
+								console.log("Array after: " + children[childType]);
+							}
+							
+						}
+						
+						// Otherwise it's a new item! 
+						else {
+							console.log("Inserting new node " + i + " into page with ID " + thisID);
+							
+							// Create new node 
+							var $template = $( "#event-template" ).children().first().clone();
+							$template.show();
+							$template.data('loaded', false);
+							$template.attr({"jk:eventID" : thisID});
+							
+							// Change style to info type (instead of event) 
+							if (infoType) {
+								$template.addClass("info-block");
+								$template.removeClass("event-block");
+							}
+							
+							
+							console.log("Array before: " + children[childType]);
+							
+							
+							// Append to end of page 
+							if ( i >= children[childType].length ) {
+								$template.appendTo( "#" + injectionPoint );
+								children[childType].push(thisID); // add to children list 
+							}
+							
+							// Insert inside page 
+							else {
+								// Get node at position i (we need to insert before it) 
+								var node = getChildNodeByIndex(i, infoType);
+								if (!node) {
+									alert("ERROR: Node does not exist!  Cannot insert before it!");
+									return false;
+								}
+								
+								// Insert new node before existing node 
+								node.before( $template );
+								children[childType].splice(i, 0, thisID);
+							}
+							
+							
+							console.log("Array after: " + children[childType]);
+						}
+						
+					}
+					
 				}
 				
 				// Force load of visible children before scrolling happens 
-				updateChildren(false);
+				updateChildren(infoType);
 				$(window).data('busy', false);
-				}
-			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
-			});
-			
-		}
-		else {
-			
-			// Get offset of results
-			var offset = $( "#sticky-injection-point" ).children().length;
-			
-			// Load all info events from API and populate page 
-			$.ajax({
-				type: "GET",
-				dataType: "json",
-				ifModified: true,
-				url: "/api/event/type/" + eventTypes["Info"] + "/" + pathFilters + "/start/" + offset, // "/api/event/type/4/{opts}/start/#/" 
-				success: function( data, status, xhr ) {
-				
-				// If no more results 
-					if ( !data.results.length ) {
-					//console.log("End of info results");
-					$(window).data('sticky-noresult', true);
-				}
-				
-					for (var i = 0; i < data.results.length; ++i) {
-					var $template = $( "#event-template" ).children().first().clone();
-					$template.show();
-					$template.data('loaded', false);
-						$template.attr({"jk:eventID" : data.results[i]});
-					$template.addClass("info-block");
-					$template.removeClass("event-block");
-					$template.appendTo( "#sticky-injection-point" );
-				}
-				
-				// Force load of visible children before scrolling happens 
-				updateChildren(true);
-				$(window).data('busy', false);
-				}
-			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
-			});
-			
-		}
+			}
+		}).fail(function( xhr, status, error ) {
+			alert( "ERROR: Failed to send request!\r\n" + status );
+		});
 		
 	}
 	// * //
@@ -251,11 +384,31 @@ $(function() {
 		}
 	}
 	// * //
-
-
-
+	
+	
+	
+	// General maintenance functions (to be run periodically) //
+	function maintenance() {
+		if ( limitMaintenance ) return;
+		
+		//console.log("Starting maintenance run");
+		
+		limitMaintenance = 1;
+		populate(true, 0, $( "#sticky-injection-point" ).children().length);
+		populate(false, 0, $( "#injection-point" ).children().length);
+		
+		setTimeout(function(){limitMaintenance=0}, 1000);	// flood control 
+	}
+	// * //
+	
+	
+	
 	// General handler attacher // 
 	function attachHandlers() {
+		
+		// Run mainenance every few seconds 
+		setInterval(maintenance, 10000);
+		
 		// Attach onscroll event to content body 
 		$("#content-body").scroll( function(e) {
 			if ( limitScroll ) return;
@@ -284,6 +437,7 @@ $(function() {
 	// When page is loaded //
 	var limitScroll = 0;
 	var limitResize = 0;
+	var limitMaintenance = 0;
 	$( window ).load(function() {
 		$(window).data('busy', false);
 		$(window).data('sticky-noresult', false);

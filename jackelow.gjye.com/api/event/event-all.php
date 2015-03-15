@@ -323,7 +323,7 @@
 				) AS `Attendants`
 			";
 			$orderBy .= "
-				ORDER BY `Events`.`datetimeStart`, `Attendants`.`ATT-CNT`
+				ORDER BY `Events`.`datetimeStart`, `Attendants`.`ATT-CNT`, `Events`.`name`
 			";
 			// NOTE: Sort by location performed AFTER results pulled from database 
 			
