@@ -388,16 +388,25 @@ $(function() {
 	
 	
 	// General maintenance functions (to be run periodically) //
-	function maintenance() {
-		if ( limitMaintenance ) return;
+	function throttle() {
+		//console.log("Throttling maintenance run");
 		
+		if ( maintenanceTimer ) {
+			clearTimeout(maintenanceTimer);
+		}
+		
+		if ( document.hidden ) {
+			maintenanceTimer = setInterval(maintenance, maintenanceInterval*100);
+		}
+		else {
+			maintenanceTimer = setInterval(maintenance, maintenanceInterval);
+		}
+	}
+	function maintenance() {
 		//console.log("Starting maintenance run");
 		
-		limitMaintenance = 1;
 		populate(true, 0, $( "#sticky-injection-point" ).children().length);
 		populate(false, 0, $( "#injection-point" ).children().length);
-		
-		setTimeout(function(){limitMaintenance=0}, 1000);	// flood control 
 	}
 	// * //
 	
@@ -406,8 +415,11 @@ $(function() {
 	// General handler attacher // 
 	function attachHandlers() {
 		
-		// Run mainenance every few seconds 
-		setInterval(maintenance, 10000);
+		// Run mainenance every few seconds (for compatible browsers) 
+		if ( typeof document.hidden !== "undefined" ) {
+			throttle();
+			$(document).on("visibilitychange", throttle);
+		}
 		
 		// Attach onscroll event to content body 
 		$("#content-body").scroll( function(e) {
@@ -437,7 +449,8 @@ $(function() {
 	// When page is loaded //
 	var limitScroll = 0;
 	var limitResize = 0;
-	var limitMaintenance = 0;
+	var maintenanceTimer = 0;
+	var maintenanceInterval = 10000;
 	$( window ).load(function() {
 		$(window).data('busy', false);
 		$(window).data('sticky-noresult', false);
