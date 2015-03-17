@@ -1,5 +1,6 @@
 package com.jackelow.jackelo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,10 +29,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.jackelow.jackelo.classes.apiCaller;
 import com.jackelow.jackelo.classes.imageGetter;
+import com.jackelow.jackelo.viewClasses.MySimpleArrayAdapter;
 
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import java.util.ArrayList;
@@ -54,99 +57,47 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     List<String> li;
     ArrayList<JSONObject> myEvents;
+    apiCaller myCaller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); // Show the home screen
 
-        final apiCaller myCaller = new apiCaller();
-
+        myCaller = new apiCaller(); // Instantiate a new api caller
 
         final Button show = (Button) findViewById(R.id.button1);
+        final RelativeLayout rel = (RelativeLayout) findViewById(R.id.rel);
 
-        final JSONObject myJSON = new JSONObject();
-
-        final RelativeLayout rl=(RelativeLayout) findViewById(R.id.rl);
-        final RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams
-                ((int) RadioGroup.LayoutParams.WRAP_CONTENT,(int) RadioGroup.LayoutParams.WRAP_CONTENT);
-        params.leftMargin=10;
-        params.topMargin=150;
-
-        final ListView list=new ListView(this);
+        final ListView list = new ListView(this);
         list.setOnItemClickListener(this);
-        li=new ArrayList<String>();
+        li = new ArrayList<String>();
         myEvents = new ArrayList<JSONObject>();
 
 
+        // TODO: Take out button and load events automatically
         show.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
 
+                JSONObject myJSON = new JSONObject(); // JSON Object used for api calls
+
                 try {
                     myJSON.put("api", "event/");
-                }
-                catch (Exception e){
-
-                }
-
-                JSONObject ret = myCaller.apiGet(myJSON);
-                JSONArray myResults = null;
-
-                try{
+                    JSONObject ret = myCaller.apiGet(myJSON); // Collect all events
+                    JSONArray myResults = null;
                     myResults = ret.getJSONArray("results");
-                }catch (Exception e){
+                    getEventsById(myResults);
+                    generateListView(list, rel);
 
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
                 int curId = 0;
                 JSONObject curRet = null;
-
-
-                String eventName;
-                String eventDesc;
-                String eventDestination;
-
-                JSONArray curResults;
-                JSONObject curResult;
-                JSONArray curDestinations;
-                JSONObject curDestination;
-                myEvents.clear();
-
-                for(int i = myResults.length()-1; i>=0 ;i--){
-
-                    try {
-                        myJSON.put("api", "event/");
-                        curId = myResults.getInt(i);
-                        myJSON.put("id", curId);
-                        curRet = myCaller.apiGet(myJSON);
-                        myEvents.add(curRet);
-
-                        curResults = curRet.getJSONArray("results");
-                        curResult = curResults.getJSONObject(0);
-                        eventName = curResult.getString("name");
-
-                        curDestinations = curResult.getJSONArray("destinations");
-                        curDestination = curDestinations.getJSONObject(0);
-                        eventDestination = curDestination.getString("address");
-
-                        eventDesc = curResult.getString("description");
-
-                        li.add("Event: "+eventName+"\nLocation: "+eventDestination+"\nDescription: "+eventDesc);
-                }catch (Exception e){}
-
-                }
-
-                // TODO Auto-generated method stub
-
-                ArrayAdapter<String> adp=new ArrayAdapter<String>(getBaseContext(),
-                        android.R.layout.simple_dropdown_item_1line,li);
-                adp.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-
-                list.setAdapter(adp);
-                list.setLayoutParams(params);
-
-                rl.addView(list);
 
 
             }
@@ -216,6 +167,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         JSONArray curDestinations;
         JSONObject curDestination;
 
+        // Get data to poulate view
         try{
             curResults = curRet.getJSONArray("results");
             curResult = curResults.getJSONObject(0);
@@ -224,13 +176,13 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             curDestinations = curResult.getJSONArray("destinations");
             curDestination = curDestinations.getJSONObject(0);
             eventDestination = curDestination.getString("address");
-            eventImageURL = curDestination.getString("thumb").replaceFirst("s","");
+            eventImageURL = curDestination.getString("thumb");//.replaceFirst("s","");
 
             eventDesc = curResult.getString("description");
         }
         catch (Exception e){}
 
-
+        // Populate view
         try{
             URL url = new URL(eventImageURL);
             imageGetter myImGetter = new imageGetter();
@@ -245,4 +197,70 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             e.printStackTrace();
         }
     }
+
+    // Use JSON results from /events and collect data for each one.
+    public void getEventsById (JSONArray myIds)
+    {
+        JSONObject myJSON = new JSONObject();
+        JSONObject curRet = new JSONObject();
+        JSONObject[] myRets;
+
+        JSONArray curResults;
+        JSONObject curResult;
+        JSONArray curDestinations;
+        JSONObject curDestination;
+
+        int curId;
+        String eventName;
+        String eventDestination;
+        String eventDesc;
+        myEvents.clear();
+
+        for(int i = myIds.length()-1; i>=0 ;i--){
+
+            try {
+                myJSON.put("api", "event/");
+                curId = myIds.getInt(i);
+                myJSON.put("id", curId);
+                curRet = myCaller.apiGet(myJSON);
+                myEvents.add(curRet);
+
+                curResults = curRet.getJSONArray("results");
+                curResult = curResults.getJSONObject(0);
+                eventName = curResult.getString("name");
+
+                curDestinations = curResult.getJSONArray("destinations");
+                curDestination = curDestinations.getJSONObject(0);
+                eventDestination = curDestination.getString("address");
+
+                eventDesc = curResult.getString("description");
+
+                li.add("Event: "+eventName+"\nLocation: "+eventDestination+"\nDescription: "+eventDesc);
+            }catch (Exception e){}
+
+        }
+    }
+
+    // Use JSON results from /events and collect data for each one.
+    public void generateListView(ListView list, RelativeLayout rel){
+        final JSONObject myJSON = new JSONObject();
+//        final RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams
+//                ((int) RadioGroup.LayoutParams.WRAP_CONTENT,(int) RadioGroup.LayoutParams.WRAP_CONTENT);
+//
+//        params.leftMargin = 10;
+//        params.topMargin = 150;
+//        params.height = 500;
+
+        String[] trash = {};
+        ArrayAdapter<JSONObject> adp = new MySimpleArrayAdapter(getBaseContext(), myEvents);
+        adp.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+
+        list.setAdapter(adp);
+//        list.setLayoutParams(params);
+
+        rel.addView(list);
+
+
+    }
+
 }

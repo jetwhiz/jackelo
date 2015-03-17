@@ -9,17 +9,19 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
+// import com.jackelow.jackelo.net;
 
 /**
  * Created by David on 3/2/2015.
  */
 public class getter extends AsyncTask<HttpGet, Integer, String> {
 
-    final HttpClient client = new DefaultHttpClient();
+    final HttpClient client;// = getNewHttpClient();
 
     //Override
-    public getter(HttpClient client){
+    public getter(HttpClient inClient){
         super();
+        client = inClient;
     }
 
     protected String doInBackground(HttpGet... request) {
