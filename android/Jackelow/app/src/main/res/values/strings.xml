@@ -3,6 +3,10 @@
 
     <string name="app_name">Jackelo</string>
     <string name="hello_world">Hello world!</string>
+    <string name="myProfile">My Profile</string>
+    <string name="home">Home</string>
+    <string name="addEvent">+ Add Event</string>
     <string name="action_settings">Settings</string>
+
 
 </resources>
