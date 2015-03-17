@@ -63,7 +63,6 @@ $(function() {
 				$.ajax({
 					type: "GET",
 					dataType: "json",
-					ifModified: true,
 					url: "/api/country/" + $(country).val() + "/city/filter/" + term, 
 					success: function( data, status, xhr ) {
 						var bifur = {};
@@ -264,7 +263,6 @@ $(function() {
 		$.ajax({
 			type: "GET",
 			dataType: "json",
-			ifModified: true,
 			url: "/api/event/" + eventNum, // "/api/event/#/" 
 			success: function( data, status, xhr ) {
 				// Should only have one event upon success 
@@ -633,7 +631,6 @@ $(function() {
 	$.ajax({
 		type: "GET",
 		dataType: "json",
-		ifModified: true,
 		url: "/api/country/",
 		success: function( data, status, xhr ) {
 			for (var i = 0; i < data.results.length; ++i) {
@@ -663,7 +660,6 @@ $(function() {
 			$.ajax({
 				type: "GET",
 				dataType: "json",
-				ifModified: true,
 				url: "/api/category/filter/" + term, 
 				success: function( data, status, xhr ) {
 					var bifur = {};

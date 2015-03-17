@@ -252,7 +252,6 @@ $(function() {
 	
 	
 	// When page is loaded //
-	var limitResize = 0;
 	$( window ).load(function() {
 		$(".lightbox-image").colorbox({maxWidth:"90%", maxHeight:"90%"});
 	});

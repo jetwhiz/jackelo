@@ -40,7 +40,7 @@ $(function() {
 		$(elem).find('div.username-cell:first').text('(' + results.username + ')');
 		
 		// Populate thumbnail (or use generic) 
-		if ( results.eventTypeID == eventTypes["Trip"] && results.destinations.length > 0 ) {
+		if ( results.destinations.length > 0 ) {
 			var img = results.destinations[0].thumb;
 			var country = results.destinations[0].countryName;
 			$(elem).find('div.thumb-cell:first').html('<img src="' + img + '" alt="' + country + '" title="' + country + '" class="thumb" />');
@@ -94,7 +94,6 @@ $(function() {
 			$.ajax({
 				type: "GET",
 				dataType: "json",
-				ifModified: true,
 				url: "/api/event/" + eventID, 
 				success: (function(elem) {
 					return function( data, status, xhr ) {
@@ -235,7 +234,6 @@ $(function() {
 		$.ajax({
 			type: "GET",
 			dataType: "json",
-			ifModified: true,
 			url: "/api/event/" + typeFilter + pathFilters + "start/" + offset + "/limit/" + limit,
 			success: function( data, status, xhr ) {
 				
@@ -388,6 +386,8 @@ $(function() {
 	
 	
 	// General maintenance functions (to be run periodically) //
+	var maintenanceTimer = 0;
+	var maintenanceInterval = 10000;
 	function throttle() {
 		//console.log("Throttling maintenance run");
 		
@@ -413,6 +413,8 @@ $(function() {
 	
 	
 	// General handler attacher // 
+	var limitScroll = 0;
+	var limitResize = 0;
 	function attachHandlers() {
 		
 		// Run mainenance every few seconds (for compatible browsers) 
@@ -447,10 +449,6 @@ $(function() {
 	
 	
 	// When page is loaded //
-	var limitScroll = 0;
-	var limitResize = 0;
-	var maintenanceTimer = 0;
-	var maintenanceInterval = 10000;
 	$( window ).load(function() {
 		$(window).data('busy', false);
 		$(window).data('sticky-noresult', false);
