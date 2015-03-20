@@ -1,4 +1,11 @@
 
+#load-infos {
+	display: block; 
+	padding: 0px;
+	text-align: center;
+	color: #dd9900;
+}
+
 #event-template, #destination-template {
 	display: none;
 }
@@ -39,6 +46,12 @@
 }
 .info-block:nth-child(even) {
 	background-color: #fef7f0;
+}
+.endOfResults {
+	display: block;
+	text-align: center;
+	padding: 10px;
+	font-style: italic;
 }
 
 

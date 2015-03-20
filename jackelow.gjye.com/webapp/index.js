@@ -106,7 +106,9 @@ $(function() {
 					}
 				})($(this))
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 			$(this).data('loaded', true);
 		});
@@ -201,6 +203,9 @@ $(function() {
 		
 		// If not specified, set limit to default (10) 
 		limit = typeof limit !== 'undefined' ? limit : 10;
+		if ( limit == 0 ) {
+			return;
+		}
 		
 		
 		// Determine if filters were requested 
@@ -355,7 +360,9 @@ $(function() {
 				$(window).data('busy', false);
 			}
 		}).fail(function( xhr, status, error ) {
-			alert( "ERROR: Failed to send request!\r\n" + status );
+			if ( window.console && console.log ) {
+				console.log( "ERROR: Failed to send request!\r\n" + status );
+			}
 		});
 		
 	}
@@ -368,7 +375,7 @@ $(function() {
 		if ($(window).data('busy') == true) return;
 		
 		// Always try to load more info events (unless we hit the end) 
-		if (!$(window).data('sticky-noresult')) {
+		if (!$(window).data('sticky-noresult') && !$( "#load-infos" ).is(":visible")) {
 			populate(true);
 		}
 		
@@ -385,6 +392,15 @@ $(function() {
 	
 	
 	
+	// Attach event for when user clicks the "load infos" button //
+	$( "#load-infos" ).on( "click", function() {
+		populate(true);
+		$(this).hide();
+	});
+	// * //
+	
+	
+	
 	// General maintenance functions (to be run periodically) //
 	var maintenanceTimer = 0;
 	var maintenanceInterval = 10000;
@@ -395,10 +411,7 @@ $(function() {
 			clearTimeout(maintenanceTimer);
 		}
 		
-		if ( document.hidden ) {
-			maintenanceTimer = setInterval(maintenance, maintenanceInterval*100);
-		}
-		else {
+		if ( !document.hidden ) {
 			maintenanceTimer = setInterval(maintenance, maintenanceInterval);
 		}
 	}
@@ -453,7 +466,6 @@ $(function() {
 		$(window).data('busy', false);
 		$(window).data('sticky-noresult', false);
 		$(window).data('event-noresult', false);
-		populate(true);
 		populate(false);
 		attachHandlers();
 	});

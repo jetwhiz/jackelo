@@ -89,6 +89,7 @@ EOHT;
 		
 		$eventName = $JSON["results"][0]["name"];
 		$ownerName = $JSON["results"][0]["username"];
+		$ownerID = $JSON["results"][0]["ownerID"];
 		$dateStart = date("F d, Y", strtotime($JSON["results"][0]["datetimeStart"]));
 		$datetimeEnd = date("F d, Y", strtotime($JSON["results"][0]["datetimeEnd"]));
 		$eventType = $JSON["results"][0]["eventType"];
@@ -200,11 +201,15 @@ EOD;
 				$dateServer->setTimeZone($tz);					
 				$datetime = $dateServer->format("F d, Y, H:i:s T");
 				
+				$commentDeleteLink = "";
+				if ( $JSON_comment["results"][0]["ownerID"] == $User->getID() ) {
+					$commentDeleteLink = " &mdash; <a href='javascript: void(0)' class='remove-comment' commentID='$commentID'>Delete</a>";
+				}
 				$comments .= <<<EOC
 					<li class="comment">
 						<div class="comment-header">
-							<span class="bold">$commentUsername</span> ($datetime) &mdash; 
-							<a href="javascript: void(0)" class="remove-comment" commentID="$commentID">Delete</a>
+							<span class="bold">$commentUsername</span> ($datetime)
+							$commentDeleteLink
 						</div>
 						<div class="comment-body">
 							$message
@@ -217,6 +222,20 @@ EOC;
 		
 		}
 		////
+		
+		
+		
+		// Show attending / edit / delete buttons dynamically 
+		$controlLinks = "<a id='attend-event' type='$attending' href='javascript: void(0);'>$attending</a>";
+		
+		if ( $eventType == "Info" || $ownerID == $User->getID() ) {
+			$controlLinks .= " - <a id='edit-event' href='javascript: void(0);'>Edit</a>";
+		}
+		if ( $ownerID == $User->getID() ) {
+			$controlLinks .= " - <a href='javascript: void(0)' id='remove-event'>Delete</a>";
+		}
+		////
+		
 		
 		
 		$headTags = <<<EOHT
@@ -240,9 +259,7 @@ EOHT;
 					<div class="esubrow-right">
 						<span class='bold'>Owner: </span> $ownerName<br />
 						<span class='bold'>Type: </span> $eventType<br />
-						<a id='attend-event' type="$attending" href='javascript: void(0);'>$attending</a> - 
-						<a id='edit-event' href='javascript: void(0);'>Edit</a> - 
-						<a href="javascript: void(0)" id="remove-event">Delete</a>
+						$controlLinks
 					</div>
 					<br style="clear: both;" />
 				</div>
@@ -391,7 +408,9 @@ EOHT;
 			<div id="filters">$filtersStr</div>
 			
 			<ul id="sticky-injection-point"></ul>
+			<a href="javascript: void(0);" id="load-infos">Load informational events</a>
 			<ul id="injection-point"></ul>
+			<div class="endOfResults">End of results</div>
 			<div id="event-template">
 				<li class="event-block">
 					<div class="tr">

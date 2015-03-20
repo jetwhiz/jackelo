@@ -85,7 +85,9 @@ $(function() {
 						response( bifur );
 					}
 				}).fail(function( xhr, status, error ) {
-					alert( "ERROR: Failed to send request!\r\n" + status );
+					if ( window.console && console.log ) {
+						console.log( "ERROR: Failed to send request!\r\n" + status );
+					}
 				});
 			}, 
 			select: function( event, ui ) {
@@ -115,7 +117,9 @@ $(function() {
 							cache = {}; // invalidate cache 
 						}
 					}).fail(function( xhr, status, error ) {
-						alert( "ERROR: Failed to send request!\r\n" + status );
+						if ( window.console && console.log ) {
+							console.log( "ERROR: Failed to send request!\r\n" + status );
+						}
 					});
 				}
 				else {
@@ -192,7 +196,9 @@ $(function() {
 					cache = {}; // invalidate cache 
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}
 		else {
@@ -293,7 +299,20 @@ $(function() {
 				
 				
 				// Update event type ID 
-				$("#eventType" + parseInt(event.eventTypeID)).prop("checked", true);
+				var eventTypeID = parseInt(event.eventTypeID);
+				$("#eventType" + eventTypeID).prop("checked", true);
+				if ( eventTypeID == 4 ) {
+					$("#eventType1").remove();
+					$("#eventType2").remove();
+					$("#eventType3").remove();
+					$("#eventType1L").remove();
+					$("#eventType2L").remove();
+					$("#eventType3L").remove();
+				}
+				else {
+					$("#eventType4").remove();
+					$("#eventType4L").remove();
+				}
 				$("#eventTypeID").buttonset("refresh");
 				
 				
@@ -312,7 +331,9 @@ $(function() {
 				}
 			}
 		}).fail(function( xhr, status, error ) {
-			alert( "ERROR: Failed to send request!\r\n" + status );
+			if ( window.console && console.log ) {
+				console.log( "ERROR: Failed to send request!\r\n" + status );
+			}
 		});
 		
 		return true;
@@ -470,7 +491,9 @@ $(function() {
 					document.location = "/webapp/event/" + eventNum;
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}
 		
@@ -491,7 +514,9 @@ $(function() {
 					document.location = "/webapp/event/" + data.results["eventID"];
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}
 		
@@ -640,7 +665,9 @@ $(function() {
 			//$( ".countryID" ).selectmenu();
 		}
 	}).fail(function( xhr, status, error ) {
-		alert( "ERROR: Failed to send request!\r\n" + status );
+		if ( window.console && console.log ) {
+			console.log( "ERROR: Failed to send request!\r\n" + status );
+		}
 	});
 	// * //
 	
@@ -682,7 +709,9 @@ $(function() {
 					response( bifur );
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}, 
 		select: function( event, ui ) {

@@ -53,7 +53,7 @@
 			
 			// Get ownership info data //
 			$select = "
-					SELECT `Events`.`ownerID`
+					SELECT `Events`.`ownerID`, `Events`.`eventTypeID`
 					FROM `Events` 
 					WHERE `Events`.`id` = ?
 					LIMIT 1
@@ -76,7 +76,7 @@
 			}
 			
 			// Verify current user is owner 
-			if ( $this->User->getID() != $row['ownerID'] ) {
+			if ( $row['eventTypeID'] != $GLOBALS["EventTypes"]["Info"] && $this->User->getID() != $row['ownerID'] ) {
 				// Roll back transaction 
 				$this->DBs->abortTransaction();
 				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], get_class($this) . " Error: You are not the owner of this event.");
@@ -91,6 +91,22 @@
 			}
 			////
 			
+			// Make sure they didn't try to change event -> info or info -> event
+			if ( 
+				(
+					$row['eventTypeID'] == $GLOBALS["EventTypes"]["Info"] 
+					&& intval($GLOBALS["_PUT"]["eventTypeID"], 10) != $GLOBALS["EventTypes"]["Info"]
+				) || 
+				(
+					$row['eventTypeID'] != $GLOBALS["EventTypes"]["Info"] 
+					&& intval($GLOBALS["_PUT"]["eventTypeID"], 10) == $GLOBALS["EventTypes"]["Info"]
+				)
+				) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Edit event failed (invalid event type modification)!");
+			}
+			//// 
 			
 			
 			
@@ -98,19 +114,18 @@
 			$update = "
 				UPDATE `Events` 
 				SET `name` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `description` = ?, `eventTypeID` = ?, `lastUpdated` = CURRENT_TIMESTAMP
-				WHERE `ownerID` = ? AND `id` = ?
+				WHERE `id` = ?
 			";
 			
 			$FLAGS = ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE;
 			
 			$binds = [];
-			$binds[0] = "ssssiii";
+			$binds[0] = "ssssii";
 			$binds[] = htmlspecialchars($GLOBALS["_PUT"]["name"], $FLAGS, "UTF-8");
 			$binds[] = $GLOBALS["_PUT"]["datetimeStart"];
 			$binds[] = $GLOBALS["_PUT"]["datetimeEnd"];
 			$binds[] = htmlspecialchars($GLOBALS["_PUT"]["description"], $FLAGS, "UTF-8");
 			$binds[] = intval($GLOBALS["_PUT"]["eventTypeID"], 10);
-			$binds[] = $this->User->getID();
 			$binds[] = $this->REST_vars["eventID"];
 			
 			if ($GLOBALS["DEBUG"]) {
