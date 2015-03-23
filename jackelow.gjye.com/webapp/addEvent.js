@@ -40,9 +40,32 @@ $(function() {
 		});
 		
 		
+		// Autocomplete for country
+		var countryName = $template.find( ".countryName" );
+		var country = $template.find( ".countryID" );
+		
+		$(countryName).autocomplete({
+			minLength: 1,
+			source: countries,
+			select: function( event, ui ) {
+				$(country).val(ui.item.value);
+				$(countryName).val(ui.item.label);
+				
+				return false;
+			},
+			change: function( event, ui ) {
+				if ( ui.item == null ) {
+					$(country).val("");
+					$(countryName).val("");
+				}
+				
+				return false;
+			}
+		});
+		
+		
 		// Autocomplete for city (with cache) 
 		var cache = {};
-		var country = $template.find( ".countryID" );
 		var cityID = $template.find( ".cityID" );
 		var cityName = $template.find( ".cityName" );
 		
@@ -126,6 +149,14 @@ $(function() {
 					//alert("Existed: " + ui.item.value + " " + ui.item.label);
 					$(cityID).val(ui.item.value);
 					$(cityName).val(ui.item.label);
+				}
+				
+				return false;
+			},
+			change: function( event, ui ) {
+				if ( ui.item == null ) {
+					$(cityID).val("");
+					$(cityName).val("");
 				}
 				
 				return false;
@@ -326,6 +357,7 @@ $(function() {
 					destination.find( ".datetimeStart" ).val( ddS[1] );
 					destination.find( ".datetimeEnd" ).val( ddE[1] );
 					destination.find( ".countryID" ).val( event.destinations[i].countryID );
+					destination.find( ".countryName" ).val( event.destinations[i].countryName );
 					destination.find( ".cityID" ).val( event.destinations[i].cityID );
 					destination.find( ".cityName" ).val( event.destinations[i].cityName );
 				}
@@ -653,16 +685,15 @@ $(function() {
 	
 	
 	// Load all countries from API and populate page //
+	var countries = [];
 	$.ajax({
 		type: "GET",
 		dataType: "json",
 		url: "/api/country/",
 		success: function( data, status, xhr ) {
 			for (var i = 0; i < data.results.length; ++i) {
-				$( ".countryID" ).append('<option value="' + data.results[i].id + '">' + data.results[i].name + '</option>');
+				countries.push( { value: data.results[i].id, label: data.results[i].name } );
 			}
-			
-			//$( ".countryID" ).selectmenu();
 		}
 	}).fail(function( xhr, status, error ) {
 		if ( window.console && console.log ) {

@@ -82,7 +82,8 @@
 						
 						<div>
 							<label>Country</label>
-							<select name="destination[][countryID]" class="countryID ui-widget-content ui-corner-all"></select>
+							<input type="text" name="destination[][countryName]" class="countryName text ui-widget-content ui-corner-all">
+							<input type="hidden" name="destination[][countryID]" class="countryID" /> <!-- countryID (from country) -->
 							
 							<label>City</label>
 							<input type="text" name="destination[][cityName]" class="cityName text ui-widget-content ui-corner-all">
