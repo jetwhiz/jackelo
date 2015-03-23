@@ -43,6 +43,8 @@ $(function() {
 		// Autocomplete for country
 		var countryName = $template.find( ".countryName" );
 		var country = $template.find( ".countryID" );
+		var cityID = $template.find( ".cityID" );
+		var cityName = $template.find( ".cityName" );
 		
 		$(countryName).autocomplete({
 			minLength: 1,
@@ -54,10 +56,15 @@ $(function() {
 				return false;
 			},
 			change: function( event, ui ) {
+				// If they backed out (didn't select a value), clear whatever they entered 
 				if ( ui.item == null ) {
 					$(country).val("");
 					$(countryName).val("");
 				}
+				
+				// When country changes, always clear city data 
+				$(cityID).val("");
+				$(cityName).val("");
 				
 				return false;
 			}
@@ -66,8 +73,6 @@ $(function() {
 		
 		// Autocomplete for city (with cache) 
 		var cache = {};
-		var cityID = $template.find( ".cityID" );
-		var cityName = $template.find( ".cityName" );
 		
 		$template.find( ".cityName" ).autocomplete({
 			minLength: 2,
@@ -154,6 +159,7 @@ $(function() {
 				return false;
 			},
 			change: function( event, ui ) {
+				// If they backed out (didn't select a value), clear whatever they entered 
 				if ( ui.item == null ) {
 					$(cityID).val("");
 					$(cityName).val("");
