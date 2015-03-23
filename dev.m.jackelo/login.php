@@ -1,10 +1,21 @@
 <?php
 	
-	function login($cnonce) {
+	function login($getquery) {
 		global $_USER;
 		
+		
+		// Parse string given into array
+		$expl = explode("-", $getquery, 2);
+		$myGET["cnonce"] = $expl[0];
+		$myGET["dh"] = $expl[1];
+		
+		
 		// Clean client nonce 
-		$cnonce = preg_replace("/[^A-Za-z0-9 ]/", '', $cnonce);
+		$cnonce = preg_replace("/[^A-Za-z0-9 ]/", '', $myGET["cnonce"]);
+		
+		// Clean DH key -- Diffie-Hellman key (mobile login) 
+		$dhKey = preg_replace("/[^A-Za-z0-9]/" , '', $myGET["dh"]);
+		
 		
 		
 		// If not logged in, refuse service 
@@ -40,6 +51,7 @@
 			. ", \"date\": \"" . date("Y-m-d H:i:s T") . "\""
 			. ", \"snonce\": \"" . bin2hex($nonce) . "\"" 
 			. ", \"cnonce\": \"" . $cnonce . "\""
+			. ", \"DHkey\": \"" . $dhKey . "\""
 			. "}";
 		//echo $plaintext . "<br><br>";
 		

@@ -9,10 +9,11 @@
 	
 	class Authenticate {
 		protected $DBs;
+		protected $mobile;
 		
 		
 		// CONSTRUCTOR //
-		function __construct() {
+		function __construct($mobile = false) {
 			
 			$dbs = new Database();
 			if ( is_null($dbs) ) {
@@ -23,6 +24,7 @@
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Database not supplied.");
 			}
 			
+			$this->mobile = $mobile;
 			$this->DBs = &$dbs;
 		}
 		// * // 
@@ -192,8 +194,17 @@
 				die;
 			}
 			
+			
+			// If mobile, we need a DH key
+			$DHGet = "";
+			if ( $this->mobile ) {
+				$dhKey = "abc123";
+				$DHGet = "-" . urlencode($dhKey);
+			}
+			
+			
 			// Send them to Gatech login -> brings them back here with QS session set 
-			header("Location: " . $GLOBALS["GATECH_WIDGET"] . "?" . urlencode($nonce));
+			header("Location: " . $GLOBALS["GATECH_WIDGET"] . "?" . urlencode($nonce) . $DHGet);
 			die;
 		}
 		// * //
@@ -321,6 +332,11 @@
 				die;
 			}
 			
+			// Check if we're coming back from a mobile session and re-set it 
+			if (array_key_exists('DHkey', $json) && $json["DHkey"] != "") {
+				$this->mobile = true;
+			}
+			
 			return $json;
 		}
 		// * //
@@ -366,8 +382,14 @@
 			
 			
 			// Redirect 
-			$PATH = strtok($_SERVER["REQUEST_URI"],'?');
-			header("Location: https://" . $_SERVER['HTTP_HOST'] . $PATH);
+			if ( $this->mobile ) {
+				header("Location: jackelo://?sessionID=" . $sessionID);
+			}
+			else {
+				$PATH = strtok($_SERVER["REQUEST_URI"],'?');
+				header("Location: https://" . $_SERVER['HTTP_HOST'] . $PATH);
+			}
+			
 			die;
 		}
 		// * //
