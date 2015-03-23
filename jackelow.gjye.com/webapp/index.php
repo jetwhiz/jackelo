@@ -31,6 +31,16 @@
 	$usrname = $User->getUsername();
 	
 	
+	// Send cookies along with GET requests 
+	$opts = array(
+			'http' => array(
+				'method' => "GET",
+				'header' => "Accept-language: en\r\n" .
+				"Cookie: sessionID=" . $_COOKIE["sessionID"] . "\r\n"
+			)
+		);
+	$getContext = stream_context_create($opts);
+	
 	
 	$headTags = "";
 	$contentBodyWrapper = "";
@@ -76,7 +86,7 @@ EOHT;
 		$eventID = $queryArray[0];
 		
 		// Pull in main event data 
-		$file = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID);
+		$file = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID, false, $getContext);
 		if ( !$file ) {
 			echo "can't connect to API";
 			die(0);
@@ -152,7 +162,7 @@ EOD;
 		// Pull in attendants 
 		$attendants = 0;
 		$attending = "Attend";
-		$attendants_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/attendants/");
+		$attendants_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/attendants/", false, $getContext);
 		if ( !$attendants_raw ) {
 			echo "can't connect to API";
 			die(0);
@@ -173,7 +183,7 @@ EOD;
 		
 		// Pull in event comments 
 		$comments = "";
-		$comments_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/comments/");
+		$comments_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/comments/", false, $getContext);
 		if ( !$comments_raw ) {
 			echo "can't connect to API";
 			die(0);
@@ -181,7 +191,7 @@ EOD;
 		$JSON_comments = json_decode($comments_raw, true);
 		
 		foreach ( $JSON_comments["results"] as $commentID ) {
-			$comment_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/comments/" . $commentID );
+			$comment_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/event/" . $eventID . "/comments/" . $commentID, false, $getContext );
 			if ( !$comment_raw ) {
 				echo "can't connect to API";
 				die(0);
@@ -327,7 +337,7 @@ EOEP;
 				$value = intval($value, 10);
 				
 				// Convert countryID to title 
-				$country_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/country/" . $value);
+				$country_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/country/" . $value, false, $getContext);
 				if ( !$country_raw ) {
 					echo "can't connect to API";
 					die(0);
@@ -344,7 +354,7 @@ EOEP;
 				$value = intval($value, 10);
 				
 				// Convert categoryID to title 
-				$category_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/category/" . $value);
+				$category_raw = file_get_contents("https://" . $_SERVER['HTTP_HOST'] . "/api/category/" . $value, false, $getContext);
 				if ( !$category_raw ) {
 					echo "can't connect to API";
 					die(0);
