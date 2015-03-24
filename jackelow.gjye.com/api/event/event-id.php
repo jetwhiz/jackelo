@@ -108,6 +108,12 @@
 			}
 			//// 
 			
+			// Verify premium features
+			if ( !$this->User->isPremium() && intval($GLOBALS["_PUT"]["eventTypeID"], 10) == $GLOBALS["EventTypes"]["Sponsored"] ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Premium features unavailable!");
+			}
+			//// 
+			
 			
 			
 			// Perform UPDATE for Events table 

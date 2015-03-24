@@ -48,6 +48,12 @@
 			}
 			
 			
+			// Verify premium features
+			if ( !$this->User->isPremium() && intval($_POST["eventTypeID"], 10) == $GLOBALS["EventTypes"]["Sponsored"] ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Premium features unavailable!");
+			}
+			
+			
 			// start transaction 
 			if ( !$this->DBs->startTransaction() ) {
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to begin transaction.");

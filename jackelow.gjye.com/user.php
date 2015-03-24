@@ -99,13 +99,47 @@
 			}
 			
 			
-			// Verify the session isn't too old? 
+			// TODO: Verify the session isn't too old? 
 			
 			
 			// Set username
 			$this->username = $row["username"];
 			
 			return $row["userID"];
+		}
+		// * //
+		
+		
+		
+		// Check if user is "premium" type //
+		public function isPremium() {
+			
+			$select = "
+				SELECT `premium`
+				FROM `Users` 
+				WHERE `id` = ?
+				LIMIT 1
+			";
+			$binds = [];
+			$binds[0] = "i";
+			$binds[] = $this->getID();
+			
+			$res = $this->db->select($select, $binds);
+			if ( is_null($res) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "User Error: Database error.");
+			}
+			
+			$row = $res->fetch_assoc();
+			if ( !$row ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Cannot find user.");
+			}
+			
+			// Ensure the value is good 
+			if ( !is_int( $row["premium"] ) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Invalid user ID from database.");
+			}
+			
+			return ( $row["premium"] == 1 );
 		}
 		// * //
 		

@@ -350,6 +350,10 @@ $(function() {
 					$("#eventType4").remove();
 					$("#eventType4L").remove();
 				}
+				if ( user.premium != 1 ) {
+					$("#eventType5").remove();
+					$("#eventType5L").remove();
+				}
 				$("#eventTypeID").buttonset("refresh");
 				
 				
@@ -646,6 +650,13 @@ $(function() {
 		// Determine appropriate dialog size 
 		setDialogSize();
 		
+		// Remove premium options for non-premiums 
+		if ( user.premium != 1 ) {
+			$("#eventType5").remove();
+			$("#eventType5L").remove();
+		}
+		$("#eventTypeID").buttonset("refresh");
+		
 		dialog.dialog( "option", "title", "Create event" );
 		dialog.dialog( "option", "buttons", {
 			"Create event": submitEvent,
@@ -686,6 +697,34 @@ $(function() {
 	$( "#add-destination" ).on( "click", addDestination);
 	$( ".remove-destination" ).on( "click", removeDestination);
 	$( ".category" ).on( "click", removeCategory);
+	// * //
+	
+	
+	
+	// Get information about current user //
+	var user = {};
+	$.ajax({
+		type: "GET",
+		dataType: "json",
+		url: "/api/user/",
+		success: function( data, status, xhr ) {
+			if ( !data ) {
+				alert("ERROR: Cannot load user info!" );
+				return false;
+			}
+			
+			user.id = data.results[0].id;
+			user.name = data.results[0].name;
+			user.surname = data.results[0].surname;
+			user.email = data.results[0].email;
+			user.premium = data.results[0].premium;
+			user.guest = data.results[0].guest;
+		}
+	}).fail(function( xhr, status, error ) {
+		if ( window.console && console.log ) {
+			console.log( "ERROR: Failed to send request!\r\n" + status );
+		}
+	});
 	// * //
 	
 	

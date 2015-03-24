@@ -27,7 +27,7 @@
 			
 			// Get main event data 
 			$select = "
-					SELECT `id`, `email`, `name`, `surname`
+					SELECT `id`, `email`, `name`, `surname`, `premium`, `guest`
 					FROM `Users` 
 					WHERE `id` = ?
 			";
@@ -50,6 +50,8 @@
 				// Private info (only for requests about oneself) 
 				if ($this->User->getID() == $this->REST_vars["userID"]) {
 					$obj["email"] = $row['email'];
+					$obj["premium"] = $row['premium'];
+					$obj["guest"] = $row['guest'];
 				}
 				
 				$JSON[] = $obj;

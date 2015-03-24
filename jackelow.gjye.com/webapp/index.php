@@ -418,9 +418,13 @@ EOHT;
 			<div id="filters">$filtersStr</div>
 			
 			<ul id="sticky-injection-point"></ul>
-			<a href="javascript: void(0);" id="load-infos">Load informational events</a>
+			<a href="javascript: void(0);" id="load-infos" title="Load informational events">Load informational events</a>
+			
+			<ul id="premium-injection-point"></ul>
+			
 			<ul id="injection-point"></ul>
 			<div class="endOfResults">End of results</div>
+			
 			<div id="event-template">
 				<li class="event-block">
 					<div class="tr">

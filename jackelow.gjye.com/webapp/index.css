@@ -9,7 +9,7 @@
 #event-template, #destination-template {
 	display: none;
 }
-#injection-point, #sticky-injection-point {
+#injection-point, #sticky-injection-point, #premium-injection-point {
 	list-style-type: none;
 }
 #filters {
@@ -25,7 +25,7 @@
 }
 
 
-.event-block, .info-block {
+.event-block, .info-block, .premium-block {
 	cursor: pointer;
 	display: table; 
 	padding: 5px; 
@@ -46,6 +46,10 @@
 }
 .info-block:nth-child(even) {
 	background-color: #fef7f0;
+}
+.premium-block {
+	border: 1px dashed #880000;
+	background-color: #ffe0e0;
 }
 .endOfResults {
 	display: block;
