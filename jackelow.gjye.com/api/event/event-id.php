@@ -309,7 +309,7 @@
 				if ( $oldID < count($oldDestinationIDs) ) {
 					$update = "
 						UPDATE `EventDestinations` 
-						SET `address` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `cityID` = ?, `countryID` = ?
+						SET `address` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `cityID` = ?
 						WHERE `id` = ? AND `eventID` = ? 
 					";
 					
@@ -317,12 +317,11 @@
 					$dest_address = substr($destination["address"], 0, $GLOBALS["MAX_LENGTHS"]["destination_address"]);
 					
 					$binds = [];
-					$binds[0] = "sssiiii";
+					$binds[0] = "sssiii";
 					$binds[] = htmlspecialchars($dest_address, $FLAGS, "UTF-8");
 					$binds[] = $destination["datetimeStart"];
 					$binds[] = $destination["datetimeEnd"];
 					$binds[] = intval($destination["cityID"], 10);
-					$binds[] = intval($destination["countryID"], 10);
 					$binds[] = $oldDestinationIDs[$oldID];
 					$binds[] = $this->REST_vars["eventID"];
 					
@@ -339,18 +338,17 @@
 				// Otherwise there are more destinations than before (insert new ones) 
 				else {
 					$insert = "
-						INSERT INTO `EventDestinations` (`eventID`, `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`)
-						VALUES (?, ?, ?, ?, ?, ?)
+						INSERT INTO `EventDestinations` (`eventID`, `address`, `datetimeStart`, `datetimeEnd`, `cityID`)
+						VALUES (?, ?, ?, ?, ?)
 					";
 					
 					$binds = [];
-					$binds[0] = "isssii";
+					$binds[0] = "isssi";
 					$binds[] = $this->REST_vars["eventID"];
 					$binds[] = htmlspecialchars($destination["address"], $FLAGS, "UTF-8");
 					$binds[] = $destination["datetimeStart"];
 					$binds[] = $destination["datetimeEnd"];
 					$binds[] = intval($destination["cityID"], 10);
-					$binds[] = intval($destination["countryID"], 10);
 					
 					if ($GLOBALS["DEBUG"]) {
 						print_r("\nI-BINDS\n");
@@ -527,12 +525,12 @@
 				if ( $this->REST_vars["simple"] == 1 ) {
 					$select = "
 							SELECT `EventDestinations`.`cityID`, `Cities`.`name` AS `cityName`, 
-								`EventDestinations`.`countryID`, `Countries`.`name` AS `countryName`,
+								`Countries`.`id` AS `countryID`, `Countries`.`name` AS `countryName`,
 								CONCAT(?, `Cities`.`thumb`, '.thumb.jpg') AS `thumb`,
 								CONCAT(?, `Cities`.`thumb`) AS `img`
 							FROM `EventDestinations` 
 							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
-							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `EventDestinations`.`countryID`
+							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `Cities`.`countryID`
 							WHERE `EventDestinations`.`eventID` = ?
 							ORDER BY `EventDestinations`.`id`
 					";
@@ -542,12 +540,12 @@
 							SELECT `EventDestinations`.`address`, `EventDestinations`.`datetimeStart`, 
 								`EventDestinations`.`datetimeEnd`, 
 								`EventDestinations`.`cityID`, `Cities`.`name` AS `cityName`, 
-								`EventDestinations`.`countryID`, `Countries`.`name` AS `countryName`,
+								`Countries`.`id` AS `countryID`, `Countries`.`name` AS `countryName`,
 								CONCAT(?, `Cities`.`thumb`, '.thumb.jpg') AS `thumb`,
 								CONCAT(?, `Cities`.`thumb`) AS `img`
 							FROM `EventDestinations` 
 							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
-							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `EventDestinations`.`countryID`
+							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `Cities`.`countryID`
 							WHERE `EventDestinations`.`eventID` = ?
 							ORDER BY `EventDestinations`.`id`
 					";

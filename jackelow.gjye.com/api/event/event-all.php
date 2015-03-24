@@ -145,21 +145,20 @@
 				
 				
 				$insert = "
-					INSERT INTO `EventDestinations` (`eventID`, `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`)
-					VALUES (?, ?, ?, ?, ?, ?)
+					INSERT INTO `EventDestinations` (`eventID`, `address`, `datetimeStart`, `datetimeEnd`, `cityID`)
+					VALUES (?, ?, ?, ?, ?)
 				";
 				
 				// Crop silently (don't tell user, shh!) 
 				$dest_address = substr($destination["address"], 0, $GLOBALS["MAX_LENGTHS"]["destination_address"]);
 				
 				$binds = [];
-				$binds[0] = "isssii";
+				$binds[0] = "isssi";
 				$binds[] = $eventID;
 				$binds[] = htmlspecialchars($dest_address, $FLAGS, "UTF-8");
 				$binds[] = $destination["datetimeStart"];
 				$binds[] = $destination["datetimeEnd"];
 				$binds[] = intval($destination["cityID"], 10);
-				$binds[] = intval($destination["countryID"], 10);
 				
 				
 				if ($GLOBALS["DEBUG"]) {
@@ -237,12 +236,14 @@
 			// group by (country) -- cannot be combined with others 
 			if ( $this->REST_vars["group"] ) {
 				$select = "
-					SELECT COUNT(*) AS `count`, `EventDestinations`.`countryID`
+					SELECT COUNT(*) AS `count`, `Cities`.`countryID`
 					FROM `EventDestinations` 
 					INNER JOIN `Events` AS `Events`
 						ON `EventDestinations`.`eventID` = `Events`.`id`
+					INNER JOIN `Cities` AS `Cities`
+						ON `Cities`.`id` = `EventDestinations`.`cityID`
 					WHERE `Events`.`eventTypeID` != ?
-					GROUP BY `EventDestinations`.`countryID`
+					GROUP BY `Cities`.`countryID`
 					ORDER BY `count` DESC
 				";
 				
@@ -291,7 +292,9 @@
 				$join .= "
 					INNER JOIN `EventDestinations` AS `EventDestinations`
 						ON `Events`.`id` = `EventDestinations`.`eventID`
-						AND `EventDestinations`.`countryID` = ?
+					INNER JOIN `Cities` AS `Cities`
+						ON `Cities`.`id` = `EventDestinations`.`cityID`
+						AND `Cities`.`countryID` = ?
 				";
 				$groupBy .= "
 					GROUP BY `Events`.`id`
