@@ -667,9 +667,6 @@ $(function() {
 		
 		dialog.dialog( "open" );
 	});
-	if ( document.URL.indexOf("/createEvent") > -1 ) {
-		$( "#add-event" ).trigger( "click" );
-	}
 	// * //
 	
 	
@@ -818,6 +815,13 @@ $(function() {
 	// When page is loaded //
 	var limitResize = 0;
 	$( window ).load(function() {
+		
+		// Auto-show add event dialog for createEvent type 
+		if ( document.URL.indexOf("/createEvent") > -1 ) {
+			$( "#add-event" ).trigger( "click" );
+		}
+		
+		// Attach all handlers for page events 
 		attachHandlers();
 	});
 	// * //
