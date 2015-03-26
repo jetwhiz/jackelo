@@ -129,6 +129,7 @@ EOD;
 		
 		if ( count($JSON_comment["results"]) == 1 ) {
 			$commentUsername = $JSON_comment["results"][0]["username"];
+			$commentNetworkAbbr = $JSON_comment["results"][0]["networkAbbr"];
 			
 			// Convert newlines to breaks, allow clickable links 
 			$message = Toolkit::clickify($JSON_comment["results"][0]["message"]);
@@ -147,7 +148,7 @@ EOD;
 			$comments .= <<<EOC
 				<li class="comment">
 					<div class="comment-header">
-						<span class="bold">$commentUsername</span> ($datetime)
+						<span class="bold">$commentNetworkAbbr-$commentUsername</span> ($datetime)
 						$commentDeleteLink
 					</div>
 					<div class="comment-body">
