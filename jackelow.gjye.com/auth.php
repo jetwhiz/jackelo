@@ -66,6 +66,31 @@
 		
 		
 		
+		// Create a temporary, demo user // 
+		public function createDemo() {
+			
+			// Get userID based on username (or create if non-existent) 
+			$userID = Toolkit::create_user( $this->DBs, "demo#" );
+			if ( !$userID ) {
+				print_r("Authenticate: Demo - failed to get user ID\n");
+				die;
+			}
+			
+			// Authenticated, now log user in -- redirects upon success (dies) 
+			if ( !$this->login( $userID ) ) {
+				print_r("Authenticate: Demo - failed to log in\n");
+				die;
+			}
+			
+			
+			// We should never get this far 
+			print_r("Authenticate: Demo - untrapped assertion\n");
+			die;
+		}
+		// * //
+		
+		
+		
 		// Obtain the current user // 
 		// @param: forceLogin - if not logged in, make them log in
 		public function getUser( $forceLogin = true ) {
@@ -344,7 +369,7 @@
 		
 		
 		// Log user in if challenge succeeded //
-		public function login($userID, $tempSessionID) {
+		public function login($userID, $tempSessionID = null) {
 			// LOG THE USER IN (ASSIGN THEIR USERNAME TO THIS SESSION) //
 			
 			// Generate session ID 
@@ -355,19 +380,40 @@
 			}
 			$sessionID = hash('ripemd160', $sessionID);
 			
-			// Perform INSERT for Sessions table 
-			$insert = "
-				UPDATE `Sessions` 
-				SET `userID` = ?, `id` = ?
-				WHERE `id` = ?
-			";
 			
-			// Bind insert params 
+			$insert = "";
 			$binds = [];
-			$binds[0] = "sss";
-			$binds[] = $userID;
-			$binds[] = $sessionID;
-			$binds[] = $tempSessionID;
+			
+			// If no temp session available, treat as creating a new one 
+			if ( is_null($tempSessionID) ) {
+				// Perform INSERT for Sessions table 
+				$insert = "
+					INSERT INTO `Sessions` (`id`, `userID`)
+					VALUES (?, ?)
+				";
+				
+				// Bind insert params 
+				$binds = [];
+				$binds[0] = "ss";
+				$binds[] = $sessionID;
+				$binds[] = $userID;
+			}
+			else {
+				// Perform UPDATE for Sessions table 
+				$insert = "
+					UPDATE `Sessions` 
+					SET `userID` = ?, `id` = ?
+					WHERE `id` = ?
+				";
+				
+				// Bind insert params 
+				$binds = [];
+				$binds[0] = "sss";
+				$binds[] = $userID;
+				$binds[] = $sessionID;
+				$binds[] = $tempSessionID;
+			}
+			
 			
 			// Perform insertion (and ensure row was inserted) 
 			$affected = $this->DBs->insert($insert, $binds);

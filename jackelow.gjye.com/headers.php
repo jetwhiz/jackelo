@@ -1,5 +1,13 @@
 <?
 	
+	// Internal paths
+	$GLOBALS["WEBAPP_PATH"] = "/webapp/";
+	$GLOBALS["LOGIN_PATH"] = "/login/";
+	$GLOBALS["GTLOGIN_PATH"] = "/login/gt/";
+	$GLOBALS["MOBLOGIN_PATH"] = "/login/mobile/";
+	$GLOBALS["DEMOLOGIN_PATH"] = "/login/demo/";
+	
+	
 	// Show debugging output 
 	$GLOBALS["DEBUG"] = 0;
 	

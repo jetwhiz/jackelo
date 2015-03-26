@@ -70,3 +70,32 @@ body {
 	overflow-y: auto; 
 	width: 100%;
 }
+
+
+#login-opts {
+	width: 100%;
+	height: 100%;
+	background-color: #444444;
+}
+#login-opts > h1 {
+	color: #ffffff;
+	font-size: 16px;
+	margin: 0px;
+	text-align: center;
+	padding: 5px;
+}
+#gt-login, #demo-login {
+	display: block;
+	color: #ffffff;
+	text-decoration: none;
+	vertical-align: middle;
+	padding: 5px;
+	text-align: center;
+}
+#gt-login > img {
+	height: 25px;
+}
+#demo-login > img {
+	height: 25px;
+}
+

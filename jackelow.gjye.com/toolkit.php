@@ -97,6 +97,21 @@
 		// Create a new user for a given GT Login //
 		public static function create_user( &$DBs, $username ) {
 			$userID = 0;
+			$demo = 0;
+			
+			// If user is a demo user, randomly generate username 
+			if ( $username == "demo#" ) {
+				$randomID = bin2hex(openssl_random_pseudo_bytes(5, $cstrong));
+				if (!$cstrong) {
+					echo "weak";
+					die;
+				}
+				
+				$username = "demo" . $randomID;
+				$demo = 1;
+			}
+			////
+			
 			
 			// See if user already exists // 
 			$select = "
@@ -117,8 +132,44 @@
 			
 			$row = $res->fetch_assoc();
 			
+			
+			// If demo user is being created 
+			if ( $demo ) {
+				
+				// If userID already exists, this is a problem (duplicate demo user) 
+				if ( $row ) {
+					echo "duplicate demo user fail";
+					die;
+				}
+				
+				// Perform INSERT for Users table 
+				$insert = "
+					INSERT INTO `Users` (`username`, `guest`, `demo`) 
+					VALUES (?, 1, 1)
+				";
+				
+				// Bind insert params 
+				$binds = [];
+				$binds[0] = "s";
+				$binds[] = $username;
+				
+				// Perform insertion (and ensure row was inserted) 
+				$affected = $DBs->insert($insert, $binds);
+				if ( !$affected ) {
+					echo "demo user not created (insert fail)";
+					die;
+				}
+				
+				// Retrieve userID for future reference 
+				$userID = $DBs->insertID();
+				if ( !$userID ) {
+					echo "demo user not created (get ID fail)";
+					die;
+				}
+			}
+			
 			// No user exists with this ID -- create them 
-			if ( !$row ) {
+			elseif ( !$row ) {
 				
 				// Perform INSERT for Users table 
 				$insert = "
@@ -145,6 +196,8 @@
 					die;
 				}
 			}
+			
+			// User already exists -- use existing userID
 			else {
 				$userID = $row["id"];
 			}

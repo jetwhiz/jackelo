@@ -20,6 +20,11 @@
 	
 	// Ensure user is logged in 
 	$Auth = new Authenticate();
+	if ( !$Auth->isLoggedIn() ) {
+		header("Location: https://" . $_SERVER['HTTP_HOST'] . $GLOBALS["LOGIN_PATH"]);
+		die;
+	}
+	
 	$User = $Auth->getUser();
 	$usrname = $User->getUsername();
 	if ( is_null( $User ) ) {
@@ -100,6 +105,10 @@
 		
 		// Declare we're returning HTML in UTF-8
 		header('Content-Type: text/html; charset=utf-8');
+		
+		// Protect from framing/XSS
+		header("X-Frame-Options: DENY");
+		header("Content-Security-Policy: frame-src 'none'; object-src 'none'; connect-src 'self'");
 		
 		// Send to user and quit 
 		echo $template_pop;
