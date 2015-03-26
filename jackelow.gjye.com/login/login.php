@@ -43,7 +43,8 @@
 			<div id='login-opts'>
 				<h1>Choose a login method: </h1>
 				<a href='$gtLoginURL' title='GT Login' id='gt-login'><img src='/imgs/GTlogo.png' alt='GT' />&nbsp;GT Login</a>
-				<a href='$demoLoginURL' title='Demo Login' id='demo-login'><img src='/imgs/guest.png' alt='GT' />&nbsp;Demo Login</a>
+				<a href='$demoLoginURL' title='Demo Login' id='demo-login'><img src='/imgs/guest.png' alt='Demo' />&nbsp;Demo Login</a>
+				<a href='javascript: void(0)' title='Business Login' id='business-login'><img src='/imgs/business.png' alt='Business' />&nbsp;Business Login</a>
 			</div>
 
 EOBT;
