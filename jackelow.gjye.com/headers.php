@@ -8,6 +8,10 @@
 	$GLOBALS["DEMOLOGIN_PATH"] = "/login/demo/";
 	
 	
+	// Demo user lifetime (in seconds)
+	$GLOBALS["DEMOUSR_TO"] = 60*60*24;
+	
+	
 	// Show debugging output 
 	$GLOBALS["DEBUG"] = 0;
 	

@@ -6,7 +6,15 @@
 	require "../error.php";
 	require "../user.php";
 	require "../auth.php";
+	require "../maintenance.php";
 	
+	
+	// Perform routine maintenance (every once in a while) 
+	if ( rand(1, 10) > 9 ) {
+		$Maintenance = new Maintenance();
+		$Maintenance->run();
+	}
+	////
 	
 	
 	// Break up URI into tokens on "/" symbol 
