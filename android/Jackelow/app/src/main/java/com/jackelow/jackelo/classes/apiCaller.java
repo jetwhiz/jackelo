@@ -3,11 +3,14 @@ package com.jackelow.jackelo.classes;
 /**
  * Created by David on 2/24/2015.
  */
+import android.content.Context;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -18,7 +21,9 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -31,16 +36,27 @@ import java.security.KeyStore;
 
 import com.jackelow.jackelo.classes.getter;
 import com.jackelow.jackelo.net.MySSLSocketFactory;
+import com.jackelow.jackelo.net.PersistentCookieStore;
 
 public class apiCaller {
 
     HttpClient client;
     HttpGet request;
+    Context appContext;
+    PersistentCookieStore myCookieStore;
+    HttpContext localContext;
 
     //Override
-    public apiCaller(){
-        client = getNewHttpClient();
+    public apiCaller(Context inContext){
+
         request = new HttpGet();
+        appContext = inContext;
+        client = getNewHttpClient();
+
+        myCookieStore = new PersistentCookieStore(appContext);
+        localContext = new BasicHttpContext();
+
+        localContext.setAttribute(ClientContext.COOKIE_STORE, myCookieStore);
 
     }
 
@@ -54,7 +70,7 @@ public class apiCaller {
             api = params.getString("api");
             url+=api;
 
-            if(params.getString("id") != null){
+            if(params.has("id") ){
                 if(params.getString("id").equals("all")) {
                     // Do nothing
                 }
@@ -63,9 +79,12 @@ public class apiCaller {
                 }
 
             }
+            else{ // TODO: Remove
+                url+="limit/7"; // Tag the id along
+            }
         }
         catch (Exception e){
-
+            e.printStackTrace();
         }
 
         return url;
@@ -74,16 +93,13 @@ public class apiCaller {
     //@Override
     public JSONObject apiGet(String params) {
 
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-
         HttpResponse response = null;
-        try {
+        try { // Use new getter for each call to do asynchronous tasks
 
             request.setURI(new URI(params));
-            getter myGetter = new getter(client);
-            //response = client.execute(request);
+            getter myGetter = new getter(client, localContext);
             String result = (myGetter).execute(request).get();
             return new JSONObject(result);
 
@@ -106,6 +122,7 @@ public class apiCaller {
     public HttpClient getNewHttpClient() {
         try {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+
             trustStore.load(null, null);
 
             SSLSocketFactory sf = new MySSLSocketFactory(trustStore);

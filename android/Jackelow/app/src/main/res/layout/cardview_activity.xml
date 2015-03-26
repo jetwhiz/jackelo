@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:id="@+id/cv"
+    card_view:cardCornerRadius="8dp"
+    card_view:cardElevation="4dp"
+    card_view:cardUseCompatPadding="true"
+    android:layout_marginBottom="-8dp"
+    android:layout_marginTop="-8dp"
+    android:layout_marginRight="-6dp"
+    android:layout_marginLeft="-6dp"
+    >
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        >
+        <FrameLayout
+            android:layout_width="112dp"
+            android:layout_height="112dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:id="@+id/frm"
+            android:layout_marginRight="10dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/eventImage"
+                android:src="@drawable/idk"
+                android:scaleType="centerCrop"
+                android:padding="6dp"
+                />
+            <ImageView
+                android:src="@drawable/frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/name"
+            android:layout_toRightOf="@+id/frm"
+            android:layout_alignParentTop="true"
+            android:textSize="24sp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/location"
+            android:layout_toRightOf="@+id/frm"
+            android:layout_below="@+id/name"
+            android:textSize="18sp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/description"
+            android:layout_toRightOf="@+id/frm"
+            android:layout_below="@+id/location"
+            android:textSize="18sp"
+            />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>
