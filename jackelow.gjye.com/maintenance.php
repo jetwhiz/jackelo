@@ -39,6 +39,7 @@
 			
 			$ret = $ret && $this->clearDemoUsers();
 			$ret = $ret && $this->clearOldEvents();
+			$ret = $ret && $this->clearOldSessions();
 			
 			return $ret;
 		}
@@ -50,12 +51,37 @@
 		protected function clearDemoUsers() {
 			$delete = "
 				DELETE FROM `Users` 
-				WHERE `demo` = 1 
+				WHERE `networkID` = ? 
 					AND NOW() - `created` > ?
 			";
 			$binds = [];
-			$binds[0] = "i";
+			$binds[0] = "ii";
+			$binds[] = $GLOBALS["NETWORKS"]["demo"];
 			$binds[] = $GLOBALS["DEMOUSR_TO"];
+			
+			if ($GLOBALS["DEBUG"]) {
+				print_r("\nBINDS\n");
+				print_r($delete."\n");
+				print_r($binds);
+			}
+			
+			// Perform removal 
+			$this->db->delete($delete, $binds);
+			
+			return true;
+		}
+		// * //
+		
+		
+		
+		// Perform DELETE for Sessions table (old sessions) //
+		protected function clearOldSessions() {
+			$delete = "
+				DELETE FROM `Sessions` WHERE NOW() - `datetime` > ? 
+			";
+			$binds = [];
+			$binds[0] = "i";
+			$binds[] = $GLOBALS["SESSION_EXPR"];
 			
 			if ($GLOBALS["DEBUG"]) {
 				print_r("\nBINDS\n");

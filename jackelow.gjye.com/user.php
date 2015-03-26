@@ -8,6 +8,8 @@
 		private $db;
 		private $id;
 		private $username;
+		private $networkAbbr;
+		private $networkName;
 		private $sessionID;
 		private $GPS;
 		
@@ -72,10 +74,13 @@
 			}
 			
 			$select = "
-				SELECT `Sessions`.`userID`, `Sessions`.`datetime`, `Users`.`username`
+				SELECT `Sessions`.`userID`, `Sessions`.`datetime`, `Users`.`username`, 
+					`Networks`.`name_short` AS `networkAbbr`, `Networks`.`name` AS `network`
 				FROM `Sessions` 
 				INNER JOIN `Users` AS `Users`
 					ON `Sessions`.`userID` = `Users`.`id`
+				INNER JOIN `Networks` AS `Networks`
+					ON `Networks`.`id` = `Users`.`networkID`
 				WHERE `Sessions`.`id` = ?
 				LIMIT 1
 			";
@@ -102,8 +107,10 @@
 			// TODO: Verify the session isn't too old? 
 			
 			
-			// Set username
+			// Set static fields
 			$this->username = $row["username"];
+			$this->networkAbbr = $row["networkAbbr"];
+			$this->networkName = $row["network"];
 			
 			return $row["userID"];
 		}
@@ -140,6 +147,15 @@
 			}
 			
 			return ( $row["premium"] == 1 );
+		}
+		// * //
+		
+		
+		
+		// Return network-username to display //
+		public function getDisplayName() {
+			$usrname = $this->getUsername();
+			return $this->networkAbbr . "-" . $usrname;
 		}
 		// * //
 		

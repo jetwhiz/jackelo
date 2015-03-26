@@ -490,12 +490,15 @@
 			$select = "
 					SELECT `Events`.`name`, `Events`.`datetimeStart`, `Events`.`datetimeEnd`, 
 						`Events`.`description`, `Events`.`ownerID`, `Users`.`username`,
-						`Events`.`eventTypeID`, `EventTypes`.`name` AS `eventType`
+						`Events`.`eventTypeID`, `EventTypes`.`name` AS `eventType`, 
+						`Networks`.`name_short` AS `networkAbbr`, `Networks`.`name` AS `network`
 					FROM `Events` 
 					INNER JOIN `EventTypes` AS `EventTypes`
 						ON `EventTypes`.`id` = `Events`.`eventTypeID`
 					INNER JOIN `Users` AS `Users`
 						ON `Users`.`id` = `Events`.`ownerID`
+					INNER JOIN `Networks` AS `Networks`
+						ON `Networks`.`id` = `Users`.`networkID`
 					WHERE `Events`.`id` = ?
 			";
 			$binds = ["i", $this->REST_vars["eventID"]];
@@ -513,6 +516,8 @@
 				$obj["datetimeEnd"] = $row['datetimeEnd'];
 				$obj["ownerID"] = $row['ownerID'];
 				$obj["username"] = $row['username'];
+				$obj["networkAbbr"] = $row['networkAbbr'];
+				$obj["network"] = $row['network'];
 				
 				// Hide non-simple elements 
 				if ( $this->REST_vars["simple"] != 1 ) {

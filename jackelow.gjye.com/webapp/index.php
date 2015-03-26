@@ -34,7 +34,7 @@
 	}
 	
 	$User = $Auth->getUser();
-	$usrname = $User->getUsername();
+	$usrname = $User->getDisplayName();
 	if ( is_null( $User ) ) {
 		send("", "You must be logged in!", $GLOBALS["HTTP_STATUS"]["Forbidden"]);
 	}

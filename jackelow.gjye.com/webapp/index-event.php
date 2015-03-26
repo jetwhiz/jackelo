@@ -30,6 +30,7 @@
 	
 	$eventName = $JSON["results"][0]["name"];
 	$ownerName = $JSON["results"][0]["username"];
+	$ownerNetworkAbbr = $JSON["results"][0]["networkAbbr"];
 	$ownerID = $JSON["results"][0]["ownerID"];
 	$dateStart = date("F d, Y", strtotime($JSON["results"][0]["datetimeStart"]));
 	$datetimeEnd = date("F d, Y", strtotime($JSON["results"][0]["datetimeEnd"]));
@@ -195,7 +196,7 @@ EOHT;
 					<h2>$eventName</h2>
 				</div>
 				<div class="esubrow-right">
-					<span class='bold'>Owner: </span> $ownerName<br />
+					<span class='bold'>Owner: </span> $ownerNetworkAbbr-$ownerName<br />
 					<span class='bold'>Type: </span> $eventType<br />
 					$controlLinks
 				</div>

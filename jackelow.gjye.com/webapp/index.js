@@ -37,7 +37,7 @@ $(function() {
 		$(elem).find('div.title-cell:first').html(title);
 		
 		// Username
-		$(elem).find('div.username-cell:first').text('(' + results.username + ')');
+		$(elem).find('div.username-cell:first').text('(' + results.networkAbbr + '-' + results.username + ')');
 		
 		// Check if sponsored event -- if so, add flair 
 		if ( results.eventTypeID == eventTypes["Sponsored"] ) {

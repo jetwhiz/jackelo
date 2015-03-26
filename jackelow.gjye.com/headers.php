@@ -41,8 +41,9 @@
 	$GLOBALS["SCHALLENGE_TO"] = 30;
 	
 	
-	// Time before session cookie expires (in seconds)
+	// Time before session and session cookies expire (in seconds)
 	$GLOBALS["COOKIE_EXPR"] = 60*60*24*7;
+	$GLOBALS["SESSION_EXPR"] = 60*60*24*7;
 	
 	
 	// Number of times login should fail before we refuse to login (loop detection) 
@@ -60,6 +61,14 @@
 		"event_name" => 100,
 		"destination_address" => 100,
 		"comment_length" => 1000
+	];
+	
+	
+	// Networks
+	$GLOBALS["NETWORKS"] = [
+		"GT" => 1,
+		"guest" => 2,
+		"demo" => 3
 	];
 	
 	

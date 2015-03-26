@@ -94,7 +94,7 @@
 		// * // 
 		
 		
-		// Create a new user for a given GT Login //
+		// Create a new user for a given GT Login - demo or GT accounts only //
 		public static function create_user( &$DBs, $username ) {
 			$userID = 0;
 			$demo = 0;
@@ -107,7 +107,7 @@
 					die;
 				}
 				
-				$username = "demo" . $randomID;
+				$username = $randomID;
 				$demo = 1;
 			}
 			////
@@ -117,12 +117,18 @@
 			$select = "
 				SELECT `id`
 				FROM `Users` 
-				WHERE `username` = ?
+				WHERE `username` = ? AND `networkID` = ?
 				LIMIT 1
 			";
 			$binds = [];
-			$binds[0] = "s";
+			$binds[0] = "si";
 			$binds[] = $username;
+			if ( $demo ) {
+				$binds[] = $GLOBALS["NETWORKS"]["demo"];
+			}
+			else {
+				$binds[] = $GLOBALS["NETWORKS"]["GT"];
+			}
 			
 			$res = $DBs->select($select, $binds);
 			if ( is_null($res) ) {
@@ -144,14 +150,15 @@
 				
 				// Perform INSERT for Users table 
 				$insert = "
-					INSERT INTO `Users` (`username`, `guest`, `demo`) 
-					VALUES (?, 1, 1)
+					INSERT INTO `Users` (`username`, `networkID`) 
+					VALUES (?, ?)
 				";
 				
 				// Bind insert params 
 				$binds = [];
-				$binds[0] = "s";
+				$binds[0] = "si";
 				$binds[] = $username;
+				$binds[] = $GLOBALS["NETWORKS"]["demo"];
 				
 				// Perform insertion (and ensure row was inserted) 
 				$affected = $DBs->insert($insert, $binds);
@@ -173,14 +180,15 @@
 				
 				// Perform INSERT for Users table 
 				$insert = "
-					INSERT INTO `Users` (`username`) 
-					VALUES (?)
+					INSERT INTO `Users` (`username`, `networkID`) 
+					VALUES (?, ?)
 				";
 				
 				// Bind insert params 
 				$binds = [];
-				$binds[0] = "s";
+				$binds[0] = "si";
 				$binds[] = $username;
+				$binds[] = $GLOBALS["NETWORKS"]["GT"];
 				
 				// Perform insertion (and ensure row was inserted) 
 				$affected = $DBs->insert($insert, $binds);

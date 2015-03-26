@@ -388,29 +388,31 @@
 			if ( is_null($tempSessionID) ) {
 				// Perform INSERT for Sessions table 
 				$insert = "
-					INSERT INTO `Sessions` (`id`, `userID`)
-					VALUES (?, ?)
-				";
-				
-				// Bind insert params 
-				$binds = [];
-				$binds[0] = "ss";
-				$binds[] = $sessionID;
-				$binds[] = $userID;
-			}
-			else {
-				// Perform UPDATE for Sessions table 
-				$insert = "
-					UPDATE `Sessions` 
-					SET `userID` = ?, `id` = ?
-					WHERE `id` = ?
+					INSERT INTO `Sessions` (`id`, `userID`, `ip`)
+					VALUES (?, ?, ?)
 				";
 				
 				// Bind insert params 
 				$binds = [];
 				$binds[0] = "sss";
+				$binds[] = $sessionID;
+				$binds[] = $userID;
+				$binds[] = $_SERVER['REMOTE_ADDR'];
+			}
+			else {
+				// Perform UPDATE for Sessions table 
+				$insert = "
+					UPDATE `Sessions` 
+					SET `userID` = ?, `id` = ?, `ip` = ?
+					WHERE `id` = ?
+				";
+				
+				// Bind insert params 
+				$binds = [];
+				$binds[0] = "ssss";
 				$binds[] = $userID;
 				$binds[] = $sessionID;
+				$binds[] = $_SERVER['REMOTE_ADDR'];
 				$binds[] = $tempSessionID;
 			}
 			
