@@ -10,7 +10,7 @@
 	
 	
 	// Perform routine maintenance (every once in a while) 
-	if ( rand(1, 10) > 9 ) {
+	if ( Maintenance::performMaintenance() ) {
 		$Maintenance = new Maintenance();
 		$Maintenance->run();
 	}

@@ -25,6 +25,14 @@
 		
 		
 		
+		// Returns true if it is time to perform maintenance //
+		public static function performMaintenance() {
+			return (rand(1, 10) > 9);
+		}
+		// * //
+		
+		
+		
 		// Perform maintenance //
 		public function run() {
 			$ret = true;
