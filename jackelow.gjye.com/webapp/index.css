@@ -110,19 +110,24 @@
 }
 .description-cell {
 	white-space: normal; 
-	overflow: visible; 
+	overflow-y: visible; 
+	overflow-x: hidden; 
+	float: left; 
+	width: 100%; 
 }
 .title-cell {
 	float: left; 
 	width: 45%; 
 	font-size: 125%; 
 	font-weight: bold;
+	text-overflow: ellipsis;
 }
 .username-cell {
 	margin-right: 5px;
 	float: right; 
 	width: 45%; 
 	text-align: right;
+	text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
 	.title-cell {
@@ -138,12 +143,9 @@
 	float: left; 
 	width: 100%; 
 	font-style: italic;
+	text-overflow: ellipsis;
 }
 .tags-link {
 	text-decoration: none;
 	color: #0000cc;
-}
-.description-cell {
-	float: left; 
-	width: 100%; 
 }

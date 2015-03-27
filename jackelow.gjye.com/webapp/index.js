@@ -24,16 +24,13 @@ $(function() {
 		
 		// Prep description 
 		var description = results.description;
-		if ( description.length > 150 ) {
-			description = description.substr(0, 150) + " &hellip;";
+		if ( description.length > 500 ) {
+			description = description.substr(0, 500) + " &hellip;";
 		}
 		$(elem).find('div.description-cell:first').html(description);
 		
 		// Prep title 
 		var title = results.name;
-		if ( title.length > 16 ) {
-			title = title.substr(0, 16) + " &hellip;";
-		}
 		$(elem).find('div.title-cell:first').html(title);
 		
 		// Username
