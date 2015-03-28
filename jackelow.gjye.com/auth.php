@@ -190,12 +190,6 @@
 			}
 			
 			
-			// Perform INSERT for Sessions table 
-			$insert = "
-				INSERT INTO `Sessions` (`id`)
-				VALUES (?)
-			";
-			
 			
 			// Generate client nonce 
 			$nonce = bin2hex(openssl_random_pseudo_bytes(10, $cstrong));
@@ -207,10 +201,19 @@
 			// Hash nonce 
 			$nonce = hash('ripemd160', $nonce);
 			
+			
+			
+			// Perform INSERT for Sessions table 
+			$insert = "
+				INSERT INTO `Sessions` (`id`, `ip`)
+				VALUES (?, ?)
+			";
+			
 			// Bind insert params 
 			$binds = [];
-			$binds[0] = "s";
+			$binds[0] = "ss";
 			$binds[] = $nonce;
+			$binds[] = $_SERVER['REMOTE_ADDR'];
 			
 			// Perform insertion (and ensure row was inserted) 
 			$affected = $this->DBs->insert($insert, $binds);
@@ -393,12 +396,12 @@
 			// LOG THE USER IN (ASSIGN THEIR USERNAME TO THIS SESSION) //
 			
 			// Generate session ID 
-			$sessionID = bin2hex(openssl_random_pseudo_bytes(10, $cstrong));
+			$sessionID = bin2hex(openssl_random_pseudo_bytes(12, $cstrong));
 			if (!$cstrong) {
 				echo "weak";
 				return false;
 			}
-			$sessionID = hash('ripemd160', $sessionID);
+			$sessionID = hash('ripemd256', $sessionID);
 			
 			
 			$insert = "";

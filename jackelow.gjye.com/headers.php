@@ -37,7 +37,7 @@
 	
 	
 	// Amount of time to allow before login challenge expiration (in seconds)
-	$GLOBALS["CCHALLENGE_TO"] = 300;
+	$GLOBALS["CCHALLENGE_TO"] = 60*60*3;
 	$GLOBALS["SCHALLENGE_TO"] = 30;
 	
 	
