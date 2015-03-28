@@ -308,14 +308,34 @@
 				return null;
 			}
 			
+			// Get key from config files 
 			$hash = $ini_array["auth"]["key"];
-			$key = pack('H*', hex2bin($hash));
+			$key = pack('H*', $hash);
 			
+			
+			// Break apart challenge into HMAC and iv-ciphertext-64 components
+			list($hmac, $ciphertext_base64) = explode("@", $encChallenge, 2);
+			
+			// Generate new HMAC of iv-ciphertext
+			$hmac_new = hash_hmac('ripemd160', $ciphertext_base64, $key);
+			
+			// Verify authenticity of iv-ciphertext
+			if ( !hash_equals($hmac, $hmac_new) ) {
+				echo "HMAC could not be verified";
+				die;
+			}
+			
+			// Decode base-64 package 
+			$ciphertext_dec = base64_decode($ciphertext_base64);
+			
+			// Determine size of IV used for encryption 
 			$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
 			
-			$ciphertext_dec = base64_decode($encChallenge);
+			// Separate IV and ciphertext
 			$iv_dec = substr($ciphertext_dec, 0, $iv_size);
 			$ciphertext_dec = substr($ciphertext_dec, $iv_size);
+			
+			// Decrypt 
 			$plaintext_dec = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $ciphertext_dec, MCRYPT_MODE_CBC, $iv_dec);
 			
 			

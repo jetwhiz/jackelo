@@ -3,6 +3,12 @@
 	function login($getquery) {
 		global $_USER;
 		
+		// If not logged in, refuse service 
+		if (!array_key_exists('uid', $_USER)) {
+			echo "login";
+			exit;
+		}
+		
 		
 		// Parse string given into array
 		$expl = explode("-", $getquery, 2);
@@ -18,16 +24,7 @@
 		
 		
 		
-		// If not logged in, refuse service 
-		if (!array_key_exists('uid', $_USER)) {
-			echo "login";
-			exit;
-		}
-		
-		
-		
-		
-		// Get cryptographic nonce 
+		// Get cryptographic server nonce 
 		$nonce = openssl_random_pseudo_bytes(5, $cstrong);
 		if (!$cstrong) {
 			echo "weak";
@@ -42,7 +39,7 @@
 			exit;
 		}
 		$hash = $ini_array["auth"]["key"];
-		$key = pack('H*', hex2bin($hash));
+		$key = pack('H*', $hash);
 		
 		
 		// Prepare plaintext message to send to other server 
@@ -60,16 +57,21 @@
 		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
 		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
 		
-		
 		// Encryption 
 		$ciphertext = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $plaintext, MCRYPT_MODE_CBC, $iv);
 		
-		
-		// Package ciphertext with IV and base-64 encode 
+		// Package ciphertext with IV 
 		$ciphertext = $iv . $ciphertext;
+		
+		// base-64 encode ciphertext (to send as JSON packet) 
 		$ciphertext_base64 = base64_encode($ciphertext);
 		
-		echo  "{ \"session\": \"" . $ciphertext_base64 . "\" }";
+		// Generate HMAC of iv-ciphertext
+		$hmac = hash_hmac('ripemd160', $ciphertext_base64, $key);
+		
+		
+		// Send to client 
+		echo  "{ \"session\": \"" . $hmac . '@' . $ciphertext_base64 . "\" }";
 	}
 	
 ?>
