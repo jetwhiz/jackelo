@@ -52,7 +52,7 @@
 			$delete = "
 				DELETE FROM `Users` 
 				WHERE `networkID` = ? 
-					AND NOW() - `created` > ?
+					AND UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(`created`) > ?
 			";
 			$binds = [];
 			$binds[0] = "ii";
@@ -77,7 +77,7 @@
 		// Perform DELETE for Sessions table (old sessions) //
 		protected function clearOldSessions() {
 			$delete = "
-				DELETE FROM `Sessions` WHERE NOW() - `datetime` > ? 
+				DELETE FROM `Sessions` WHERE UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(`datetime`) > ? 
 			";
 			$binds = [];
 			$binds[0] = "i";
