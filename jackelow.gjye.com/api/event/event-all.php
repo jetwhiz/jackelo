@@ -259,14 +259,41 @@
 					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
 				}
 				$JSON = Toolkit::build_json($result);
-				//// 
-				
 				
 				$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
 				
 				return;
 			}
-			
+			// return number of events -- cannot be combined with others 
+			elseif ( $this->REST_vars["count"] ) {
+				$select = "
+					SELECT COUNT(*) AS `noninfo`, `info`.`count` AS `info`
+					FROM `Events`, (
+						SELECT COUNT(*) AS `count`
+						FROM `Events` 
+						WHERE `eventTypeID` = ?
+					) AS `info`
+					WHERE `eventTypeID` != ?
+				";
+				
+				$binds[0] .= "ii";
+				$binds[] = $GLOBALS["EventTypes"]["Info"];
+				$binds[] = $GLOBALS["EventTypes"]["Info"];
+				
+				if ($GLOBALS["DEBUG"]) {
+					print_r($select . "\n");
+				}
+				
+				$result = $this->DBs->select($select, $binds);
+				if ( is_null($result) ) {
+					throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Failed to retrieve request.");
+				}
+				$JSON = Toolkit::build_json($result);
+				
+				$this->send( $JSON, $GLOBALS["HTTP_STATUS"]["OK"] );
+				
+				return;
+			}
 			
 			
 			$select .= "

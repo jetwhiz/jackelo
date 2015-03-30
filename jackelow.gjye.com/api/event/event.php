@@ -155,6 +155,23 @@
 		}
 	}	
 	
+	// Count 
+	elseif ( count($queryArray) && $queryArray[0] == "count" ) {
+		$REST_vars["count"] = 1;
+		
+		if ($GLOBALS["DEBUG"]) {
+			print_r("COUNT EVENT INFO (GET)\n");
+		}
+		
+		array_shift($queryArray);
+		require "event-all.php";
+		try {
+			$handler = new EventAll($REST_vars, $DBs, $User);
+		} catch (Error $e) {
+			$e->kill();
+		}
+	}	
+	
 	// No eventID, but options given 
 	else {
 		
