@@ -116,7 +116,7 @@
 		
 		// Protect from framing/XSS
 		header("X-Frame-Options: DENY");
-		header("Content-Security-Policy: frame-src 'none'; object-src 'none'; connect-src 'self'");
+		header("Content-Security-Policy: frame-src 'none'; object-src 'self'; connect-src 'self'");
 		
 		// Send to user and quit 
 		echo $template_pop;

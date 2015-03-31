@@ -222,6 +222,59 @@ $(function() {
 	
 	
 	
+	// Notify user when there are new events //
+	function unblockNotifications() {
+		if ( $("#notify-sound").length ) {
+			var a = $("#notify-sound")[0];
+			a.load();
+			
+			$(window).unbind('touchstart mousedown scroll', unblockNotifications);
+		}
+	}
+	function clearNotifications() {
+		document.title = "Jackelo - GTL Events Manager";
+	}
+	function notifyUser() {
+		
+		// Play notification sound 
+		if ( $("#notify-sound").length ) {
+			var a = $("#notify-sound")[0];
+			a.currentTime = 0;
+			a.load();
+			a.play();
+		}
+		
+		// Update title 
+		if ( document.title.charAt(0) == '(' && document.title.indexOf(')') > -1 ) {
+			var oldCount = document.title.substring(1, document.title.indexOf(')'));
+			clearNotifications();
+			//count += parseInt(oldCount);
+		}
+		document.title = "(*) " + document.title;
+		
+		// If browser does not support Notifications API, don't continue 
+		if (!("Notification" in window)) {
+			return;
+		}
+		
+		// User has already granted permission to use notifications 
+		else if (Notification.permission === "granted") {
+			var notification = new Notification("Events have been updated");
+		}
+		
+		// Ask the user for permission
+		else if (Notification.permission !== 'denied') {
+			Notification.requestPermission(function (permission) {
+				if (permission === "granted") {
+					var notification = new Notification("Events have been updated");
+				}
+			});
+		}
+	}
+	// * //
+	
+	
+	
 	// Populate the page with events (starting at offset) //
 	function populate(infoType, offset, limit) {
 		$(window).data('busy', true);
@@ -295,6 +348,16 @@ $(function() {
 					$(window).data(noResult, true);
 				}
 				
+				// Determine if there are new events to alert 
+				var newEventsAlert = false;
+				if ( !appendMode ) {
+					var oldNew = $(children[childType]).not(data.results).get();
+					var newOld = $(data.results).not(children[childType]).get();
+					if ( oldNew.length || newOld.length ) {
+						newEventsAlert = true;
+					}
+				}
+				
 				for (var i = 0; i < data.results.length; ++i) {
 					var thisID = data.results[i];
 					
@@ -346,18 +409,18 @@ $(function() {
 								}
 								
 								// Remove from page and array 
-								console.log("Removing node " + i + " from page. ID: " + $(node).attr('jk:eventID'));
+								//console.log("Removing node " + i + " from page. ID: " + $(node).attr('jk:eventID'));
 								$(node).remove();
-								console.log("Array before: " + children[childType]);
+								//console.log("Array before: " + children[childType]);
 								children[childType].splice(i, 1);
-								console.log("Array after: " + children[childType]);
+								//console.log("Array after: " + children[childType]);
 							}
 							
 						}
 						
 						// Otherwise it's a new item! 
 						else {
-							console.log("Inserting new node " + i + " into page with ID " + thisID);
+							//console.log("Inserting new node " + i + " into page with ID " + thisID);
 							
 							// Create new node 
 							var $template = $( "#event-template" ).children().first().clone();
@@ -378,7 +441,7 @@ $(function() {
 								default:
 							}
 							
-							console.log("Array before: " + children[childType]);
+							//console.log("Array before: " + children[childType]);
 							
 							
 							// Append to end of page 
@@ -402,7 +465,7 @@ $(function() {
 							}
 							
 							
-							console.log("Array after: " + children[childType]);
+							//console.log("Array after: " + children[childType]);
 						}
 						
 					}
@@ -411,6 +474,13 @@ $(function() {
 				
 				// Force load of visible children before scrolling happens 
 				updateChildren(infoType);
+				
+				// Nofity user if there are new events 
+				if ( newEventsAlert ) {
+					notifyUser();
+				}
+				
+				// Populate is no longer busy 
 				$(window).data('busy', false);
 			}
 		}).fail(function( xhr, status, error ) {
@@ -503,8 +573,11 @@ $(function() {
 			limitScroll = 1;
 			setTimeout(updateChildren, 250); 			// load events when scrolled into view 
 			setTimeout(infiniScroll, 250); 				// infinite-scroll
+			setTimeout(clearNotifications, 250); 		// clear notifications 
 			setTimeout(function(){limitScroll=0}, 750);	// flood control 
 		});
+		
+		$(window).bind('touchstart mousedown scroll', unblockNotifications);
 		
 		// Attach onresize event to window 
 		$( window ).resize( function(e) {
@@ -514,6 +587,7 @@ $(function() {
 			limitResize = 1;
 			setTimeout(updateChildren, 250); 			// load events when scrolled into view 
 			setTimeout(infiniScroll, 250); 				// infinite-scroll
+			setTimeout(clearNotifications, 250); 		// clear notifications 
 			setTimeout(function(){limitResize=0}, 750);	// flood control 
 		});
 	}
@@ -530,6 +604,7 @@ $(function() {
 		populate("sponsor");
 		populate("event");
 		attachHandlers();
+		clearNotifications();
 	});
 	// * //
 	

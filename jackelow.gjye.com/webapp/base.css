@@ -98,3 +98,8 @@ body {
 	padding: 5px;
 	vertical-align: middle;
 }
+
+
+#notify-sound {
+	display: none;
+}
