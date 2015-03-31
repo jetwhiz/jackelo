@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
    android:layout_width="fill_parent"
    android:layout_height="100dp"
    android:background="#fffdfbff"
@@ -9,7 +9,7 @@
     <ImageView
         android:id="@+id/eventImage"
         android:layout_width="75dp"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:src="@drawable/idk"
         android:maxWidth="75dp"
         android:minWidth="75dp"
@@ -19,8 +19,8 @@
 
     <LinearLayout android:id="@+id/Text"
        android:orientation="vertical"
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
+       android:layout_width="fill_parent"
+       android:layout_height="fill_parent"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/eventImage"
         android:layout_toEndOf="@+id/eventImage"
@@ -54,4 +54,4 @@
 
     </LinearLayout>
 
-</RelativeLayout >
+</LinearLayout >
