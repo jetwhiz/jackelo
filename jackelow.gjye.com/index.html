@@ -1,1 +1,159 @@
-Bonjour!
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Jackelo - GTL Events Manager</title>
+		
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge;" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+		<script type="text/javascript" src="/webapp/jquery/jquery.min.js"></script>
+		
+		<style>
+			body { 
+				font-family: Helvetica,Arial,"lucida grande",tahoma,verdana,arial,sans-serif;
+				font-size: 18px;
+				height: 100%; 
+				margin: 0; 
+				padding: 0; 
+			}
+			@media (max-width: 500px) {
+				body { 
+					font-size: 9px;
+				}
+			}
+			@media (min-width: 501px) and (max-width: 750px) {
+				body { 
+					font-size: 12px;
+				}
+			}
+			@media (min-width: 751px) and (max-width: 1000px) {
+				body { 
+					font-size: 15px;
+				}
+			}
+			h1 {
+				font-size: 325%;
+				font-weight: bold;
+			}
+			h2 {
+				font-size: 150%;
+				font-weight: bold;
+			}
+			h3 {
+				font-size: 125%;
+				font-style: italic;
+				font-weight: bold;
+			}
+			
+			.videoWrapper {
+				position: relative;
+				padding-bottom: 56.25%;
+				padding-top: 25px;
+				height: 0;
+			}
+			.videoWrapper iframe {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: #ffffff;">
+			
+			<div style="height: 100%; width: 100%; background-color: #ffffff; background-size: cover; background-image: url('imgs/background-map.jpg'); margin: 0; padding: 0; text-align: center;">
+				<div style="display: table; width: 75%; height: 100%; text-align: center; margin: auto;">
+					
+					<div style="display: table-row; height: 100%;">
+						<div style="display: table-cell; width: 50%; vertical-align: middle;">
+							<img src="/imgs/jackelo-logo-small.png" style="width: 80%; height: auto;" alt="Jackelo" title="Jackelo" />
+						</div>
+						
+						<div style="display: table-cell; width: 50%; vertical-align: middle; color: #112299;">
+							<h1>Jackelo</h1>
+							<h2>GTL Event App</h2>
+							<h2>Informational Wikis</h2>
+							
+							<h3>Plan trips with fellow classmates, or organize local events and gatherings. </h3>
+						</div>
+					</div>
+				</div>
+				
+				
+				<div style="position: relative; bottom: 20px; left: 0px; right: 0px; height: 40px; text-align: center; background-color: black; color: white;">
+					<span style="margin: 0px; line-height: 40px;">...</span>
+				</div>
+			</div>
+			
+			
+			
+			
+			<div style="height: 100%; width: 100%; background-color: #ffffff; background-size: cover; background-image: url('imgs/background-metz.jpg'); margin: 0; padding: 0; text-align: center;">
+				<div style="height: 100%; width: 100%; margin: auto; display: table;">
+					<h1 style="margin: 0px; padding-top: 50px;">What Can Jackelo Do For You?</h1>
+					
+					<div style="display: table-row; height: 100%;">
+						<div id="vidFrame" style="display: table-cell; vertical-align: middle;">
+							<iframe style="width: 200px; height: 113px;" src="https://www.youtube.com/embed/XEVlyP4_11M" frameborder="0" allowfullscreen></iframe>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			
+			
+			<div style="height: 100%; width: 100%; background-color: #000000; background-size: cover; background-image: url('imgs/background-caffeine.jpg'); color: #ffffff; margin: 0; padding: 0; text-align: center;">
+				<div style="display: table; position: relative; width: 75%; height: 100%; text-align: center; margin: auto;">
+					<h1 style="margin: 0px; padding-top: 50px;">Learn More!</h1>
+					
+					<ul style="list-style-type: none;">
+						<li><a href="https://jackelow.gjye.com/webapp/" title="Jackelo Web App"><span style="color: #ffffff; font-size: 125%;">Access Jackelo Web App</span></a></li>
+						<li><a href="https://github.com/jetwhiz/jackelo" title="GitHub"><span style="color: #ffffff; font-size: 125%;">View source on GitHub</span></a></li>
+					</ul>
+					
+					<a href="http://cic.gatech.edu/" style="display: block; position: absolute; left: 0px; bottom: 50px;">
+						<img style="width: 250px; height: auto; border: 0px;" alt="CIC" title="CIC" src="imgs/cicvideowatermark_white.png" />
+					</a>
+				</div>
+			</div>
+			
+			
+		</div>
+		
+		
+		<script type="text/javascript">
+			// Figure out and save aspect ratio for each video
+			$("iframe").each(function() {
+				$(this)
+					.data('aspectRatio', $(this).width() / $(this).height())
+					.removeAttr('height')
+					.removeAttr('width');
+			});
+			
+			// When the window is resized
+			$(window).resize(function() {
+				var height = $(window).height() * 0.60;
+				var width = $(window).width() * 0.60;
+				
+				$("iframe").each(function() {
+					var $el = $(this);
+					
+					if ( height > width ) {
+						height = width / $el.data('aspectRatio');
+					}
+					else {
+						width = height * $el.data('aspectRatio');
+					}
+					
+					$el
+						.height(height)
+						.width(width);
+				});
+			}).resize();
+		</script>
+		
+	</body>
+</html>
