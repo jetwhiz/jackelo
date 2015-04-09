@@ -15,16 +15,17 @@ body {
 		font-size: 9px;
 	}
 }
-@media (min-width: 501px) and (max-width: 750px) {
+@media (min-width: 501px) and (max-width: 850px) {
 	body { 
 		font-size: 12px;
 	}
 }
-@media (min-width: 751px) and (max-width: 1000px) {
+@media (min-width: 851px) and (max-width: 1100px) {
 	body { 
 		font-size: 15px;
 	}
 }
+
 
 
 #contentBody {
@@ -60,6 +61,13 @@ body {
 	background-color: #000000; 
 	color: #ffffff;
 	line-height: 30px;
+}
+#page1 .header .header-link {
+	display: block;
+	width: 33%;
+	text-decoration: none;
+	color: #ffffff;
+	float: left;
 }
 #page1 .footer {
 	position: relative; 
@@ -185,7 +193,7 @@ body {
 }
 #page3 .ciclink {
 	display: inline-block; 
-	width: 75%;
+	width: 80%;
 	text-decoration: none;
 	padding-bottom: 15px;
 }
@@ -201,6 +209,84 @@ body {
 	display: block; 
 	color: #ffffff;
 }
+#page4 {
+	min-height: 100%; 
+	width: 100%; 
+	background-color: #2cc07d; 
+	color: #ffffff; 
+	margin: 0; 
+	padding: 0; 
+	text-align: center;
+}
+#page4 .content {
+	display: table; 
+	position: relative; 
+	width: 75%; 
+	height: 100%; 
+	text-align: center; 
+	margin: auto;
+}
+#page4 ul.profiles {
+	width: 100%; 
+	list-style-type: none;
+	padding-bottom: 50px; 
+	padding-left: 0px; 
+	margin: 0px;
+	color: #000000;
+}
+#page4 ul.profiles li {
+	width: 100%; 
+	margin: 10px;
+	padding: 5px;
+	min-height: 200px;
+	vertical-align: middle;
+	display: block;
+}
+#page4 ul.profiles li:nth-child(odd) {
+	background-color: #FFC45F;
+	text-align: left;
+}
+#page4 ul.profiles li:nth-child(even) {
+	background-color: #FF8A5F;
+	text-align: right;
+}
+#page4 ul.profiles li div.info {
+	display: block;
+	width: 40%;
+	height: 100%;
+	vertical-align: middle;
+}
+#page4 ul.profiles li div.info img {
+	width: auto;
+	max-height: 200px;
+}
+#page4 ul.profiles li:nth-child(odd) div.info {
+	float: left;
+}
+#page4 ul.profiles li:nth-child(even) div.info {
+	float: right;
+}
+#page4 ul.profiles li div.pic {
+	width: 20%;
+	max-width: 250px;
+}
+@media (max-width: 1023px) {
+	#page4 ul.profiles li div.info {
+		float: none !important;
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		text-align: center;
+	}
+}
+#page4 .developer-contact {
+	display: inline-block;
+	text-decoration: underline;
+	color: #000000;
+	font-size: 125%;
+	font-weight: bolder;
+}
+
 
 
 h1 {
@@ -222,4 +308,9 @@ h1.header {
 	padding: 50px; 
 	color: #ffffff;
 	font-size: 400%;
+}
+h3.developer-role {
+	font-size: 135%;
+	font-style: normal;
+	font-weight: bolder;
 }

@@ -5,6 +5,27 @@ $(function() {
 	
 	// When page is loaded //
 	$( window ).load(function() {
+		
+		
+		// Handle header links onclick 
+		$("#goto-page2").click(function() {
+			$('html, body').animate({
+				scrollTop: $("#page2").offset().top
+			}, 2000);
+		});
+		$("#goto-page3").click(function() {
+			$('html, body').animate({
+				scrollTop: $("#page3").offset().top
+			}, 2000);
+		});
+		$("#goto-page4").click(function() {
+			$('html, body').animate({
+				scrollTop: $("#page4").offset().top
+			}, 2000);
+		});
+		
+		
+		// Save aspect ratio for iframes (youtube videos) 
 		$("iframe").each(function() {
 			$(this)
 				.data('aspectRatio', $(this).width() / $(this).height())
@@ -12,6 +33,8 @@ $(function() {
 				.removeAttr('width');
 		});
 		
+		
+		// Trigger resize() to force resizing of iframes (youtube videos) 
 		$( window ).resize();
 	});
 	// * //
