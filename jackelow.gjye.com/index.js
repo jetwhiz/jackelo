@@ -34,6 +34,14 @@ $(function() {
 		});
 		
 		
+		// Unobfuscate e-mail addresses 
+		$(".developer-contact").each(function() {
+			var email = $(this).text().replace("+", "@");
+			$(this).attr( "href", "mailto:" + email );
+			$(this).text( email );
+		});
+		
+		
 		// Trigger resize() to force resizing of iframes (youtube videos) 
 		$( window ).resize();
 	});
