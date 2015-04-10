@@ -5,3 +5,5 @@ Jackelo School Project
 **v0.1:** Presentation 3 + GT Login 
 
 **v0.2:** Presentation 4
+
+**v0.3-beta:** Presentation 5 (*Not incl. latest Android -- needs merge*)
