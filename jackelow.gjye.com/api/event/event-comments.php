@@ -155,10 +155,14 @@
 			// Specific commentID given (give full details of comment) 
 			if ( $this->REST_vars["commentID"] ) {
 				$select = "
-						SELECT `Comments`.`eventID`, `Comments`.`ownerID`, `Users`.`username`, `Comments`.`datetime`, `Comments`.`message`
+						SELECT `Comments`.`eventID`, `Comments`.`ownerID`, `Users`.`username`, 
+							`Comments`.`datetime`, `Comments`.`message`, 
+							`Networks`.`name_short` AS `networkAbbr`, `Networks`.`name` AS `network`
 						FROM `Comments` 
 						INNER JOIN `Users` AS `Users`
-						ON `Comments`.`ownerID` = `Users`.`id`
+							ON `Comments`.`ownerID` = `Users`.`id`
+						INNER JOIN `Networks` AS `Networks`
+							ON `Networks`.`id` = `Users`.`networkID`
 						WHERE `Comments`.`id` = ?
 				";
 				$binds = ["i", $this->REST_vars["commentID"]];

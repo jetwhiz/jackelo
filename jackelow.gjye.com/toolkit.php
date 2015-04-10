@@ -94,20 +94,41 @@
 		// * // 
 		
 		
-		// Create a new user for a given GT Login //
+		// Create a new user for a given GT Login - demo or GT accounts only //
 		public static function create_user( &$DBs, $username ) {
 			$userID = 0;
+			$demo = 0;
+			
+			// If user is a demo user, randomly generate username 
+			if ( $username == "demo#" ) {
+				$randomID = bin2hex(openssl_random_pseudo_bytes(5, $cstrong));
+				if (!$cstrong) {
+					echo "weak";
+					die;
+				}
+				
+				$username = $randomID;
+				$demo = 1;
+			}
+			////
+			
 			
 			// See if user already exists // 
 			$select = "
 				SELECT `id`
 				FROM `Users` 
-				WHERE `username` = ?
+				WHERE `username` = ? AND `networkID` = ?
 				LIMIT 1
 			";
 			$binds = [];
-			$binds[0] = "s";
+			$binds[0] = "si";
 			$binds[] = $username;
+			if ( $demo ) {
+				$binds[] = $GLOBALS["NETWORKS"]["demo"];
+			}
+			else {
+				$binds[] = $GLOBALS["NETWORKS"]["GT"];
+			}
 			
 			$res = $DBs->select($select, $binds);
 			if ( is_null($res) ) {
@@ -117,19 +138,57 @@
 			
 			$row = $res->fetch_assoc();
 			
-			// No user exists with this ID -- create them 
-			if ( !$row ) {
+			
+			// If demo user is being created 
+			if ( $demo ) {
+				
+				// If userID already exists, this is a problem (duplicate demo user) 
+				if ( $row ) {
+					echo "duplicate demo user fail";
+					die;
+				}
 				
 				// Perform INSERT for Users table 
 				$insert = "
-					INSERT INTO `Users` (`username`) 
-					VALUES (?)
+					INSERT INTO `Users` (`username`, `networkID`) 
+					VALUES (?, ?)
 				";
 				
 				// Bind insert params 
 				$binds = [];
-				$binds[0] = "s";
+				$binds[0] = "si";
 				$binds[] = $username;
+				$binds[] = $GLOBALS["NETWORKS"]["demo"];
+				
+				// Perform insertion (and ensure row was inserted) 
+				$affected = $DBs->insert($insert, $binds);
+				if ( !$affected ) {
+					echo "demo user not created (insert fail)";
+					die;
+				}
+				
+				// Retrieve userID for future reference 
+				$userID = $DBs->insertID();
+				if ( !$userID ) {
+					echo "demo user not created (get ID fail)";
+					die;
+				}
+			}
+			
+			// No user exists with this ID -- create them 
+			elseif ( !$row ) {
+				
+				// Perform INSERT for Users table 
+				$insert = "
+					INSERT INTO `Users` (`username`, `networkID`) 
+					VALUES (?, ?)
+				";
+				
+				// Bind insert params 
+				$binds = [];
+				$binds[0] = "si";
+				$binds[] = $username;
+				$binds[] = $GLOBALS["NETWORKS"]["GT"];
 				
 				// Perform insertion (and ensure row was inserted) 
 				$affected = $DBs->insert($insert, $binds);
@@ -145,6 +204,8 @@
 					die;
 				}
 			}
+			
+			// User already exists -- use existing userID
 			else {
 				$userID = $row["id"];
 			}

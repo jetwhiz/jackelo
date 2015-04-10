@@ -6,6 +6,7 @@
 		<meta charset="utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge;" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
 		
 		<link type="text/css" rel="stylesheet" href="/webapp/base.css" />
 		
@@ -57,10 +58,11 @@
 					
 					<!-- These need to be dynamically populated! -->
 					<div id="eventTypeID">
-						<input type="radio" id="eventType1" name="eventTypeID" value="1" /><label for="eventType1">Local Event</label>
-						<input type="radio" id="eventType2" name="eventTypeID" value="2" /><label for="eventType2">GTL Event</label>
-						<input type="radio" id="eventType3" name="eventTypeID" value="3" checked="checked" /><label for="eventType3">Trip</label>
-						<input type="radio" id="eventType4" name="eventTypeID" value="4" /><label for="eventType4">Info</label>
+						<input type="radio" id="eventType1" name="eventTypeID" value="1" /><label id="eventType1L" for="eventType1">Local Event</label>
+						<input type="radio" id="eventType2" name="eventTypeID" value="2" /><label id="eventType2L" for="eventType2">GTL Event</label>
+						<input type="radio" id="eventType3" name="eventTypeID" value="3" checked="checked" /><label id="eventType3L" for="eventType3">Trip</label>
+						<input type="radio" id="eventType4" name="eventTypeID" value="4" /><label id="eventType4L" for="eventType4">Info</label>
+						<input type="radio" id="eventType5" name="eventTypeID" value="5" /><label id="eventType5L" for="eventType5">Sponsored</label>
 					</div>
 					
 					
@@ -82,7 +84,8 @@
 						
 						<div>
 							<label>Country</label>
-							<select name="destination[][countryID]" class="countryID ui-widget-content ui-corner-all"></select>
+							<input type="text" name="destination[][countryName]" class="countryName text ui-widget-content ui-corner-all">
+							<input type="hidden" name="destination[][countryID]" class="countryID" /> <!-- countryID (from country) -->
 							
 							<label>City</label>
 							<input type="text" name="destination[][cityName]" class="cityName text ui-widget-content ui-corner-all">
@@ -97,5 +100,12 @@
 				</fieldset>
 			</form>
 		</div>
+		
+		<audio id="notify-sound">
+			<source src="/audio/notify.mp3" type="audio/mpeg" />
+			<source src="/audio/notify.ogg" type="audio/ogg" />
+			<source src="/audio/notify.wav" type="audio/wav" />
+			<embed hidden="true" autostart="false" loop="false" src="/audio/notify.mp3" />
+		</audio>
 	</body>
 </html>

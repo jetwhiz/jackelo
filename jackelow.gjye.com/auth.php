@@ -9,10 +9,11 @@
 	
 	class Authenticate {
 		protected $DBs;
+		protected $mobile;
 		
 		
 		// CONSTRUCTOR //
-		function __construct() {
+		function __construct($mobile = false) {
 			
 			$dbs = new Database();
 			if ( is_null($dbs) ) {
@@ -23,6 +24,7 @@
 				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . " Error: Database not supplied.");
 			}
 			
+			$this->mobile = $mobile;
 			$this->DBs = &$dbs;
 		}
 		// * // 
@@ -59,6 +61,31 @@
 			
 			// No sessionID -->  not logged in 
 			return false;
+		}
+		// * //
+		
+		
+		
+		// Create a temporary, demo user // 
+		public function createDemo() {
+			
+			// Get userID based on username (or create if non-existent) 
+			$userID = Toolkit::create_user( $this->DBs, "demo#" );
+			if ( !$userID ) {
+				print_r("Authenticate: Demo - failed to get user ID\n");
+				die;
+			}
+			
+			// Authenticated, now log user in -- redirects upon success (dies) 
+			if ( !$this->login( $userID ) ) {
+				print_r("Authenticate: Demo - failed to log in\n");
+				die;
+			}
+			
+			
+			// We should never get this far 
+			print_r("Authenticate: Demo - untrapped assertion\n");
+			die;
 		}
 		// * //
 		
@@ -163,12 +190,6 @@
 			}
 			
 			
-			// Perform INSERT for Sessions table 
-			$insert = "
-				INSERT INTO `Sessions` (`id`)
-				VALUES (?)
-			";
-			
 			
 			// Generate client nonce 
 			$nonce = bin2hex(openssl_random_pseudo_bytes(10, $cstrong));
@@ -180,10 +201,19 @@
 			// Hash nonce 
 			$nonce = hash('ripemd160', $nonce);
 			
+			
+			
+			// Perform INSERT for Sessions table 
+			$insert = "
+				INSERT INTO `Sessions` (`id`, `ip`)
+				VALUES (?, ?)
+			";
+			
 			// Bind insert params 
 			$binds = [];
-			$binds[0] = "s";
+			$binds[0] = "ss";
 			$binds[] = $nonce;
+			$binds[] = $_SERVER['REMOTE_ADDR'];
 			
 			// Perform insertion (and ensure row was inserted) 
 			$affected = $this->DBs->insert($insert, $binds);
@@ -192,8 +222,17 @@
 				die;
 			}
 			
+			
+			// If mobile, we need a DH key
+			$DHGet = "";
+			if ( $this->mobile ) {
+				$dhKey = "abc123";
+				$DHGet = "-" . urlencode($dhKey);
+			}
+			
+			
 			// Send them to Gatech login -> brings them back here with QS session set 
-			header("Location: " . $GLOBALS["GATECH_WIDGET"] . "?" . urlencode($nonce));
+			header("Location: " . $GLOBALS["GATECH_WIDGET"] . "?" . urlencode($nonce) . $DHGet);
 			die;
 		}
 		// * //
@@ -272,14 +311,34 @@
 				return null;
 			}
 			
+			// Get key from config files 
 			$hash = $ini_array["auth"]["key"];
-			$key = pack('H*', hex2bin($hash));
+			$key = pack('H*', $hash);
 			
+			
+			// Break apart challenge into HMAC and iv-ciphertext-64 components
+			list($hmac, $ciphertext_base64) = explode("@", $encChallenge, 2);
+			
+			// Generate new HMAC of iv-ciphertext
+			$hmac_new = hash_hmac('ripemd160', $ciphertext_base64, $key);
+			
+			// Verify authenticity of iv-ciphertext
+			if ( !hash_equals($hmac, $hmac_new) ) {
+				echo "HMAC could not be verified";
+				die;
+			}
+			
+			// Decode base-64 package 
+			$ciphertext_dec = base64_decode($ciphertext_base64);
+			
+			// Determine size of IV used for encryption 
 			$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
 			
-			$ciphertext_dec = base64_decode($encChallenge);
+			// Separate IV and ciphertext
 			$iv_dec = substr($ciphertext_dec, 0, $iv_size);
 			$ciphertext_dec = substr($ciphertext_dec, $iv_size);
+			
+			// Decrypt 
 			$plaintext_dec = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $ciphertext_dec, MCRYPT_MODE_CBC, $iv_dec);
 			
 			
@@ -321,6 +380,11 @@
 				die;
 			}
 			
+			// Check if we're coming back from a mobile session and re-set it 
+			if (array_key_exists('DHkey', $json) && $json["DHkey"] != "") {
+				$this->mobile = true;
+			}
+			
 			return $json;
 		}
 		// * //
@@ -328,30 +392,53 @@
 		
 		
 		// Log user in if challenge succeeded //
-		public function login($userID, $tempSessionID) {
+		public function login($userID, $tempSessionID = null) {
 			// LOG THE USER IN (ASSIGN THEIR USERNAME TO THIS SESSION) //
 			
 			// Generate session ID 
-			$sessionID = bin2hex(openssl_random_pseudo_bytes(10, $cstrong));
+			$sessionID = bin2hex(openssl_random_pseudo_bytes(12, $cstrong));
 			if (!$cstrong) {
 				echo "weak";
 				return false;
 			}
-			$sessionID = hash('ripemd160', $sessionID);
+			$sessionID = hash('ripemd256', $sessionID);
 			
-			// Perform INSERT for Sessions table 
-			$insert = "
-				UPDATE `Sessions` 
-				SET `userID` = ?, `id` = ?
-				WHERE `id` = ?
-			";
 			
-			// Bind insert params 
+			$insert = "";
 			$binds = [];
-			$binds[0] = "sss";
-			$binds[] = $userID;
-			$binds[] = $sessionID;
-			$binds[] = $tempSessionID;
+			
+			// If no temp session available, treat as creating a new one 
+			if ( is_null($tempSessionID) ) {
+				// Perform INSERT for Sessions table 
+				$insert = "
+					INSERT INTO `Sessions` (`id`, `userID`, `ip`)
+					VALUES (?, ?, ?)
+				";
+				
+				// Bind insert params 
+				$binds = [];
+				$binds[0] = "sss";
+				$binds[] = $sessionID;
+				$binds[] = $userID;
+				$binds[] = $_SERVER['REMOTE_ADDR'];
+			}
+			else {
+				// Perform UPDATE for Sessions table 
+				$insert = "
+					UPDATE `Sessions` 
+					SET `userID` = ?, `id` = ?, `ip` = ?
+					WHERE `id` = ?
+				";
+				
+				// Bind insert params 
+				$binds = [];
+				$binds[0] = "ssss";
+				$binds[] = $userID;
+				$binds[] = $sessionID;
+				$binds[] = $_SERVER['REMOTE_ADDR'];
+				$binds[] = $tempSessionID;
+			}
+			
 			
 			// Perform insertion (and ensure row was inserted) 
 			$affected = $this->DBs->insert($insert, $binds);
@@ -366,8 +453,14 @@
 			
 			
 			// Redirect 
-			$PATH = strtok($_SERVER["REQUEST_URI"],'?');
-			header("Location: https://" . $_SERVER['HTTP_HOST'] . $PATH);
+			if ( $this->mobile ) {
+				header("Location: jackelo://?sessionID=" . $sessionID);
+			}
+			else {
+				$PATH = strtok($_SERVER["REQUEST_URI"],'?');
+				header("Location: https://" . $_SERVER['HTTP_HOST'] . $PATH);
+			}
+			
 			die;
 		}
 		// * //

@@ -70,3 +70,36 @@ body {
 	overflow-y: auto; 
 	width: 100%;
 }
+
+
+#login-opts {
+	width: 100%;
+	height: 100%;
+	background-color: #444444;
+}
+#login-opts > h1 {
+	color: #ffffff;
+	font-size: 16px;
+	margin: 0px;
+	text-align: center;
+	padding: 10px;
+}
+#gt-login, #demo-login, #business-login {
+	display: block;
+	color: #ffffff;
+	text-decoration: none;
+	padding: 5px;
+	margin: 5px;
+	text-align: center;
+	background-color: #666666;
+}
+#gt-login > img, #demo-login > img, #business-login > img {
+	height: 25px;
+	padding: 5px;
+	vertical-align: middle;
+}
+
+
+#notify-sound {
+	display: none;
+}

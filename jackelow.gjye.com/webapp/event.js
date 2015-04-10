@@ -77,7 +77,9 @@ $(function() {
 				location.reload();
 			}
 		}).fail(function( xhr, status, error ) {
-			alert( "ERROR: Failed to send request!\r\n" + status );
+			if ( window.console && console.log ) {
+				console.log( "ERROR: Failed to send request!\r\n" + status );
+			}
 		});
 		
 		
@@ -132,7 +134,9 @@ $(function() {
 						location.reload();
 					}
 				}).fail(function( xhr, status, error ) {
-					alert( "ERROR: Failed to send request!\r\n" + status );
+					if ( window.console && console.log ) {
+						console.log( "ERROR: Failed to send request!\r\n" + status );
+					}
 				});
 				
 				$( "#dialog-confirm" ).dialog( "close" );
@@ -178,7 +182,9 @@ $(function() {
 						document.location = "/webapp/";
 					}
 				}).fail(function( xhr, status, error ) {
-					alert( "ERROR: Failed to send request!\r\n" + status );
+					if ( window.console && console.log ) {
+						console.log( "ERROR: Failed to send request!\r\n" + status );
+					}
 				});
 				
 				$( "#dialog-confirm" ).dialog( "close" );
@@ -220,7 +226,9 @@ $(function() {
 					location.reload();
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}
 		else if ( $(anchor).attr("type") == "Unattend" ) {
@@ -239,7 +247,9 @@ $(function() {
 					location.reload();
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}
 		else {

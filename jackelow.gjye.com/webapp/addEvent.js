@@ -40,11 +40,39 @@ $(function() {
 		});
 		
 		
-		// Autocomplete for city (with cache) 
-		var cache = {};
+		// Autocomplete for country
+		var countryName = $template.find( ".countryName" );
 		var country = $template.find( ".countryID" );
 		var cityID = $template.find( ".cityID" );
 		var cityName = $template.find( ".cityName" );
+		
+		$(countryName).autocomplete({
+			minLength: 1,
+			source: countries,
+			select: function( event, ui ) {
+				$(country).val(ui.item.value);
+				$(countryName).val(ui.item.label);
+				
+				return false;
+			},
+			change: function( event, ui ) {
+				// If they backed out (didn't select a value), clear whatever they entered 
+				if ( ui.item == null ) {
+					$(country).val("");
+					$(countryName).val("");
+				}
+				
+				// When country changes, always clear city data 
+				$(cityID).val("");
+				$(cityName).val("");
+				
+				return false;
+			}
+		});
+		
+		
+		// Autocomplete for city (with cache) 
+		var cache = {};
 		
 		$template.find( ".cityName" ).autocomplete({
 			minLength: 2,
@@ -85,7 +113,9 @@ $(function() {
 						response( bifur );
 					}
 				}).fail(function( xhr, status, error ) {
-					alert( "ERROR: Failed to send request!\r\n" + status );
+					if ( window.console && console.log ) {
+						console.log( "ERROR: Failed to send request!\r\n" + status );
+					}
 				});
 			}, 
 			select: function( event, ui ) {
@@ -115,13 +145,24 @@ $(function() {
 							cache = {}; // invalidate cache 
 						}
 					}).fail(function( xhr, status, error ) {
-						alert( "ERROR: Failed to send request!\r\n" + status );
+						if ( window.console && console.log ) {
+							console.log( "ERROR: Failed to send request!\r\n" + status );
+						}
 					});
 				}
 				else {
 					//alert("Existed: " + ui.item.value + " " + ui.item.label);
 					$(cityID).val(ui.item.value);
 					$(cityName).val(ui.item.label);
+				}
+				
+				return false;
+			},
+			change: function( event, ui ) {
+				// If they backed out (didn't select a value), clear whatever they entered 
+				if ( ui.item == null ) {
+					$(cityID).val("");
+					$(cityName).val("");
 				}
 				
 				return false;
@@ -192,7 +233,9 @@ $(function() {
 					cache = {}; // invalidate cache 
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}
 		else {
@@ -293,7 +336,24 @@ $(function() {
 				
 				
 				// Update event type ID 
-				$("#eventType" + parseInt(event.eventTypeID)).prop("checked", true);
+				var eventTypeID = parseInt(event.eventTypeID);
+				$("#eventType" + eventTypeID).prop("checked", true);
+				if ( eventTypeID == 4 ) {
+					$("#eventType1").remove();
+					$("#eventType2").remove();
+					$("#eventType3").remove();
+					$("#eventType1L").remove();
+					$("#eventType2L").remove();
+					$("#eventType3L").remove();
+				}
+				else {
+					$("#eventType4").remove();
+					$("#eventType4L").remove();
+				}
+				if ( user.premium != 1 ) {
+					$("#eventType5").remove();
+					$("#eventType5L").remove();
+				}
 				$("#eventTypeID").buttonset("refresh");
 				
 				
@@ -307,12 +367,15 @@ $(function() {
 					destination.find( ".datetimeStart" ).val( ddS[1] );
 					destination.find( ".datetimeEnd" ).val( ddE[1] );
 					destination.find( ".countryID" ).val( event.destinations[i].countryID );
+					destination.find( ".countryName" ).val( event.destinations[i].countryName );
 					destination.find( ".cityID" ).val( event.destinations[i].cityID );
 					destination.find( ".cityName" ).val( event.destinations[i].cityName );
 				}
 			}
 		}).fail(function( xhr, status, error ) {
-			alert( "ERROR: Failed to send request!\r\n" + status );
+			if ( window.console && console.log ) {
+				console.log( "ERROR: Failed to send request!\r\n" + status );
+			}
 		});
 		
 		return true;
@@ -470,7 +533,9 @@ $(function() {
 					document.location = "/webapp/event/" + eventNum;
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}
 		
@@ -491,7 +556,9 @@ $(function() {
 					document.location = "/webapp/event/" + data.results["eventID"];
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}
 		
@@ -583,6 +650,13 @@ $(function() {
 		// Determine appropriate dialog size 
 		setDialogSize();
 		
+		// Remove premium options for non-premiums 
+		if ( user.premium != 1 ) {
+			$("#eventType5").remove();
+			$("#eventType5L").remove();
+		}
+		$("#eventTypeID").buttonset("refresh");
+		
 		dialog.dialog( "option", "title", "Create event" );
 		dialog.dialog( "option", "buttons", {
 			"Create event": submitEvent,
@@ -593,9 +667,6 @@ $(function() {
 		
 		dialog.dialog( "open" );
 	});
-	if ( document.URL.indexOf("/createEvent") > -1 ) {
-		$( "#add-event" ).trigger( "click" );
-	}
 	// * //
 	
 	
@@ -627,20 +698,49 @@ $(function() {
 	
 	
 	
+	// Get information about current user //
+	var user = {};
+	$.ajax({
+		type: "GET",
+		dataType: "json",
+		url: "/api/user/",
+		success: function( data, status, xhr ) {
+			if ( !data ) {
+				alert("ERROR: Cannot load user info!" );
+				return false;
+			}
+			
+			user.id = data.results[0].id;
+			user.name = data.results[0].name;
+			user.surname = data.results[0].surname;
+			user.email = data.results[0].email;
+			user.premium = data.results[0].premium;
+			user.guest = data.results[0].guest;
+		}
+	}).fail(function( xhr, status, error ) {
+		if ( window.console && console.log ) {
+			console.log( "ERROR: Failed to send request!\r\n" + status );
+		}
+	});
+	// * //
+	
+	
+	
 	// Load all countries from API and populate page //
+	var countries = [];
 	$.ajax({
 		type: "GET",
 		dataType: "json",
 		url: "/api/country/",
 		success: function( data, status, xhr ) {
 			for (var i = 0; i < data.results.length; ++i) {
-				$( ".countryID" ).append('<option value="' + data.results[i].id + '">' + data.results[i].name + '</option>');
+				countries.push( { value: data.results[i].id, label: data.results[i].name } );
 			}
-			
-			//$( ".countryID" ).selectmenu();
 		}
 	}).fail(function( xhr, status, error ) {
-		alert( "ERROR: Failed to send request!\r\n" + status );
+		if ( window.console && console.log ) {
+			console.log( "ERROR: Failed to send request!\r\n" + status );
+		}
 	});
 	// * //
 	
@@ -682,7 +782,9 @@ $(function() {
 					response( bifur );
 				}
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 		}, 
 		select: function( event, ui ) {
@@ -713,6 +815,13 @@ $(function() {
 	// When page is loaded //
 	var limitResize = 0;
 	$( window ).load(function() {
+		
+		// Auto-show add event dialog for createEvent type 
+		if ( document.URL.indexOf("/createEvent") > -1 ) {
+			$( "#add-event" ).trigger( "click" );
+		}
+		
+		// Attach all handlers for page events 
 		attachHandlers();
 	});
 	// * //

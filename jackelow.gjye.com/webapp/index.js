@@ -4,11 +4,11 @@
 $(function() {
 	
 	// Events (children) that have been added to page (IDs)
-	var children = { "event" : [], "info" : [] };
+	var children = { "event" : [], "info" : [], "sponsor" : [] };
 	
 	
 	// Should be loaded in dynamically 
-	var eventTypes = { "Local Event": 1, "GTL Event": 2, "Trip": 3, "Info": 4 };
+	var eventTypes = { "Local Event": 1, "GTL Event": 2, "Trip": 3, "Info": 4, "Sponsored": 5 };
 	
 	
 	// For each event, populate the event box on the page // 
@@ -24,20 +24,23 @@ $(function() {
 		
 		// Prep description 
 		var description = results.description;
-		if ( description.length > 150 ) {
-			description = description.substr(0, 150) + " &hellip;";
+		if ( description.length > 500 ) {
+			description = description.substr(0, 500) + " &hellip;";
 		}
 		$(elem).find('div.description-cell:first').html(description);
 		
 		// Prep title 
 		var title = results.name;
-		if ( title.length > 16 ) {
-			title = title.substr(0, 16) + " &hellip;";
-		}
 		$(elem).find('div.title-cell:first').html(title);
 		
 		// Username
-		$(elem).find('div.username-cell:first').text('(' + results.username + ')');
+		$(elem).find('div.username-cell:first').text('(' + results.networkAbbr + '-' + results.username + ')');
+		
+		// Check if sponsored event -- if so, add flair 
+		if ( results.eventTypeID == eventTypes["Sponsored"] ) {
+			$(elem).addClass("premium-block");
+			$(elem).removeClass("event-block");
+		}
 		
 		// Populate thumbnail (or use generic) 
 		if ( results.destinations.length > 0 ) {
@@ -70,11 +73,20 @@ $(function() {
 
 	// Update event nodes when they get scrolled into view //
 	function updateChildren(infoType) {
-		var container = "sticky-injection-point";
+		var container = "injection-point";
 		
-		if ( !infoType) {
-			container = "injection-point";
+		// Which type of injection point should we use? 
+		switch ( infoType ) {
+			case "info":
+				container = "sticky-injection-point";
+				break;
+			case "sponsor":
+				container = "premium-injection-point";
+				break;
+			default:
+				container = "injection-point";
 		}
+		
 		
 		$('#' + container).children('li').each(function () {
 			// check if it is in view of the user 
@@ -106,7 +118,9 @@ $(function() {
 					}
 				})($(this))
 			}).fail(function( xhr, status, error ) {
-				alert( "ERROR: Failed to send request!\r\n" + status );
+				if ( window.console && console.log ) {
+					console.log( "ERROR: Failed to send request!\r\n" + status );
+				}
 			});
 			$(this).data('loaded', true);
 		});
@@ -156,9 +170,16 @@ $(function() {
 		var index = -1;
 		var type = "event";
 		
-		// If they want info type (sticky) 
-		if ( infoType ) {
-			type = "info";
+		// Which type of child should we use? 
+		switch ( infoType ) {
+			case "info":
+				type = "info";
+				break;
+			case "sponsor":
+				type = "sponsor";
+				break;
+			default:
+				type = "event";
 		}
 		
 		//console.log(array);
@@ -173,11 +194,18 @@ $(function() {
 	// Get the child node at index "index" (for appending/removal) //
 	function getChildNodeByIndex(index, infoType) {
 		var node = null;
-		
-		// Differentiate between event vs info types 
 		var injectionPoint = "injection-point";
-		if ( infoType ) {
-			injectionPoint = "sticky-injection-point";
+
+		// Which type of child should we use? 
+		switch ( infoType ) {
+			case "info":
+				injectionPoint = "sticky-injection-point";
+				break;
+			case "sponsor":
+				injectionPoint = "premium-injection-point";
+				break;
+			default:
+				injectionPoint = "injection-point";
 		}
 		
 		// Loop through all children until we hit the correct index 
@@ -194,6 +222,59 @@ $(function() {
 	
 	
 	
+	// Notify user when there are new events //
+	function unblockNotifications() {
+		if ( $("#notify-sound").length ) {
+			var a = $("#notify-sound")[0];
+			a.load();
+			
+			$(window).unbind('touchstart mousedown scroll', unblockNotifications);
+		}
+	}
+	function clearNotifications() {
+		document.title = "Jackelo - GTL Events Manager";
+	}
+	function notifyUser() {
+		
+		// Play notification sound 
+		if ( $("#notify-sound").length ) {
+			var a = $("#notify-sound")[0];
+			a.currentTime = 0;
+			a.load();
+			a.play();
+		}
+		
+		// Update title 
+		if ( document.title.charAt(0) == '(' && document.title.indexOf(')') > -1 ) {
+			var oldCount = document.title.substring(1, document.title.indexOf(')'));
+			clearNotifications();
+			//count += parseInt(oldCount);
+		}
+		document.title = "(*) " + document.title;
+		
+		// If browser does not support Notifications API, don't continue 
+		if (!("Notification" in window)) {
+			return;
+		}
+		
+		// User has already granted permission to use notifications 
+		else if (Notification.permission === "granted") {
+			var notification = new Notification("Events have been updated");
+		}
+		
+		// Ask the user for permission
+		else if (Notification.permission !== 'denied') {
+			Notification.requestPermission(function (permission) {
+				if (permission === "granted") {
+					var notification = new Notification("Events have been updated");
+				}
+			});
+		}
+	}
+	// * //
+	
+	
+	
 	// Populate the page with events (starting at offset) //
 	function populate(infoType, offset, limit) {
 		$(window).data('busy', true);
@@ -201,6 +282,9 @@ $(function() {
 		
 		// If not specified, set limit to default (10) 
 		limit = typeof limit !== 'undefined' ? limit : 10;
+		if ( limit == 0 ) {
+			return;
+		}
 		
 		
 		// Determine if filters were requested 
@@ -212,11 +296,26 @@ $(function() {
 		var childType = "event";
 		var noResult = "event-noresult";
 		var typeFilter = "";
-		if ( infoType ) {
-			injectionPoint = "sticky-injection-point";
-			childType = "info";
-			noResult = "sticky-noresult";
-			typeFilter = "type/" + eventTypes["Info"] + "/";
+		
+		// Which type of child should we use? 
+		switch ( infoType ) {
+			case "info":
+				injectionPoint = "sticky-injection-point";
+				childType = "info";
+				noResult = "sticky-noresult";
+				typeFilter = "type/" + eventTypes["Info"] + "/";
+				break;
+			case "sponsor":
+				injectionPoint = "premium-injection-point";
+				childType = "sponsor";
+				noResult = "sponsor-noresult";
+				typeFilter = "type/" + eventTypes["Sponsored"] + "/";
+				break;
+			default:
+				injectionPoint = "injection-point";
+				childType = "event";
+				noResult = "event-noresult";
+				typeFilter = "";
 		}
 		
 		
@@ -249,6 +348,16 @@ $(function() {
 					$(window).data(noResult, true);
 				}
 				
+				// Determine if there are new events to alert 
+				var newEventsAlert = false;
+				if ( !appendMode ) {
+					var oldNew = $(children[childType]).not(data.results).get();
+					var newOld = $(data.results).not(children[childType]).get();
+					if ( oldNew.length || newOld.length ) {
+						newEventsAlert = true;
+					}
+				}
+				
 				for (var i = 0; i < data.results.length; ++i) {
 					var thisID = data.results[i];
 					
@@ -264,10 +373,17 @@ $(function() {
 						$template.data('loaded', false);
 						$template.attr({"jk:eventID" : thisID});
 						
-						// Change style to info type (instead of event) 
-						if (infoType) {
-							$template.addClass("info-block");
-							$template.removeClass("event-block");
+						// Change style to correct type (instead of event) 
+						switch ( infoType ) {
+							case "info":
+								$template.addClass("info-block");
+								$template.removeClass("event-block");
+								break;
+							case "sponsor":
+								$template.addClass("premium-block");
+								$template.removeClass("event-block");
+								break;
+							default:
 						}
 						
 						$template.appendTo( "#" + injectionPoint );
@@ -293,18 +409,18 @@ $(function() {
 								}
 								
 								// Remove from page and array 
-								console.log("Removing node " + i + " from page. ID: " + $(node).attr('jk:eventID'));
+								//console.log("Removing node " + i + " from page. ID: " + $(node).attr('jk:eventID'));
 								$(node).remove();
-								console.log("Array before: " + children[childType]);
+								//console.log("Array before: " + children[childType]);
 								children[childType].splice(i, 1);
-								console.log("Array after: " + children[childType]);
+								//console.log("Array after: " + children[childType]);
 							}
 							
 						}
 						
 						// Otherwise it's a new item! 
 						else {
-							console.log("Inserting new node " + i + " into page with ID " + thisID);
+							//console.log("Inserting new node " + i + " into page with ID " + thisID);
 							
 							// Create new node 
 							var $template = $( "#event-template" ).children().first().clone();
@@ -312,14 +428,20 @@ $(function() {
 							$template.data('loaded', false);
 							$template.attr({"jk:eventID" : thisID});
 							
-							// Change style to info type (instead of event) 
-							if (infoType) {
-								$template.addClass("info-block");
-								$template.removeClass("event-block");
+							// Change style to correct type (instead of event) 
+							switch ( infoType ) {
+								case "info":
+									$template.addClass("info-block");
+									$template.removeClass("event-block");
+									break;
+								case "sponsor":
+									$template.addClass("premium-block");
+									$template.removeClass("event-block");
+									break;
+								default:
 							}
 							
-							
-							console.log("Array before: " + children[childType]);
+							//console.log("Array before: " + children[childType]);
 							
 							
 							// Append to end of page 
@@ -343,7 +465,7 @@ $(function() {
 							}
 							
 							
-							console.log("Array after: " + children[childType]);
+							//console.log("Array after: " + children[childType]);
 						}
 						
 					}
@@ -352,10 +474,19 @@ $(function() {
 				
 				// Force load of visible children before scrolling happens 
 				updateChildren(infoType);
+				
+				// Nofity user if there are new events 
+				if ( newEventsAlert ) {
+					notifyUser();
+				}
+				
+				// Populate is no longer busy 
 				$(window).data('busy', false);
 			}
 		}).fail(function( xhr, status, error ) {
-			alert( "ERROR: Failed to send request!\r\n" + status );
+			if ( window.console && console.log ) {
+				console.log( "ERROR: Failed to send request!\r\n" + status );
+			}
 		});
 		
 	}
@@ -367,9 +498,14 @@ $(function() {
 	function infiniScroll() {
 		if ($(window).data('busy') == true) return;
 		
+		// Always try to load more sponsored events (unless we hit the end) 
+		if (!$(window).data('sponsor-noresult')) {
+			populate("sponsor");
+		}
+		
 		// Always try to load more info events (unless we hit the end) 
-		if (!$(window).data('sticky-noresult')) {
-			populate(true);
+		if (!$(window).data('sticky-noresult') && !$( "#load-infos" ).is(":visible")) {
+			populate("info");
 		}
 		
 		// Don't bother grabbing more events if we hit the end 
@@ -377,10 +513,19 @@ $(function() {
 			var wrapperHeight = $("#wrapper").height() - 100;
 			var scrollPos = $("#content-body").scrollTop() + $("#content-body").height();
 			if (scrollPos > wrapperHeight) {
-				populate(false);
+				populate("event");
 			}
 		}
 	}
+	// * //
+	
+	
+	
+	// Attach event for when user clicks the "load infos" button //
+	$( "#load-infos" ).on( "click", function() {
+		populate("info");
+		$(this).hide();
+	});
 	// * //
 	
 	
@@ -395,18 +540,16 @@ $(function() {
 			clearTimeout(maintenanceTimer);
 		}
 		
-		if ( document.hidden ) {
-			maintenanceTimer = setInterval(maintenance, maintenanceInterval*100);
-		}
-		else {
+		if ( !document.hidden ) {
 			maintenanceTimer = setInterval(maintenance, maintenanceInterval);
 		}
 	}
 	function maintenance() {
 		//console.log("Starting maintenance run");
 		
-		populate(true, 0, $( "#sticky-injection-point" ).children().length);
-		populate(false, 0, $( "#injection-point" ).children().length);
+		populate("sponsor", 0, $( "#sponsored-injection-point" ).children().length);
+		populate("info", 0, $( "#sticky-injection-point" ).children().length);
+		populate("event", 0, $( "#injection-point" ).children().length);
 	}
 	// * //
 	
@@ -430,8 +573,11 @@ $(function() {
 			limitScroll = 1;
 			setTimeout(updateChildren, 250); 			// load events when scrolled into view 
 			setTimeout(infiniScroll, 250); 				// infinite-scroll
+			setTimeout(clearNotifications, 250); 		// clear notifications 
 			setTimeout(function(){limitScroll=0}, 750);	// flood control 
 		});
+		
+		$(window).bind('touchstart mousedown scroll', unblockNotifications);
 		
 		// Attach onresize event to window 
 		$( window ).resize( function(e) {
@@ -441,6 +587,7 @@ $(function() {
 			limitResize = 1;
 			setTimeout(updateChildren, 250); 			// load events when scrolled into view 
 			setTimeout(infiniScroll, 250); 				// infinite-scroll
+			setTimeout(clearNotifications, 250); 		// clear notifications 
 			setTimeout(function(){limitResize=0}, 750);	// flood control 
 		});
 	}
@@ -453,9 +600,11 @@ $(function() {
 		$(window).data('busy', false);
 		$(window).data('sticky-noresult', false);
 		$(window).data('event-noresult', false);
-		populate(true);
-		populate(false);
+		$(window).data('sponsor-noresult', false);
+		populate("sponsor");
+		populate("event");
 		attachHandlers();
+		clearNotifications();
 	});
 	// * //
 	

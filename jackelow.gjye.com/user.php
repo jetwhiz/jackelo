@@ -8,6 +8,8 @@
 		private $db;
 		private $id;
 		private $username;
+		private $networkAbbr;
+		private $networkName;
 		private $sessionID;
 		private $GPS;
 		
@@ -72,10 +74,13 @@
 			}
 			
 			$select = "
-				SELECT `Sessions`.`userID`, `Sessions`.`datetime`, `Users`.`username`
+				SELECT `Sessions`.`userID`, `Sessions`.`datetime`, `Users`.`username`, 
+					`Networks`.`name_short` AS `networkAbbr`, `Networks`.`name` AS `network`
 				FROM `Sessions` 
 				INNER JOIN `Users` AS `Users`
 					ON `Sessions`.`userID` = `Users`.`id`
+				INNER JOIN `Networks` AS `Networks`
+					ON `Networks`.`id` = `Users`.`networkID`
 				WHERE `Sessions`.`id` = ?
 				LIMIT 1
 			";
@@ -99,13 +104,58 @@
 			}
 			
 			
-			// Verify the session isn't too old? 
+			// TODO: Verify the session isn't too old? 
 			
 			
-			// Set username
+			// Set static fields
 			$this->username = $row["username"];
+			$this->networkAbbr = $row["networkAbbr"];
+			$this->networkName = $row["network"];
 			
 			return $row["userID"];
+		}
+		// * //
+		
+		
+		
+		// Check if user is "premium" type //
+		public function isPremium() {
+			
+			$select = "
+				SELECT `premium`
+				FROM `Users` 
+				WHERE `id` = ?
+				LIMIT 1
+			";
+			$binds = [];
+			$binds[0] = "i";
+			$binds[] = $this->getID();
+			
+			$res = $this->db->select($select, $binds);
+			if ( is_null($res) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], "User Error: Database error.");
+			}
+			
+			$row = $res->fetch_assoc();
+			if ( !$row ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Cannot find user.");
+			}
+			
+			// Ensure the value is good 
+			if ( !is_int( $row["premium"] ) ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], "User Error: Invalid user ID from database.");
+			}
+			
+			return ( $row["premium"] == 1 );
+		}
+		// * //
+		
+		
+		
+		// Return network-username to display //
+		public function getDisplayName() {
+			$usrname = $this->getUsername();
+			return $this->networkAbbr . "-" . $usrname;
 		}
 		// * //
 		

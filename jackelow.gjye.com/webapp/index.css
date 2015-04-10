@@ -1,8 +1,15 @@
 
+#load-infos {
+	display: block; 
+	padding: 0px;
+	text-align: center;
+	color: #dd9900;
+}
+
 #event-template, #destination-template {
 	display: none;
 }
-#injection-point, #sticky-injection-point {
+#injection-point, #sticky-injection-point, #premium-injection-point {
 	list-style-type: none;
 }
 #filters {
@@ -18,7 +25,7 @@
 }
 
 
-.event-block, .info-block {
+.event-block, .info-block, .premium-block {
 	cursor: pointer;
 	display: table; 
 	padding: 5px; 
@@ -39,6 +46,16 @@
 }
 .info-block:nth-child(even) {
 	background-color: #fef7f0;
+}
+.premium-block {
+	border: 1px dashed #880000;
+	background-color: #ffeeee;
+}
+.endOfResults {
+	display: block;
+	text-align: center;
+	padding: 10px;
+	font-style: italic;
 }
 
 
@@ -93,19 +110,24 @@
 }
 .description-cell {
 	white-space: normal; 
-	overflow: visible; 
+	overflow-y: visible; 
+	overflow-x: hidden; 
+	float: left; 
+	width: 100%; 
 }
 .title-cell {
 	float: left; 
 	width: 45%; 
 	font-size: 125%; 
 	font-weight: bold;
+	text-overflow: ellipsis;
 }
 .username-cell {
 	margin-right: 5px;
 	float: right; 
 	width: 45%; 
 	text-align: right;
+	text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
 	.title-cell {
@@ -121,12 +143,9 @@
 	float: left; 
 	width: 100%; 
 	font-style: italic;
+	text-overflow: ellipsis;
 }
 .tags-link {
 	text-decoration: none;
 	color: #0000cc;
-}
-.description-cell {
-	float: left; 
-	width: 100%; 
 }

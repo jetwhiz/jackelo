@@ -53,7 +53,7 @@
 			
 			// Get ownership info data //
 			$select = "
-					SELECT `Events`.`ownerID`
+					SELECT `Events`.`ownerID`, `Events`.`eventTypeID`
 					FROM `Events` 
 					WHERE `Events`.`id` = ?
 					LIMIT 1
@@ -76,7 +76,7 @@
 			}
 			
 			// Verify current user is owner 
-			if ( $this->User->getID() != $row['ownerID'] ) {
+			if ( $row['eventTypeID'] != $GLOBALS["EventTypes"]["Info"] && $this->User->getID() != $row['ownerID'] ) {
 				// Roll back transaction 
 				$this->DBs->abortTransaction();
 				throw new Error($GLOBALS["HTTP_STATUS"]["Forbidden"], get_class($this) . " Error: You are not the owner of this event.");
@@ -91,6 +91,28 @@
 			}
 			////
 			
+			// Make sure they didn't try to change event -> info or info -> event
+			if ( 
+				(
+					$row['eventTypeID'] == $GLOBALS["EventTypes"]["Info"] 
+					&& intval($GLOBALS["_PUT"]["eventTypeID"], 10) != $GLOBALS["EventTypes"]["Info"]
+				) || 
+				(
+					$row['eventTypeID'] != $GLOBALS["EventTypes"]["Info"] 
+					&& intval($GLOBALS["_PUT"]["eventTypeID"], 10) == $GLOBALS["EventTypes"]["Info"]
+				)
+				) {
+				// Roll back transaction 
+				$this->DBs->abortTransaction();
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Edit event failed (invalid event type modification)!");
+			}
+			//// 
+			
+			// Verify premium features
+			if ( !$this->User->isPremium() && intval($GLOBALS["_PUT"]["eventTypeID"], 10) == $GLOBALS["EventTypes"]["Sponsored"] ) {
+				throw new Error($GLOBALS["HTTP_STATUS"]["Internal Error"], get_class($this) . ": Premium features unavailable!");
+			}
+			//// 
 			
 			
 			
@@ -98,19 +120,18 @@
 			$update = "
 				UPDATE `Events` 
 				SET `name` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `description` = ?, `eventTypeID` = ?, `lastUpdated` = CURRENT_TIMESTAMP
-				WHERE `ownerID` = ? AND `id` = ?
+				WHERE `id` = ?
 			";
 			
 			$FLAGS = ENT_QUOTES | ENT_HTML5 | ENT_SUBSTITUTE;
 			
 			$binds = [];
-			$binds[0] = "ssssiii";
+			$binds[0] = "ssssii";
 			$binds[] = htmlspecialchars($GLOBALS["_PUT"]["name"], $FLAGS, "UTF-8");
 			$binds[] = $GLOBALS["_PUT"]["datetimeStart"];
 			$binds[] = $GLOBALS["_PUT"]["datetimeEnd"];
 			$binds[] = htmlspecialchars($GLOBALS["_PUT"]["description"], $FLAGS, "UTF-8");
 			$binds[] = intval($GLOBALS["_PUT"]["eventTypeID"], 10);
-			$binds[] = $this->User->getID();
 			$binds[] = $this->REST_vars["eventID"];
 			
 			if ($GLOBALS["DEBUG"]) {
@@ -288,7 +309,7 @@
 				if ( $oldID < count($oldDestinationIDs) ) {
 					$update = "
 						UPDATE `EventDestinations` 
-						SET `address` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `cityID` = ?, `countryID` = ?
+						SET `address` = ?, `datetimeStart` = ?, `datetimeEnd` = ?, `cityID` = ?
 						WHERE `id` = ? AND `eventID` = ? 
 					";
 					
@@ -296,12 +317,11 @@
 					$dest_address = substr($destination["address"], 0, $GLOBALS["MAX_LENGTHS"]["destination_address"]);
 					
 					$binds = [];
-					$binds[0] = "sssiiii";
+					$binds[0] = "sssiii";
 					$binds[] = htmlspecialchars($dest_address, $FLAGS, "UTF-8");
 					$binds[] = $destination["datetimeStart"];
 					$binds[] = $destination["datetimeEnd"];
 					$binds[] = intval($destination["cityID"], 10);
-					$binds[] = intval($destination["countryID"], 10);
 					$binds[] = $oldDestinationIDs[$oldID];
 					$binds[] = $this->REST_vars["eventID"];
 					
@@ -318,18 +338,17 @@
 				// Otherwise there are more destinations than before (insert new ones) 
 				else {
 					$insert = "
-						INSERT INTO `EventDestinations` (`eventID`, `address`, `datetimeStart`, `datetimeEnd`, `cityID`, `countryID`)
-						VALUES (?, ?, ?, ?, ?, ?)
+						INSERT INTO `EventDestinations` (`eventID`, `address`, `datetimeStart`, `datetimeEnd`, `cityID`)
+						VALUES (?, ?, ?, ?, ?)
 					";
 					
 					$binds = [];
-					$binds[0] = "isssii";
+					$binds[0] = "isssi";
 					$binds[] = $this->REST_vars["eventID"];
 					$binds[] = htmlspecialchars($destination["address"], $FLAGS, "UTF-8");
 					$binds[] = $destination["datetimeStart"];
 					$binds[] = $destination["datetimeEnd"];
 					$binds[] = intval($destination["cityID"], 10);
-					$binds[] = intval($destination["countryID"], 10);
 					
 					if ($GLOBALS["DEBUG"]) {
 						print_r("\nI-BINDS\n");
@@ -471,12 +490,15 @@
 			$select = "
 					SELECT `Events`.`name`, `Events`.`datetimeStart`, `Events`.`datetimeEnd`, 
 						`Events`.`description`, `Events`.`ownerID`, `Users`.`username`,
-						`Events`.`eventTypeID`, `EventTypes`.`name` AS `eventType`
+						`Events`.`eventTypeID`, `EventTypes`.`name` AS `eventType`, 
+						`Networks`.`name_short` AS `networkAbbr`, `Networks`.`name` AS `network`
 					FROM `Events` 
 					INNER JOIN `EventTypes` AS `EventTypes`
 						ON `EventTypes`.`id` = `Events`.`eventTypeID`
 					INNER JOIN `Users` AS `Users`
 						ON `Users`.`id` = `Events`.`ownerID`
+					INNER JOIN `Networks` AS `Networks`
+						ON `Networks`.`id` = `Users`.`networkID`
 					WHERE `Events`.`id` = ?
 			";
 			$binds = ["i", $this->REST_vars["eventID"]];
@@ -494,6 +516,8 @@
 				$obj["datetimeEnd"] = $row['datetimeEnd'];
 				$obj["ownerID"] = $row['ownerID'];
 				$obj["username"] = $row['username'];
+				$obj["networkAbbr"] = $row['networkAbbr'];
+				$obj["network"] = $row['network'];
 				
 				// Hide non-simple elements 
 				if ( $this->REST_vars["simple"] != 1 ) {
@@ -506,12 +530,12 @@
 				if ( $this->REST_vars["simple"] == 1 ) {
 					$select = "
 							SELECT `EventDestinations`.`cityID`, `Cities`.`name` AS `cityName`, 
-								`EventDestinations`.`countryID`, `Countries`.`name` AS `countryName`,
+								`Countries`.`id` AS `countryID`, `Countries`.`name` AS `countryName`,
 								CONCAT(?, `Cities`.`thumb`, '.thumb.jpg') AS `thumb`,
 								CONCAT(?, `Cities`.`thumb`) AS `img`
 							FROM `EventDestinations` 
 							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
-							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `EventDestinations`.`countryID`
+							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `Cities`.`countryID`
 							WHERE `EventDestinations`.`eventID` = ?
 							ORDER BY `EventDestinations`.`id`
 					";
@@ -521,12 +545,12 @@
 							SELECT `EventDestinations`.`address`, `EventDestinations`.`datetimeStart`, 
 								`EventDestinations`.`datetimeEnd`, 
 								`EventDestinations`.`cityID`, `Cities`.`name` AS `cityName`, 
-								`EventDestinations`.`countryID`, `Countries`.`name` AS `countryName`,
+								`Countries`.`id` AS `countryID`, `Countries`.`name` AS `countryName`,
 								CONCAT(?, `Cities`.`thumb`, '.thumb.jpg') AS `thumb`,
 								CONCAT(?, `Cities`.`thumb`) AS `img`
 							FROM `EventDestinations` 
 							INNER JOIN `Cities` AS `Cities` ON `Cities`.`id` = `EventDestinations`.`cityID`
-							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `EventDestinations`.`countryID`
+							INNER JOIN `Countries` AS `Countries` ON `Countries`.`id` = `Cities`.`countryID`
 							WHERE `EventDestinations`.`eventID` = ?
 							ORDER BY `EventDestinations`.`id`
 					";

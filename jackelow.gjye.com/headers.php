@@ -1,5 +1,17 @@
 <?
 	
+	// Internal paths
+	$GLOBALS["WEBAPP_PATH"] = "/webapp/";
+	$GLOBALS["LOGIN_PATH"] = "/login/";
+	$GLOBALS["GTLOGIN_PATH"] = "/login/gt/";
+	$GLOBALS["MOBLOGIN_PATH"] = "/login/mobile/";
+	$GLOBALS["DEMOLOGIN_PATH"] = "/login/demo/";
+	
+	
+	// Demo user lifetime (in seconds)
+	$GLOBALS["DEMOUSR_TO"] = 60*60*24;
+	
+	
 	// Show debugging output 
 	$GLOBALS["DEBUG"] = 0;
 	
@@ -25,12 +37,13 @@
 	
 	
 	// Amount of time to allow before login challenge expiration (in seconds)
-	$GLOBALS["CCHALLENGE_TO"] = 300;
+	$GLOBALS["CCHALLENGE_TO"] = 60*60*3;
 	$GLOBALS["SCHALLENGE_TO"] = 30;
 	
 	
-	// Time before session cookie expires (in seconds)
+	// Time before session and session cookies expire (in seconds)
 	$GLOBALS["COOKIE_EXPR"] = 60*60*24*7;
+	$GLOBALS["SESSION_EXPR"] = 60*60*24*7;
 	
 	
 	// Number of times login should fail before we refuse to login (loop detection) 
@@ -48,6 +61,14 @@
 		"event_name" => 100,
 		"destination_address" => 100,
 		"comment_length" => 1000
+	];
+	
+	
+	// Networks
+	$GLOBALS["NETWORKS"] = [
+		"GT" => 1,
+		"guest" => 2,
+		"demo" => 3
 	];
 	
 	
