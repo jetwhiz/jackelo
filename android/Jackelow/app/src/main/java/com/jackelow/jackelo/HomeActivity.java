@@ -147,7 +147,7 @@ public class HomeActivity extends ActionBarActivity {
     public void generateListView(){
 
         myEvents = new EventList(numIDsPerLoad, myCaller);
-        // myEvents.loadAll(0,1); // Load ids starting at 0, load foward
+        // myEvents.loadAll(0,1); // Load ids starting at 0, load forward
         setContentView(R.layout.activity_home); // Show the home screen
 
         RecyclerView rv = (RecyclerView) findViewById(R.id.rv);
@@ -170,7 +170,7 @@ public class HomeActivity extends ActionBarActivity {
         int id = myEvents.getEventId(pos);
         JSONObject myEvent = myCaller.getEvent(id);
         eventViewScreen.putExtra("id", id);
-        eventViewScreen.putExtra("json", myEvent.toString());
+        // eventViewScreen.putExtra("json", myEvent.toString());
 
         startActivity(eventViewScreen);
     }

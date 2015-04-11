@@ -80,7 +80,7 @@ public class MainActivity extends  Activity{
 
         myCookieStore = new PersistentCookieStore(getApplicationContext());
         myCookieStore.clear();
-        //myCookieStore.clear();
+        myCookieStore.clear();
         List<Cookie> cookieList = myCookieStore.getCookies();
 
         // No cookies, got to login screen

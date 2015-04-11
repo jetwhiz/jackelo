@@ -7,9 +7,12 @@ import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -18,12 +21,14 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -33,7 +38,9 @@ import java.net.URISyntaxException;
 import java.lang.String;
 import java.io.*;
 import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.jackelow.jackelo.classes.getter;
 import com.jackelow.jackelo.net.MySSLSocketFactory;
@@ -43,14 +50,18 @@ public class apiCaller {
 
     HttpClient client;
     HttpGet request;
+    HttpPost post;
     Context appContext;
     PersistentCookieStore myCookieStore;
     HttpContext localContext;
+    String url = "https://jackelow.gjye.com/api/";
 
     //Override
     public apiCaller(Context inContext){
 
         request = new HttpGet();
+        post = new HttpPost(this.url);
+
         appContext = inContext;
         client = getNewHttpClient();
 
@@ -62,10 +73,38 @@ public class apiCaller {
     }
 
     //@Override
+    public String postURL(JSONObject params) {
+
+        postURL(params.toString());
+
+        return null; // TODO: get status of post
+    }
+
+    //@Override
+    public String postURL(String params) {
+
+        List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>();
+        nameValuePair.add(new BasicNameValuePair("POSTDATA", params));
+
+        //Encoding POST data
+        try {
+            post.setEntity(new UrlEncodedFormEntity(nameValuePair));
+            // Execute HTTP Post Request
+            HttpResponse response = client.execute(post);
+
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return null; // TODO: get status of post
+    }
+
+    //@Override
     public String getURL(JSONObject params) {
 
         String api;
-        String url = "https://jackelow.gjye.com/api/";
+        String url = this.url;
 
         try {
 
@@ -181,6 +220,44 @@ public class apiCaller {
         } catch (Exception e) {
             return new DefaultHttpClient();
         }
+    }
+
+    public JSONArray getCommentIds(int id) {
+
+        String url = "https://jackelow.gjye.com/api/event/"+id+"/comments";
+        JSONObject myRet =  apiGet(url);
+        JSONArray justComIds;
+
+        try {
+            justComIds =  myRet.getJSONArray("results");
+            return justComIds;
+        }
+        catch (Exception e){
+
+            e.printStackTrace();
+            justComIds = null;
+        }
+
+        return justComIds;
+    }
+
+    public JSONObject getComment(int id, int comId) {
+
+        String url = "https://jackelow.gjye.com/api/event/"+id+"/comments/"+comId+"/";
+        JSONObject myRet =  apiGet(url);
+        JSONObject justComment;
+
+        try {
+            justComment =  myRet.getJSONArray("results").getJSONObject(0);
+            return justComment;
+        }
+        catch (Exception e){
+
+            e.printStackTrace();
+            justComment = null;
+        }
+
+        return justComment;
     }
 }
 

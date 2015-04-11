@@ -10,7 +10,9 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jackelow.jackelo.classes.apiCaller;
 import com.jackelow.jackelo.classes.imageGetter;
+import com.jackelow.jackelo.viewClasses.EventViewItem;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,16 +33,20 @@ public class EventView extends ActionBarActivity {
         TextView location = (TextView) findViewById(R.id.textView2);
         TextView desc = (TextView) findViewById(R.id.textView3);
 
+        // Create a new eventview item
+        EventViewItem evItem = new EventViewItem();
         Intent i = getIntent();
-        // Receiving the Data from activity creation
-        JSONObject curRet = null;
+
+        int evId = 0;
         try{
-            curRet = new JSONObject(i.getStringExtra("json"));
+            evId = i.getIntExtra("id", 0);
         } catch (Exception e) {
             e.printStackTrace();
             finish();
         }
 
+        // Load the data for the event
+        evItem.load(new apiCaller(getApplicationContext()), evId);
 
         String eventName = "";
         String eventDesc = "";
@@ -52,32 +58,12 @@ public class EventView extends ActionBarActivity {
         JSONArray curDestinations;
         JSONObject curDestination;
 
-        // Get data to poulate view
-        try{
-            curResult = curRet;
-            eventName = curResult.getString("name");
 
-            curDestinations = curResult.getJSONArray("destinations");
-
-            if(curDestinations.length() > 0) {
-                curDestination = curDestinations.getJSONObject(0);
-                eventDestination = curDestination.getString("address");
-                eventImageURL = curDestination.getString("thumb");//.replaceFirst("s","");
-            }
-
-            eventDesc = curResult.getString("description");
-        }
-        catch (Exception e){}
-
-        // Populate view
+        // Populate view FILL THIS IN for new template
         try{
 
-            if(!eventDestination.equals("")) {
-                URL url = new URL(eventImageURL);
-                imageGetter myImGetter = new imageGetter();
-
-                Bitmap bmp = (myImGetter).execute(url).get();
-                image.setImageBitmap(bmp);
+            if(!evItem.location.equals("") && !(evItem.location == null)) {
+                image.setImageBitmap(evItem.eventImage);
             }
 
             name.setText(eventName);
