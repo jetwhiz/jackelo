@@ -18,9 +18,9 @@ import java.util.Date;
  */
 public class EventViewItem extends EventListItem {
 
-    ArrayList<Location> locations = new ArrayList<Location>();
-    ArrayList<Comment> comments = new ArrayList<Comment>();
-    String error = "OK";
+    public ArrayList<Location> locations = new ArrayList<Location>();
+    public ArrayList<Comment> comments = new ArrayList<Comment>();
+    public String error = "OK";
 
 
     @Override
@@ -123,8 +123,8 @@ public class EventViewItem extends EventListItem {
                     unixEnd = fEndDate.getTime();
 
                     SimpleDateFormat outFormatter = new SimpleDateFormat("M d, yyyy");
-                    startF = formatter.format(fStartDate);
-                    startF = formatter.format(fEndDate);
+                    startF = outFormatter.format(fStartDate);
+                    endF = outFormatter.format(fEndDate);
                 }
 
 
@@ -196,8 +196,8 @@ public class EventViewItem extends EventListItem {
                     Date fStartDate = formatter.parse(date);
                     unixDate = fStartDate.getTime();
 
-                    SimpleDateFormat outFormatter = new SimpleDateFormat("M d, yyyy");
-                    dateF = formatter.format(fStartDate);
+                    SimpleDateFormat outFormatter = new SimpleDateFormat("MMMMM dd, yyyy");
+                    dateF = outFormatter.format(fStartDate);
                 }
 
             } catch(Exception e){

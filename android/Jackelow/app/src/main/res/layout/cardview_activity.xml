@@ -7,42 +7,56 @@
     android:layout_height="150dp"
     android:id="@+id/cv"
     card_view:cardCornerRadius="8dp"
-    card_view:cardElevation="0.5dp"
-    card_view:cardUseCompatPadding="true">
+    card_view:cardElevation="4dp"
+    card_view:cardUseCompatPadding="true"
+    android:layout_marginBottom="-8dp"
+    android:layout_marginTop="-8dp"
+    android:layout_marginRight="-6dp"
+    android:layout_marginLeft="-6dp"
     >
+
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:padding="10dp"
         android:layout_gravity="center"
         >
 
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:id="@+id/eventImage"
-            android:src="@drawable/idk"
-            android:layout_alignParentLeft="true"
+        <FrameLayout
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:layout_alignParentTop="true"
-            android:layout_marginRight="16dp"
-            android:scaleType="centerCrop"
-            />
+            android:id="@+id/frm"
+            android:layout_marginRight="10dp">
 
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/eventImage"
+                android:src="@drawable/idk"
+                android:scaleType="centerCrop"
+                android:padding="6dp"
+                />
+            <ImageView
+                android:src="@drawable/frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/name"
-            android:layout_toRightOf="@+id/eventImage"
+            android:layout_toRightOf="@+id/frm"
             android:layout_alignParentTop="true"
             android:textSize="24sp"
             />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:id="@+id/location"
-            android:layout_toRightOf="@+id/eventImage"
+            android:layout_toRightOf="@+id/frm"
             android:layout_below="@+id/name"
             android:textSize="18sp"
             />
@@ -50,9 +64,18 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/description"
-            android:layout_toRightOf="@+id/eventImage"
+            android:id="@+id/date"
+            android:layout_toRightOf="@+id/frm"
             android:layout_below="@+id/location"
+            android:textSize="18sp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/description"
+            android:layout_toRightOf="@+id/frm"
+            android:layout_below="@+id/date"
             android:textSize="18sp"
             />
 

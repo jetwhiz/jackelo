@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class EventListItem {
@@ -17,6 +18,7 @@ public class EventListItem {
     public String location;
     public String description;
     public Bitmap eventImage;
+    public String date;
     public int id;
     public JSONObject rawJSON;
     public ArrayList<Category> categories = new ArrayList<Category>();
@@ -49,9 +51,10 @@ public class EventListItem {
         try {
             name = (rawJSON.getString("name") == null || rawJSON.getString("name").equals("")) ?
                     "(No title)" : rawJSON.getString("name");
-            description = (rawJSON.getString("name") == null || rawJSON.getString("name").equals("")) ?
-                    "(No description)" : rawJSON.getString("name");
-
+            description = (rawJSON.getString("description") == null || rawJSON.getString("description").equals("")) ?
+                    "(No description)" : rawJSON.getString("description");
+            date = (rawJSON.getString("datetimeStart") == null || rawJSON.getString("datetimeStart").equals("")) ?
+                    "(No date)" : rawJSON.getString("datetimeStart");
 
             JSONArray curDestinations = rawJSON.getJSONArray("destinations");
 
@@ -114,7 +117,8 @@ public class EventListItem {
 
     public class Category {
 
-        int id;
+        public int id;
+        public
         String name;
 
         // Simple constructor

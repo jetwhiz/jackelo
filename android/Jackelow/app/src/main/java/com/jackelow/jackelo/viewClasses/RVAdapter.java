@@ -31,6 +31,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
         CardView cv;
         TextView name;
         TextView location;
+        TextView date;
         TextView description;
         ImageView eventImage;
         View view;
@@ -44,6 +45,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
             cv = (CardView) itemView.findViewById(R.id.cv);
             name = (TextView) itemView.findViewById(R.id.name);
             location = (TextView) itemView.findViewById(R.id.location);
+            date = (TextView) itemView.findViewById(R.id.date);
             description = (TextView) itemView.findViewById(R.id.description);
             eventImage = (ImageView) itemView.findViewById(R.id.eventImage);
             this.view = itemView;
@@ -105,6 +107,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
             String eventName = curEvent.name;
             String eventDesc = curEvent.description;
             String location = curEvent.location;
+            String eventDate = curEvent.date;
             String eventDestination = curEvent.location;
             Bitmap eventImage = curEvent.eventImage;
 
@@ -122,6 +125,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
             eventViewHolder.name.setText(eventName);
             eventViewHolder.location.setText(eventDestination);
             eventViewHolder.description.setText(eventDesc);
+            eventViewHolder.date.setText(eventDate);
             if(eventImage != null){
                 eventViewHolder.eventImage.setImageBitmap(eventImage);
             }

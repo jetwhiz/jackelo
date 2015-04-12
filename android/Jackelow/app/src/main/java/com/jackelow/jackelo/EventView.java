@@ -7,12 +7,16 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jackelow.jackelo.classes.apiCaller;
 import com.jackelow.jackelo.classes.imageGetter;
 import com.jackelow.jackelo.viewClasses.EventViewItem;
+import com.jackelow.jackelo.viewClasses.LocAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,11 +32,12 @@ public class EventView extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_view);
 
-        ImageView image = (ImageView) findViewById(R.id.imageView);
-        TextView name = (TextView) findViewById(R.id.textView1);
-        TextView location = (TextView) findViewById(R.id.textView2);
-        TextView desc = (TextView) findViewById(R.id.textView3);
-
+        ImageView image = (ImageView) findViewById(R.id.eventImage1);
+        TextView name = (TextView) findViewById(R.id.name1);
+        //TextView location = (TextView) findViewById(R.id.location1);
+        TextView desc = (TextView) findViewById(R.id.description1);
+//        TextView categ = (TextView) findViewById(R.id.category1);
+        ListView locDates = (ListView) findViewById(R.id.LocDate);
         // Create a new eventview item
         EventViewItem evItem = new EventViewItem();
         Intent i = getIntent();
@@ -48,8 +53,8 @@ public class EventView extends ActionBarActivity {
         // Load the data for the event
         evItem.load(new apiCaller(getApplicationContext()), evId);
 
-        String eventName = "";
-        String eventDesc = "";
+        String eventName = evItem.name;
+        String eventDesc = evItem.description;
         String eventDestination = "";
         String eventImageURL = "";
 
@@ -60,20 +65,30 @@ public class EventView extends ActionBarActivity {
 
 
         // Populate view FILL THIS IN for new template
-        try{
+        try {
 
-            if(!evItem.location.equals("") && !(evItem.location == null)) {
+            if (!evItem.location.equals("") && !(evItem.location == null)) {
                 image.setImageBitmap(evItem.eventImage);
             }
 
             name.setText(eventName);
-            location.setText(eventDestination);
+//            location.setText(eventDestination);
             desc.setText(eventDesc);
 
-        }catch (Exception e){
+
+
+            LocAdapter LocAdapter = new LocAdapter(this, R.layout.locations_dates, evItem.locations);
+            locDates.setAdapter(LocAdapter);
+
+//            for (int i = 0; i < evItem.categories.size(); i++) {
+//                categ.setText(evItem.categories);
+//            }
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
     }
+
 
 
     @Override
