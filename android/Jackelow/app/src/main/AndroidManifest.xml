@@ -50,6 +50,10 @@
             android:name=".viewClasses.Filter"
             android:label="@string/title_activity_filter" >
         </activity>
+        <activity
+            android:name=".AddEventActivity"
+            android:label="@string/title_activity_add_event" >
+        </activity>
     </application>
 
 </manifest>

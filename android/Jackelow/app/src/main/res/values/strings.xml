@@ -13,5 +13,7 @@
     <string name="title_activity_login">Log In</string>
     <string name="title_activity_splash">Loading</string>
     <string name="title_activity_filter">Filter</string>
+    <string name="refresh">Refresh</string>
+    <string name="title_activity_add_event">Add an Event</string>
 
 </resources>
