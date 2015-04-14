@@ -2,13 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.jackelow.jackelo.HomeActivity">
-
-    <item android:id="@+id/action_filter" android:title="@string/action_filter"
-        android:orderInCategory="1" app:showAsAction="never" />
-    <item android:id="@+id/refresh" android:title="@string/refresh"
-        android:orderInCategory="2" app:showAsAction="never" />
-    <item android:id="@+id/addEvent" android:title="@string/addEvent"
-        android:orderInCategory="3" app:showAsAction="never" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="4" app:showAsAction="never" />
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>

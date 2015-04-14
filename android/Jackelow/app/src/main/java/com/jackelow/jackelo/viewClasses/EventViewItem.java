@@ -196,7 +196,7 @@ public class EventViewItem extends EventListItem {
                     Date fStartDate = formatter.parse(date);
                     unixDate = fStartDate.getTime();
 
-                    SimpleDateFormat outFormatter = new SimpleDateFormat("MMMMM dd, yyyy");
+                    SimpleDateFormat outFormatter = new SimpleDateFormat("MMM d, yyyy, hh:mm:ss");
                     dateF = outFormatter.format(fStartDate);
                 }
 

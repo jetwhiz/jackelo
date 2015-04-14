@@ -61,6 +61,7 @@
             android:layout_below="@+id/frm"
             android:textSize="10sp"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
             android:maxLines="1"
             android:ellipsize="end"
             />

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -17,6 +19,7 @@ import com.jackelow.jackelo.classes.apiCaller;
 import com.jackelow.jackelo.classes.imageGetter;
 import com.jackelow.jackelo.viewClasses.EventViewItem;
 import com.jackelow.jackelo.viewClasses.LocAdapter;
+import com.jackelow.jackelo.viewClasses.CommentsAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,6 +41,7 @@ public class EventView extends ActionBarActivity {
         TextView desc = (TextView) findViewById(R.id.description1);
 //        TextView categ = (TextView) findViewById(R.id.category1);
         ListView locDates = (ListView) findViewById(R.id.LocDate);
+        ListView commentSection = (ListView) findViewById(R.id.comments);
         // Create a new eventview item
         EventViewItem evItem = new EventViewItem();
         Intent i = getIntent();
@@ -79,6 +83,11 @@ public class EventView extends ActionBarActivity {
 
             LocAdapter LocAdapter = new LocAdapter(this, R.layout.locations_dates, evItem.locations);
             locDates.setAdapter(LocAdapter);
+            setListViewHeightBasedOnChildren(locDates);
+
+            CommentsAdapter CommentsAdapter = new CommentsAdapter(this, R.layout.comments, evItem.comments);
+            commentSection.setAdapter(CommentsAdapter);
+            setListViewHeightBasedOnChildren(commentSection);
 
 //            for (int i = 0; i < evItem.categories.size(); i++) {
 //                categ.setText(evItem.categories);
@@ -89,6 +98,25 @@ public class EventView extends ActionBarActivity {
         }
     }
 
+    public void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
 
 
     @Override

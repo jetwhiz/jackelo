@@ -74,7 +74,7 @@ public class HomeActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -86,24 +86,7 @@ public class HomeActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_filter) {
-            return true;
-        }
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.refresh) {
-            return true;
-        }
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.addEvent) {
-            Intent addEventScreen = new Intent(getApplicationContext(), AddEventActivity.class);
-            startActivity(addEventScreen);
-            return true;
-        }
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_filter) {
+        if (id == R.id.action_settings) {
             return true;
         }
 
@@ -176,12 +159,6 @@ public class HomeActivity extends ActionBarActivity {
         RVAdapter adapter = new RVAdapter(myEvents, this);
         rv.setAdapter(adapter);
 
-
-
-    }
-
-    // Refresh ListView TODO
-    public void clearListView() {
 
 
     }

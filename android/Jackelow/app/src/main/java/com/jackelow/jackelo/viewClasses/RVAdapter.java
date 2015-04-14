@@ -130,7 +130,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
         if(eventDate!= null) {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
             Date fStartDate = formatter.parse(eventDate);
-            SimpleDateFormat outFormatter = new SimpleDateFormat("MMM d, yyyy");
+            SimpleDateFormat outFormatter = new SimpleDateFormat("MMM d, yyyy, hh:mm:ss");
             eventDate = outFormatter.format(fStartDate);
         }
 

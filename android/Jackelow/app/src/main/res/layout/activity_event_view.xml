@@ -39,6 +39,8 @@
             android:layout_alignParentTop="true"
             android:textSize="28sp"
             android:layout_marginTop="10dp"
+            android:maxLines="2"
+            android:ellipsize="end"
             />
 
     <TextView
@@ -57,6 +59,23 @@
         android:id="@+id/LocDate"
         android:layout_below="@+id/description1"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="6dp"
+        android:id="@+id/text_com"
+        android:textSize="18sp"
+        android:text="Comments:"
+        android:layout_below="@+id/LocDate"/>
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/comments"
+        android:layout_below="@+id/text_com"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="16dp"/>
 
 
 
