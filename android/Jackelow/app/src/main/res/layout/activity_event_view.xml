@@ -1,21 +1,14 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:layout_height="match_parent" >
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.jackelow.jackelo.EventView">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="6dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:id="@+id/attend"
-            android:text="Attending"
-            android:textSize="10sp"
-            />
 
         <FrameLayout
             android:layout_width="72dp"
@@ -44,7 +37,8 @@
             android:id="@+id/name1"
             android:layout_toRightOf="@+id/frm"
             android:layout_alignParentTop="true"
-            android:textSize="24sp"
+            android:textSize="28sp"
+            android:layout_marginTop="10dp"
             />
 
     <TextView
@@ -53,7 +47,8 @@
         android:padding="6dp"
         android:id="@+id/description1"
         android:textSize="18sp"
-        android:layout_below="@+id/frm" />
+        android:layout_below="@+id/frm"
+        android:layout_centerHorizontal="true"/>
 
 
     <ListView
@@ -66,3 +61,4 @@
 
 
 </RelativeLayout>
+</ScrollView>

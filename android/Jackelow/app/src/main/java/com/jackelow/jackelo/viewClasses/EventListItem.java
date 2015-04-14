@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class EventListItem {
 
     public String name;
+    public String owner;
     public String location;
     public String description;
     public Bitmap eventImage;
@@ -51,6 +52,8 @@ public class EventListItem {
         try {
             name = (rawJSON.getString("name") == null || rawJSON.getString("name").equals("")) ?
                     "(No title)" : rawJSON.getString("name");
+            owner = (rawJSON.getString("username") == null || rawJSON.getString("username").equals("")) ?
+                    "(No title)" : rawJSON.getString("username");
             description = (rawJSON.getString("description") == null || rawJSON.getString("description").equals("")) ?
                     "(No description)" : rawJSON.getString("description");
             date = (rawJSON.getString("datetimeStart") == null || rawJSON.getString("datetimeStart").equals("")) ?

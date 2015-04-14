@@ -50,8 +50,20 @@
             android:layout_toRightOf="@+id/frm"
             android:layout_alignParentTop="true"
             android:textSize="24sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/owner"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/frm"
+            android:textSize="10sp"
+            android:layout_marginLeft="10dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            />
         <TextView
             android:layout_width="300dp"
             android:layout_height="wrap_content"
@@ -59,6 +71,8 @@
             android:layout_toRightOf="@+id/frm"
             android:layout_below="@+id/name"
             android:textSize="18sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
 
         <TextView
@@ -68,6 +82,8 @@
             android:layout_toRightOf="@+id/frm"
             android:layout_below="@+id/location"
             android:textSize="18sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
 
         <TextView
@@ -77,6 +93,8 @@
             android:layout_toRightOf="@+id/frm"
             android:layout_below="@+id/date"
             android:textSize="18sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
 
     </RelativeLayout>

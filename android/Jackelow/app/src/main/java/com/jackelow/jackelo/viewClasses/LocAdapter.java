@@ -45,9 +45,14 @@ public class LocAdapter extends ArrayAdapter<EventViewItem.Location> {
 
         if (p != null) {
 
+        TextView address = (TextView) v.findViewById(R.id.address2);
         TextView cityName = (TextView) v.findViewById(R.id.location2);
         TextView startF = (TextView) v.findViewById(R.id.start_date);
         TextView endF = (TextView) v.findViewById(R.id.end_date);
+
+        if (address != null) {
+            address.setText(p.address);
+        }
 
         if (cityName != null) {
             cityName.setText(p.cityName);

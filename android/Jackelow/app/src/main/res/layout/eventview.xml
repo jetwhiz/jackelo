@@ -22,14 +22,6 @@
         android:padding="10dp"
         android:layout_gravity="center"
         >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:id="@+id/attend"
-            android:textSize="18sp"
-            />
         <FrameLayout
             android:layout_width="72dp"
             android:layout_height="112dp"
@@ -66,6 +58,7 @@
             android:layout_below="@+id/frm"
             android:textSize="18sp"
             />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

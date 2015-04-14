@@ -122,7 +122,7 @@ public class EventViewItem extends EventListItem {
                     unixStart = fStartDate.getTime();
                     unixEnd = fEndDate.getTime();
 
-                    SimpleDateFormat outFormatter = new SimpleDateFormat("M d, yyyy");
+                    SimpleDateFormat outFormatter = new SimpleDateFormat("MMM d, yyyy");
                     startF = outFormatter.format(fStartDate);
                     endF = outFormatter.format(fEndDate);
                 }

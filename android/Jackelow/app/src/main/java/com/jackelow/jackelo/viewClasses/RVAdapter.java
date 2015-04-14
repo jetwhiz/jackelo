@@ -22,6 +22,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
@@ -30,6 +32,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
 
         CardView cv;
         TextView name;
+        TextView owner;
         TextView location;
         TextView date;
         TextView description;
@@ -44,6 +47,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cv);
             name = (TextView) itemView.findViewById(R.id.name);
+            owner = (TextView) itemView.findViewById(R.id.owner);
             location = (TextView) itemView.findViewById(R.id.location);
             date = (TextView) itemView.findViewById(R.id.date);
             description = (TextView) itemView.findViewById(R.id.description);
@@ -105,6 +109,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
             EventListItem curEvent = myEvents.get(i);
 
             String eventName = curEvent.name;
+            String eventOwner = curEvent.owner;
             String eventDesc = curEvent.description;
             String location = curEvent.location;
             String eventDate = curEvent.date;
@@ -118,11 +123,19 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
 
 
             // Take substrings from fields if necessary and display
-            eventName = truncText(eventName, 30);
-            eventDestination = truncText(eventDestination, 30);
-            eventDesc = truncText(eventDesc, 80);
+//            eventName = truncText(eventName, 30);
+//            eventDestination = truncText(eventDestination, 30);
+//            eventDesc = truncText(eventDesc, 80);
+        try {
+        if(eventDate!= null) {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+            Date fStartDate = formatter.parse(eventDate);
+            SimpleDateFormat outFormatter = new SimpleDateFormat("MMM d, yyyy");
+            eventDate = outFormatter.format(fStartDate);
+        }
 
             eventViewHolder.name.setText(eventName);
+            eventViewHolder.owner.setText(eventOwner);
             eventViewHolder.location.setText(eventDestination);
             eventViewHolder.description.setText(eventDesc);
             eventViewHolder.date.setText(eventDate);
@@ -130,7 +143,11 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
                 eventViewHolder.eventImage.setImageBitmap(eventImage);
             }
 
-
+        }
+        catch(Exception e){
+            // Throw
+            throw new RuntimeException("Date object throwing runtime exception upon construction");
+        }
     }
 
     public String truncText(String name, int len){
