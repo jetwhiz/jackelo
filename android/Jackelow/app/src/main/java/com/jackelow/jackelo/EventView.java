@@ -7,10 +7,19 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.jackelow.jackelo.classes.apiCaller;
 import com.jackelow.jackelo.classes.imageGetter;
+import com.jackelow.jackelo.viewClasses.EventViewItem;
+import com.jackelow.jackelo.viewClasses.LocAdapter;
+import com.jackelow.jackelo.viewClasses.CommentsAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,24 +35,30 @@ public class EventView extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_view);
 
-        ImageView image = (ImageView) findViewById(R.id.imageView);
-        TextView name = (TextView) findViewById(R.id.textView1);
-        TextView location = (TextView) findViewById(R.id.textView2);
-        TextView desc = (TextView) findViewById(R.id.textView3);
-
+        ImageView image = (ImageView) findViewById(R.id.eventImage1);
+        TextView name = (TextView) findViewById(R.id.name1);
+        //TextView location = (TextView) findViewById(R.id.location1);
+        TextView desc = (TextView) findViewById(R.id.description1);
+//        TextView categ = (TextView) findViewById(R.id.category1);
+        ListView locDates = (ListView) findViewById(R.id.LocDate);
+        ListView commentSection = (ListView) findViewById(R.id.comments);
+        // Create a new eventview item
+        EventViewItem evItem = new EventViewItem();
         Intent i = getIntent();
-        // Receiving the Data from activity creation
-        JSONObject curRet = null;
+
+        int evId = 0;
         try{
-            curRet = new JSONObject(i.getStringExtra("json"));
+            evId = i.getIntExtra("id", 0);
         } catch (Exception e) {
             e.printStackTrace();
             finish();
         }
 
+        // Load the data for the event
+        evItem.load(new apiCaller(getApplicationContext()), evId);
 
-        String eventName = "";
-        String eventDesc = "";
+        String eventName = evItem.name;
+        String eventDesc = evItem.description;
         String eventDestination = "";
         String eventImageURL = "";
 
@@ -52,35 +67,55 @@ public class EventView extends ActionBarActivity {
         JSONArray curDestinations;
         JSONObject curDestination;
 
-        // Get data to poulate view
-        try{
-            curResults = curRet.getJSONArray("results");
-            curResult = curResults.getJSONObject(0);
-            eventName = curResult.getString("name");
 
-            curDestinations = curResult.getJSONArray("destinations");
-            curDestination = curDestinations.getJSONObject(0);
-            eventDestination = curDestination.getString("address");
-            eventImageURL = curDestination.getString("thumb");//.replaceFirst("s","");
+        // Populate view FILL THIS IN for new template
+        try {
 
-            eventDesc = curResult.getString("description");
-        }
-        catch (Exception e){}
+            if (!evItem.location.equals("") && !(evItem.location == null)) {
+                image.setImageBitmap(evItem.eventImage);
+            }
 
-        // Populate view
-        try{
-            URL url = new URL(eventImageURL);
-            imageGetter myImGetter = new imageGetter();
-
-            Bitmap bmp = (myImGetter).execute(url).get();
-            image.setImageBitmap(bmp);
             name.setText(eventName);
-            location.setText(eventDestination);
+//            location.setText(eventDestination);
             desc.setText(eventDesc);
 
-        }catch (Exception e){
+
+
+            LocAdapter LocAdapter = new LocAdapter(this, R.layout.locations_dates, evItem.locations);
+            locDates.setAdapter(LocAdapter);
+            setListViewHeightBasedOnChildren(locDates);
+
+            CommentsAdapter CommentsAdapter = new CommentsAdapter(this, R.layout.comments, evItem.comments);
+            commentSection.setAdapter(CommentsAdapter);
+            setListViewHeightBasedOnChildren(commentSection);
+
+//            for (int i = 0; i < evItem.categories.size(); i++) {
+//                categ.setText(evItem.categories);
+//            }
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
     }
 
 

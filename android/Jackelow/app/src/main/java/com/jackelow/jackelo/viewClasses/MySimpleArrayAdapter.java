@@ -43,11 +43,13 @@ public class MySimpleArrayAdapter extends ArrayAdapter<JSONObject> {
         View rowView = inflater.inflate(R.layout.event_list_item, parent, false);
 
         TextView name = (TextView) rowView.findViewById(R.id.name);
+        TextView owner = (TextView) rowView.findViewById(R.id.owner);
         TextView location = (TextView) rowView.findViewById(R.id.location);
         TextView description = (TextView) rowView.findViewById(R.id.description);
         ImageView eventImage = (ImageView) rowView.findViewById(R.id.eventImage);
 
         String eventName = "";
+        String eventOwner = "";
         String eventDesc = "";
         String eventDestination = "";
         String eventImageURL = "";
@@ -65,11 +67,13 @@ public class MySimpleArrayAdapter extends ArrayAdapter<JSONObject> {
             curResults = curJSON.getJSONArray("results");
             curResult = curResults.getJSONObject(0);
             eventName = curResult.getString("name");
+            eventOwner = curResult.getString("username");
             curDestinations = curResult.getJSONArray("destinations");
             eventDesc = curResult.getString("description");
 
             if (curDestinations.length() > 0){
                 curDestination = curDestinations.getJSONObject(0);
+                eventDestination = curDestination.getString("address");
                 eventDestination = curDestination.getString("address");
                 eventImageURL = curDestination.getString("thumb");//.replaceFirst("s", "");
             }
@@ -90,9 +94,9 @@ public class MySimpleArrayAdapter extends ArrayAdapter<JSONObject> {
             }
 
             // Take subtrings from fields if necessary and display
-            eventName = truncText(eventName, 30);
-            eventDestination = truncText(eventDestination, 30);
-            eventDesc = truncText(eventDesc, 80);
+//            eventName = truncText(eventName, 30);
+//            eventDestination = truncText(eventDestination, 30);
+//            eventDesc = truncText(eventDesc, 80);
 
 
         } catch  (Exception e) {
@@ -103,7 +107,7 @@ public class MySimpleArrayAdapter extends ArrayAdapter<JSONObject> {
         name.setText(eventName);
         location.setText(eventDestination);
         description.setText(eventDesc);
-
+        owner.setText(eventOwner);
 
         return rowView;
     }
@@ -113,13 +117,14 @@ public class MySimpleArrayAdapter extends ArrayAdapter<JSONObject> {
 
         int    pos;
         String evtName;
+        String ownr;
         String loc;
         String desc;
         Bitmap bmp;
 
         // Constructor for circular buffer
         void circleBuff(){
-
+            ownr = null;
             evtName = null;
             loc = null;
             desc = null;
@@ -161,12 +166,13 @@ public class MySimpleArrayAdapter extends ArrayAdapter<JSONObject> {
         }
 
         // Add info to a buffer slot
-        private void addBuffer(int pos, String title, String location, String desc, Bitmap evtImg ){
+        private void addBuffer(int pos, String title, String owner, String location, String desc, Bitmap evtImg ){
 
             int ind = pos % len;
 
             buffer[ind].pos = pos;
             buffer[ind].evtName = title;
+            buffer[ind].ownr = owner;
             buffer[ind].loc = location;
             buffer[ind].desc = desc;
             buffer[ind].bmp = evtImg;

@@ -22,10 +22,10 @@
         android:padding="10dp"
         android:layout_gravity="center"
         >
+
         <FrameLayout
-            android:layout_width="112dp"
-            android:layout_height="112dp"
-            android:layout_alignParentLeft="true"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:layout_alignParentTop="true"
             android:id="@+id/frm"
             android:layout_marginRight="10dp">
@@ -50,15 +50,41 @@
             android:layout_toRightOf="@+id/frm"
             android:layout_alignParentTop="true"
             android:textSize="24sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
-
         <TextView
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/owner"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/frm"
+            android:textSize="10sp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            />
+        <TextView
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:id="@+id/location"
             android:layout_toRightOf="@+id/frm"
             android:layout_below="@+id/name"
             android:textSize="18sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/date"
+            android:layout_toRightOf="@+id/frm"
+            android:layout_below="@+id/location"
+            android:textSize="18sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
 
         <TextView
@@ -66,8 +92,10 @@
             android:layout_height="wrap_content"
             android:id="@+id/description"
             android:layout_toRightOf="@+id/frm"
-            android:layout_below="@+id/location"
+            android:layout_below="@+id/date"
             android:textSize="18sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
 
     </RelativeLayout>

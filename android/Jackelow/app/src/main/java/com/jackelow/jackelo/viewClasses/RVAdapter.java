@@ -1,5 +1,7 @@
 package com.jackelow.jackelo.viewClasses;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.widget.CardView;
@@ -9,7 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.jackelow.jackelo.EventView;
+import com.jackelow.jackelo.HomeActivity;
 import com.jackelow.jackelo.R;
 import com.jackelow.jackelo.classes.imageGetter;
 
@@ -17,91 +22,71 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
 
-    public static class EventViewHolder extends RecyclerView.ViewHolder /*implements View.OnClickListener, View.OnLongClickListener*/ {
+    public static class EventViewHolder extends RecyclerView.ViewHolder {
 
         CardView cv;
         TextView name;
+        TextView owner;
         TextView location;
+        TextView date;
         TextView description;
         ImageView eventImage;
+        View view;
+        HomeActivity myAct;
 
         /*private ClickListener clickListener;*/
 
-        EventViewHolder(View itemView) {
+        EventViewHolder(View itemView, final HomeActivity myAct, final int id) {
+
             super(itemView);
-            cv = (CardView)itemView.findViewById(R.id.cv);
-            name = (TextView)itemView.findViewById(R.id.name);
-            location = (TextView)itemView.findViewById(R.id.location);
-            description = (TextView)itemView.findViewById(R.id.description);
-            eventImage = (ImageView)itemView.findViewById(R.id.eventImage);
+            cv = (CardView) itemView.findViewById(R.id.cv);
+            name = (TextView) itemView.findViewById(R.id.name);
+            owner = (TextView) itemView.findViewById(R.id.owner);
+            location = (TextView) itemView.findViewById(R.id.location);
+            date = (TextView) itemView.findViewById(R.id.date);
+            description = (TextView) itemView.findViewById(R.id.description);
+            eventImage = (ImageView) itemView.findViewById(R.id.eventImage);
+            this.view = itemView;
+            this.myAct = myAct;
+        }
+
+        // Set the onClick listener for the view
+        public void setClick(int i){
+
+            final int me = i;
+            view.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(final View view) {
+                    try {
+
+                        myAct.goToEvent(me);
+
+                    } catch (Exception e) {
+
+                        e.printStackTrace();
+                    }
+                }
+
+            });
         }
 
 
-
-
-
-
-   /* Interface for handling clicks - both normal and long ones. */
-   /*
-        public interface ClickListener {
-
-            *//**
-             * Called when the view is clicked.
-             *
-             * @param v view that is clicked
-             * @param position of the clicked item
-             * @param isLongClick true if long click, false otherwise
-             *//*
-            public void onClick(View v, int position, boolean isLongClick);
-
-        }
-
-        *//* Setter for listener. *//*
-        public void setClickListener(ClickListener clickListener) {
-            this.clickListener = clickListener;
-        }
-
-        @Override
-        public void onClick(View v) {
-
-            // If not long clicked, pass last variable as false.
-            clickListener.onClick(v, getPosition(), false);
-            JSONObject curRet = myEvents.get((int) id);
-
-            try {
-
-                Intent eventViewScreen = new Intent(getApplicationContext(), EventView.class);
-                eventViewScreen.putExtra("json", curRet.toString());
-                eventViewScreen.putExtra("id", String.valueOf(myEventIds.getInt(position)));
-                startActivity(eventViewScreen);
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-
-            // If long clicked, passed last variable as true.
-            clickListener.onClick(v, getPosition(), true);
-            return true;
-        }
-
-
-        */
 
     }
 
-    List<JSONObject> JSONevents;
+    EventList myEvents;
+    HomeActivity homeActivity;
 
-    public RVAdapter(List<JSONObject> JSONevents){
-        this.JSONevents = JSONevents;
+    public RVAdapter(EventList myEvents, HomeActivity homeActivity){
+
+        this.myEvents = myEvents;
+        this.homeActivity = homeActivity;
     }
 
     @Override
@@ -111,85 +96,80 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.EventViewHolder> {
 
     @Override
     public EventViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardview_activity, viewGroup, false);
-        EventViewHolder pvh = new EventViewHolder(v);
-        return pvh;
+            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardview_activity, viewGroup, false);
+            EventViewHolder pvh = new EventViewHolder(v, homeActivity, i);
+            return pvh;
     }
 
     @Override
     public void onBindViewHolder(EventViewHolder eventViewHolder, int i) {
 
-        JSONObject curJSON = JSONevents.get(i);
+            eventViewHolder.setClick(i);
 
-        String eventName = "";
-        String eventDesc = "";
-        String eventDestination = "";
-        String eventImageURL = "";
+            EventListItem curEvent = myEvents.get(i);
 
-        JSONArray curResults;
-        JSONObject curResult;
-        JSONArray curDestinations;
-        JSONObject curDestination;
+            String eventName = curEvent.name;
+            String eventOwner = curEvent.owner;
+            String eventDesc = curEvent.description;
+            String location = curEvent.location;
+            String eventDate = curEvent.date;
+            String eventDestination = curEvent.location;
+            Bitmap eventImage = curEvent.eventImage;
 
-        // Parse data from api return
+            JSONArray curResults;
+            JSONObject curResult;
+            JSONArray curDestinations;
+            JSONObject curDestination;
+
+
+            // Take substrings from fields if necessary and display
+//            eventName = truncText(eventName, 30);
+//            eventDestination = truncText(eventDestination, 30);
+//            eventDesc = truncText(eventDesc, 80);
         try {
-            curResults = curJSON.getJSONArray("results");
-            curResult = curResults.getJSONObject(0);
-            eventName = curResult.getString("name");
-            curDestinations = curResult.getJSONArray("destinations");
-            eventDesc = curResult.getString("description");
-
-            if (curDestinations.length() > 0){
-                curDestination = curDestinations.getJSONObject(0);
-                eventDestination = curDestination.getString("address");
-                eventImageURL = curDestination.getString("thumb");//.replaceFirst("s", "");
-            }
-
-
-        } catch  (Exception e) {
-            e.printStackTrace();
+        if(eventDate!= null) {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+            Date fStartDate = formatter.parse(eventDate);
+            SimpleDateFormat outFormatter = new SimpleDateFormat("MMM d, yyyy, hh:mm:ss");
+            eventDate = outFormatter.format(fStartDate);
         }
 
-        // Display thumb if present for destinations
-        try{
-            if(!eventImageURL.equals("")){
-
-                imageGetter myImGetter = new imageGetter();
-                URL url = new URL(eventImageURL);
-                Bitmap bmp = (myImGetter).execute(url).get();
-                eventViewHolder.eventImage.setImageBitmap(bmp);
+            eventViewHolder.name.setText(eventName);
+            eventViewHolder.owner.setText(eventOwner);
+            eventViewHolder.location.setText(eventDestination);
+            eventViewHolder.description.setText(eventDesc);
+            eventViewHolder.date.setText(eventDate);
+            if(eventImage != null){
+                eventViewHolder.eventImage.setImageBitmap(eventImage);
             }
 
-            // Take subtrings from fields if necessary and display
-            eventName = truncText(eventName, 30);
-            eventDestination = truncText(eventDestination, 30);
-            eventDesc = truncText(eventDesc, 80);
-
-
-        } catch  (Exception e) {
-            e.printStackTrace();
         }
-
-
-
-        eventViewHolder.name.setText(eventName);
-        eventViewHolder.location.setText(eventDestination);
-        eventViewHolder.description.setText(eventDesc);
-        //eventViewHolder.eventImage.setImageResource(JSONevents.get(i).eventImage);
+        catch(Exception e){
+            // Throw
+            throw new RuntimeException("Date object throwing runtime exception upon construction");
+        }
     }
 
     public String truncText(String name, int len){
-        if(name.length() > len){
-            return name.substring(0,len-3)+"...";
+        try {
+            if (name.length() > len) {
+                return name.substring(0, len - 3) + "...";
+            } else {
+                return name;
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
         }
-        else{
-            return name;
-        }
+
+        return null;
 
     }
 
+
+
     @Override
     public int getItemCount() {
-        return JSONevents.size();
+        return myEvents.numTotalIDs;
     }
 }

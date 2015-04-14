@@ -46,6 +46,10 @@
             android:name=".viewClasses.SplashActivity"
             android:label="@string/title_activity_splash" >
         </activity>
+        <activity
+            android:name=".viewClasses.Filter"
+            android:label="@string/title_activity_filter" >
+        </activity>
     </application>
 
 </manifest>

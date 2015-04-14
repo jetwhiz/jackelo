@@ -1,6 +1,7 @@
 package com.jackelow.jackelo;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 
 import com.jackelow.jackelo.classes.apiCaller;
 import com.jackelow.jackelo.classes.imageGetter;
+import com.jackelow.jackelo.viewClasses.EventList;
 import com.jackelow.jackelo.viewClasses.MySimpleArrayAdapter;
 import com.jackelow.jackelo.viewClasses.SplashActivity;
 
@@ -39,12 +41,12 @@ import com.jackelow.jackelo.viewClasses.RVAdapter;
 
 
 
-public class HomeActivity extends ActionBarActivity implements AdapterView.OnItemClickListener{
+public class HomeActivity extends ActionBarActivity {
 
     List<String> li;
-    ArrayList<JSONObject> myEvents;
+    EventList myEvents;
     apiCaller myCaller;
-    JSONArray myEventIds;
+    int numIDsPerLoad = 30;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,30 +59,15 @@ public class HomeActivity extends ActionBarActivity implements AdapterView.OnIte
 
         myCaller = new apiCaller(getApplicationContext()); // Instantiate a new api caller
 
-        final ListView list = new ListView(this);
-        list.setOnItemClickListener(this);
         li = new ArrayList<String>();
-        myEvents = new ArrayList<JSONObject>();
+        JSONObject myJSON = new JSONObject();
 
-
-        JSONObject myJSON = new JSONObject(); // JSON Object used for api calls
-        myEventIds = null;
-
-        try {
-
-            myJSON.put("api", "event/");
-            JSONObject ret = myCaller.apiGet(myJSON); // Collect all events
-            myEventIds = ret.getJSONArray("results");
-            lvt.cancel(true);
-            generateListView(list);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
 
         int curId = 0;
         JSONObject curRet = null;
+        lvt.cancel(true);
+        generateListView();
+
         lvt.cancel(true);
     }
 
@@ -122,81 +109,16 @@ public class HomeActivity extends ActionBarActivity implements AdapterView.OnIte
         }
     }
 
-    public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        // Log.i("TAG", "You clicked item " + id + " at position " + position);
-        // Here you start the intent to show the contact details
-        JSONObject curRet = myEvents.get((int) id);
-
-        try {
-
-            Intent eventViewScreen = new Intent(getApplicationContext(), EventView.class);
-            eventViewScreen.putExtra("json", curRet.toString());
-            eventViewScreen.putExtra("id", String.valueOf(myEventIds.getInt(position)));
-            startActivity(eventViewScreen);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        Uri data = intent.getData();
-        if (data != null) {
-            String accessToken = data.getQueryParameter("access_token");
-            // Use the accessToken.
-        }
-    }
-
     // Use JSON results from /events and collect data for each one.
     public void getEventsById (JSONArray myIds)
     {
-        JSONObject myJSON = new JSONObject();
-        JSONObject curRet = new JSONObject();
-        JSONObject[] myRets;
 
-        JSONArray curResults;
-        JSONObject curResult;
-        JSONArray curDestinations;
-        JSONObject curDestination;
-
-        int curId;
-        String eventName;
-        String eventDestination;
-        String eventDesc;
-        myEvents.clear();
-
-        for(int i = myIds.length()-1; i>=0 ;i--){
-
-            try {
-                myJSON.put("api", "event/");
-                curId = myIds.getInt(i);
-                myJSON.put("id", curId);
-                curRet = myCaller.apiGet(myJSON);
-                myEvents.add(curRet);
-
-                curResults = curRet.getJSONArray("results");
-                curResult = curResults.getJSONObject(0);
-                eventName = curResult.getString("name");
-
-                curDestinations = curResult.getJSONArray("destinations");
-                curDestination = curDestinations.getJSONObject(0);
-                eventDestination = curDestination.getString("address");
-
-                eventDesc = curResult.getString("description");
-
-                li.add("Event: "+eventName+"\nLocation: "+eventDestination+"\nDescription: "+eventDesc);
-            }catch (Exception e){}
-
-        }
     }
 
     private class LoadViewTask extends AsyncTask<Void, Integer, Void> {
         protected void onPreExecute()
         {
-            setContentView(R.layout.activity_splash); // Set simple splash screen
+            // setContentView(R.layout.activity_splash); // Set simple splash screen
         }
 
         //The code to be executed in a background thread.
@@ -222,9 +144,10 @@ public class HomeActivity extends ActionBarActivity implements AdapterView.OnIte
     }
 
     // Use JSON results from /events and collect data for each one.
-    public void generateListView(ListView list){
-        final JSONObject myJSON = new JSONObject();
+    public void generateListView(){
 
+        myEvents = new EventList(numIDsPerLoad, myCaller);
+        // myEvents.loadAll(0,1); // Load ids starting at 0, load forward
         setContentView(R.layout.activity_home); // Show the home screen
 
         RecyclerView rv = (RecyclerView) findViewById(R.id.rv);
@@ -233,23 +156,23 @@ public class HomeActivity extends ActionBarActivity implements AdapterView.OnIte
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(true);
 
-        getEventsById(myEventIds);
-        RVAdapter adapter = new RVAdapter(myEvents);
+        RVAdapter adapter = new RVAdapter(myEvents, this);
         rv.setAdapter(adapter);
 
-
-        //adp.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-
-        //list.setAdapter(adp);
-//        list.setLayoutParams(params);
-
-
-        //rv.addView(list);
-        //getEventsById(myEventIds);
 
 
     }
 
+    // Go to the events EventView screen
+    public void goToEvent(int pos){
 
+        Intent eventViewScreen = new Intent(getApplicationContext(), EventView.class);
+        int id = myEvents.getEventId(pos);
+        JSONObject myEvent = myCaller.getEvent(id);
+        eventViewScreen.putExtra("id", id);
+        // eventViewScreen.putExtra("json", myEvent.toString());
+
+        startActivity(eventViewScreen);
+    }
 
 }

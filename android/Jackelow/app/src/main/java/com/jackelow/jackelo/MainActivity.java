@@ -61,7 +61,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends  Activity{
 
     List<String> li;
     ArrayList<JSONObject> myEvents;
@@ -80,10 +80,11 @@ public class MainActivity extends ActionBarActivity {
 
         myCookieStore = new PersistentCookieStore(getApplicationContext());
         myCookieStore.clear();
+        myCookieStore.clear();
         List<Cookie> cookieList = myCookieStore.getCookies();
 
         // No cookies, got to login screen
-        if(cookieList.size() == 0){
+        if(cookieList.size() != 1){
             goToLoginScreen();
         }
         else{
@@ -120,108 +121,5 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-    }
-
-
-
-    // Use JSON results from /events and collect data for each one.
-    public void getEventsById (JSONArray myIds)
-    {
-        JSONObject myJSON = new JSONObject();
-        JSONObject curRet = new JSONObject();
-        JSONObject[] myRets;
-
-        JSONArray curResults;
-        JSONObject curResult;
-        JSONArray curDestinations;
-        JSONObject curDestination;
-
-        int curId;
-        String eventName;
-        String eventDestination;
-        String eventDesc;
-        myEvents.clear();
-
-        for(int i = myIds.length()-1; i>=0 ;i--){
-
-            try {
-                myJSON.put("api", "event/");
-                curId = myIds.getInt(i);
-                myJSON.put("id", curId);
-                curRet = myCaller.apiGet(myJSON);
-                myEvents.add(curRet);
-
-                curResults = curRet.getJSONArray("results");
-                curResult = curResults.getJSONObject(0);
-                eventName = curResult.getString("name");
-
-                curDestinations = curResult.getJSONArray("destinations");
-                curDestination = curDestinations.getJSONObject(0);
-                eventDestination = curDestination.getString("address");
-
-                eventDesc = curResult.getString("description");
-
-                li.add("Event: "+eventName+"\nLocation: "+eventDestination+"\nDescription: "+eventDesc);
-            }catch (Exception e){}
-
-        }
-    }
-
-    // Use JSON results from /events and collect data for each one.
-    public void generateListView(ListView list, RelativeLayout rel){
-        final JSONObject myJSON = new JSONObject();
-//        final RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams
-//                ((int) RadioGroup.LayoutParams.WRAP_CONTENT,(int) RadioGroup.LayoutParams.WRAP_CONTENT);
-//
-//        params.leftMargin = 10;
-//        params.topMargin = 150;
-//        params.height = 500;
-
-        String[] trash = {};
-        ArrayAdapter<JSONObject> adp = new MySimpleArrayAdapter(getBaseContext(), myEvents);
-        adp.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-
-        list.setAdapter(adp);
-
-        rel.addView(list);
-
-
-    }
 
 }
