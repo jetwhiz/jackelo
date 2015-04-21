@@ -9,3 +9,5 @@ Jackelo School Project
 **v0.3-beta:** Presentation 5 (*Not incl. latest Android -- needs merge*)
 
 **v0.4:** Pre-CIC competition (incl. Android)
+
+**v0.5:** Presentation 6
